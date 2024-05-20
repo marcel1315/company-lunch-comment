@@ -29,12 +29,16 @@ public class Diner extends BaseEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @Column(length = 20)
   private String name;
 
+  @Column(length = 2048)
   private String link;
 
+  @Column(length = 20)
   private String latitude;
 
+  @Column(length = 20)
   private String longitude;
 
   @JdbcTypeCode(SqlTypes.JSON)
