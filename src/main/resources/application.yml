@@ -1,3 +1,13 @@
 spring:
   application:
     name: company-lunch-comment
+  datasource:
+    url: jdbc:mariadb://127.0.0.1:3307/companylunchcomment
+    driver-class-name: org.mariadb.jdbc.Driver
+    username: companylunchcomment_user
+    password: a1234
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+    show-sql: true
