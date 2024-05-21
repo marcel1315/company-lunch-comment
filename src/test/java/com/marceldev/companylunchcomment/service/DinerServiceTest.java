@@ -1,10 +1,14 @@
 package com.marceldev.companylunchcomment.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.marceldev.companylunchcomment.dto.CreateDinerDto;
 import com.marceldev.companylunchcomment.entity.Diner;
+import com.marceldev.companylunchcomment.exception.InternalServerError;
 import com.marceldev.companylunchcomment.repository.DinerRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +30,7 @@ class DinerServiceTest {
   private DinerService dinerService;
 
   @Test
-  @DisplayName("식당 생성 성공")
+  @DisplayName("식당 생성 - 성공")
   void test_create_diner() {
     //given
     List<String> tags = new ArrayList<>();
@@ -53,5 +57,23 @@ class DinerServiceTest {
     assertEquals(diner.getLatitude(), "37.29283882");
     assertEquals(diner.getLongitude(), "127.39232323");
     assertEquals(diner.getTags().get(1), "분위기좋은");
+  }
+
+  @Test
+  @DisplayName("식당 생성 - 실패(DB)")
+  void test_create_diner_db_fail() {
+    //given
+    CreateDinerDto dto = CreateDinerDto.builder()
+        .name("감성타코")
+        .build();
+    when(dinerRepository.save(any()))
+        .thenThrow(RuntimeException.class);
+
+    //when
+    //then
+    assertThrows(
+        InternalServerError.class,
+        () -> dinerService.createDiner(dto)
+    );
   }
 }
