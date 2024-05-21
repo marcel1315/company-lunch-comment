@@ -1,6 +1,7 @@
 package com.marceldev.companylunchcomment.dto;
 
 import com.marceldev.companylunchcomment.entity.Diner;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import lombok.Builder;
 import lombok.Data;
@@ -9,6 +10,7 @@ import lombok.Data;
 @Builder
 public class CreateDinerDto {
 
+  @NotNull
   private String name;
   private String link;
   private String latitude;
