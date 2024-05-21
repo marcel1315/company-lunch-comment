@@ -12,11 +12,15 @@ public class DinerService {
 
   private final DinerRepository dinerRepository;
 
+  /**
+   * 식당 생성
+   * @param createDinerDto
+   */
   public void createDiner(CreateDinerDto createDinerDto) {
     try {
       dinerRepository.save(createDinerDto.toEntity());
     } catch (RuntimeException e) {
-      throw new InternalServerError();
+      throw new InternalServerError("식당 생성 실패");
     }
   }
 }
