@@ -43,5 +43,5 @@ public class Diner extends BaseEntity {
 
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "JSON")
-  List<String> tags;
+  private List<String> tags;
 }
