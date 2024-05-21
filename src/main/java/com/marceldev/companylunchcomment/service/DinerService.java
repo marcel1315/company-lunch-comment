@@ -14,6 +14,7 @@ public class DinerService {
 
   /**
    * 식당 생성
+   *
    * @param createDinerDto
    */
   public void createDiner(CreateDinerDto createDinerDto) {
