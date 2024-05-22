@@ -1,6 +1,8 @@
-package com.marceldev.companylunchcomment.dto;
+package com.marceldev.companylunchcomment.dto.diner;
 
 import com.marceldev.companylunchcomment.entity.Diner;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,10 +14,19 @@ import lombok.Data;
 public class CreateDinerDto {
 
   @NotNull
+  @Schema(example = "감성타코")
   private String name;
+
+  @Schema(example = "https://naver.me/FeOCTkYP", requiredMode = RequiredMode.NOT_REQUIRED)
   private String link;
+
+  @Schema(example = "37.4989021")
   private String latitude;
+
+  @Schema(example = "127.0276099")
   private String longitude;
+
+  @Schema(example = "[\"멕시코\", \"감성\"]")
   private List<String> tags;
 
   public Diner toEntity() {

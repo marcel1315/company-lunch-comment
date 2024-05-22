@@ -1,9 +1,9 @@
 package com.marceldev.companylunchcomment.service;
 
-import com.marceldev.companylunchcomment.dto.AddDinerTagsDto;
-import com.marceldev.companylunchcomment.dto.CreateDinerDto;
-import com.marceldev.companylunchcomment.dto.RemoveDinerTagsDto;
-import com.marceldev.companylunchcomment.dto.UpdateDinerDto;
+import com.marceldev.companylunchcomment.dto.diner.AddDinerTagsDto;
+import com.marceldev.companylunchcomment.dto.diner.CreateDinerDto;
+import com.marceldev.companylunchcomment.dto.diner.RemoveDinerTagsDto;
+import com.marceldev.companylunchcomment.dto.diner.UpdateDinerDto;
 import com.marceldev.companylunchcomment.entity.Diner;
 import com.marceldev.companylunchcomment.exception.DinerNotFoundException;
 import com.marceldev.companylunchcomment.exception.DuplicateDinerTagException;
