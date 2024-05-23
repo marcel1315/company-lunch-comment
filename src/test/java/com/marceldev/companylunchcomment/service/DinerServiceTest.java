@@ -457,6 +457,9 @@ class DinerServiceTest {
                 .build()
         ));
 
+    doThrow(new RuntimeException())
+        .when(dinerImageRepository).delete(any());
+
     //when
     //then
     assertThrows(InternalServerError.class,
