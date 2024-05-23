@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -69,6 +71,18 @@ public class DinerController {
       @Validated @RequestBody RemoveDinerTagsDto removeDinerTagsDto
   ) {
     dinerService.removeDinerTag(id, removeDinerTagsDto);
+    return CustomResponse.success();
+  }
+
+  @Operation(
+      summary = "식당 사진 추가"
+  )
+  @PostMapping("/diner/{id}/images")
+  public CustomResponse<?> addDinerImage(
+      @PathVariable long id,
+      @RequestParam("file") MultipartFile file
+  ) {
+    dinerService.addDinerImage(id, file);
     return CustomResponse.success();
   }
 }

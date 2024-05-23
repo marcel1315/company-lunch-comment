@@ -11,3 +11,15 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+
+logging:
+  level:
+    io.awspring.cloud: debug
+
+s3:
+  bucket-name: "company-lunch-comment-bucket"
