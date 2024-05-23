@@ -2,7 +2,6 @@ package com.marceldev.companylunchcomment.component;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,9 +24,7 @@ public class S3Manager {
 
   private final S3Client s3Client;
 
-  public String uploadFile(long dinerId, MultipartFile file) throws IOException {
-    String key = genDinerImageKey(dinerId, UUID.randomUUID().toString());
-
+  public String uploadFile(String key, MultipartFile file) throws IOException {
     try (InputStream is = file.getInputStream()) {
       PutObjectRequest putObjectRequest = PutObjectRequest.builder()
           .bucket(bucketName)
@@ -56,9 +53,5 @@ public class S3Manager {
     );
 
     log.info(response.toString());
-  }
-
-  private String genDinerImageKey(long dinerId, String filename) {
-    return "diner/" + dinerId + "/images/" + filename;
   }
 }

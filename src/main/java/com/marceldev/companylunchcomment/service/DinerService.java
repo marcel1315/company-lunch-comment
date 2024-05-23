@@ -17,6 +17,7 @@ import com.marceldev.companylunchcomment.exception.InternalServerError;
 import com.marceldev.companylunchcomment.repository.DinerImageRepository;
 import com.marceldev.companylunchcomment.repository.DinerRepository;
 import java.io.IOException;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -137,7 +138,8 @@ public class DinerService {
 
   private String uploadDinerImageToStorage(long dinerId, MultipartFile file) {
     try {
-      return s3Manager.uploadFile(dinerId, file);
+      String key = genDinerImageKey(dinerId);
+      return s3Manager.uploadFile(key, file);
     } catch (IOException e) {
       log.error(e.getMessage());
       throw new ImageUploadFail(file.getOriginalFilename());
@@ -181,5 +183,9 @@ public class DinerService {
     if (count >= dinerMaxImageCount) {
       throw new DinerMaxImageCountExceedException();
     }
+  }
+
+  private String genDinerImageKey(long dinerId) {
+    return "diner/" + dinerId + "/images/" + UUID.randomUUID();
   }
 }
