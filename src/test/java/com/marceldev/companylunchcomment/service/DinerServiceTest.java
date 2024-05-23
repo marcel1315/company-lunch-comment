@@ -443,4 +443,23 @@ class DinerServiceTest {
     assertThrows(ImageDeleteFail.class,
         () -> dinerService.removeDinerImage(1L, 1L));
   }
+
+  @Test
+  @DisplayName("식당 이미지 제거 - 실패(DB에서 제거 실패)")
+  void test_update_diner_remove_image_fail_db_delete() {
+    //given
+    String key = UUID.randomUUID().toString();
+    when(dinerImageRepository.findById(anyLong()))
+        .thenReturn(Optional.of(
+            DinerImage.builder()
+                .id(1L)
+                .link(key)
+                .build()
+        ));
+
+    //when
+    //then
+    assertThrows(InternalServerError.class,
+        () -> dinerService.removeDinerImage(1L, 1L));
+  }
 }
