@@ -3,6 +3,7 @@ package com.marceldev.companylunchcomment.component;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -16,16 +17,13 @@ import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class S3Manager {
 
   @Value("${s3.bucket-name}")
   private String bucketName;
 
   private final S3Client s3Client;
-
-  public S3Manager(S3Client s3Client) {
-    this.s3Client = s3Client;
-  }
 
   public String uploadFile(long dinerId, MultipartFile file) throws IOException {
     String key = genDinerImageKey(dinerId, UUID.randomUUID().toString());
