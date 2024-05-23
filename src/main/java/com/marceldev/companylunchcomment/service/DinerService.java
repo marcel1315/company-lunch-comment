@@ -113,7 +113,13 @@ public class DinerService {
     String key = dinerImage.getLink();
 
     deleteDinerImageFromStorage(key);
-    dinerImageRepository.delete(dinerImage);
+    try {
+      dinerImageRepository.delete(dinerImage);
+    } catch (RuntimeException e) {
+      //TODO: 저장소에 이미지는 지워지고, 이미지 정보만 DB에 남게되면 어떻게 하지?
+      // -> 파일이 존재하지 않으면 deleteDinerImageFromStorage에서 throw하지 않기
+      throw new InternalServerError("이미지 정보 DB삭제 실패");
+    }
   }
 
   private Diner getDiner(long id) {
