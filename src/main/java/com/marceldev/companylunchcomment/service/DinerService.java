@@ -7,11 +7,11 @@ import com.marceldev.companylunchcomment.dto.diner.RemoveDinerTagsDto;
 import com.marceldev.companylunchcomment.dto.diner.UpdateDinerDto;
 import com.marceldev.companylunchcomment.entity.Diner;
 import com.marceldev.companylunchcomment.entity.DinerImage;
+import com.marceldev.companylunchcomment.exception.DinerMaxImageCountExceedException;
 import com.marceldev.companylunchcomment.exception.DinerNotFoundException;
 import com.marceldev.companylunchcomment.exception.DuplicateDinerTagException;
 import com.marceldev.companylunchcomment.exception.ImageUploadFail;
 import com.marceldev.companylunchcomment.exception.InternalServerError;
-import com.marceldev.companylunchcomment.exception.DinerMaxImageCountExceedException;
 import com.marceldev.companylunchcomment.repository.DinerImageRepository;
 import com.marceldev.companylunchcomment.repository.DinerRepository;
 import java.io.IOException;
@@ -94,22 +94,10 @@ public class DinerService {
    */
   public void addDinerImage(long id, MultipartFile file) {
     Diner diner = getDiner(id);
+    checkMaxImageCount(diner);
 
-    try {
-      checkMaxImageCount(diner);
-
-      String key = s3Manager.uploadFile(id, file);
-      DinerImage dinerImage = DinerImage.builder()
-          .link(key)
-          .orders(getNextImageOrder(diner))
-          .diner(diner)
-          .build();
-      dinerImageRepository.save(dinerImage);
-
-    } catch (IOException e) {
-      log.error(e.getMessage());
-      throw new ImageUploadFail(file.getOriginalFilename());
-    }
+    String key = uploadDinerImage(id, file);
+    saveDinerImage(diner, key);
   }
 
   private Diner getDiner(long id) {
@@ -122,6 +110,28 @@ public class DinerService {
       dinerRepository.save(diner);
     } catch (RuntimeException e) {
       throw new InternalServerError("식당 저장 실패");
+    }
+  }
+
+  private String uploadDinerImage(long dinerId, MultipartFile file) {
+    try {
+      return s3Manager.uploadFile(dinerId, file);
+    } catch (IOException e) {
+      log.error(e.getMessage());
+      throw new ImageUploadFail(file.getOriginalFilename());
+    }
+  }
+
+  private void saveDinerImage(Diner diner, String key) {
+    try {
+      DinerImage dinerImage = DinerImage.builder()
+          .link(key)
+          .orders(getNextImageOrder(diner))
+          .diner(diner)
+          .build();
+      dinerImageRepository.save(dinerImage);
+    } catch (RuntimeException e) {
+      throw new InternalServerError("식당 사진 저장 실패");
     }
   }
 
