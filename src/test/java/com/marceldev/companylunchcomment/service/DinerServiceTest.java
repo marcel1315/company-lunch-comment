@@ -303,7 +303,7 @@ class DinerServiceTest {
             DinerImage.builder().orders(100).build()
         ));
     String key = String.format("diner/%d/images/%s", 1L, UUID.randomUUID());
-    when(s3Manager.uploadFile(anyLong(), any()))
+    when(s3Manager.uploadFile(any(), any()))
         .thenReturn(key);
 
     //when
@@ -357,7 +357,7 @@ class DinerServiceTest {
         ));
     when(dinerImageRepository.countByDiner(any()))
         .thenReturn(0);
-    when(s3Manager.uploadFile(anyLong(), any()))
+    when(s3Manager.uploadFile(any(), any()))
         .thenThrow(new IOException());
 
     //when
@@ -376,7 +376,7 @@ class DinerServiceTest {
         ));
     when(dinerImageRepository.countByDiner(any()))
         .thenReturn(0);
-    when(s3Manager.uploadFile(anyLong(), any()))
+    when(s3Manager.uploadFile(any(), any()))
         .thenReturn("diner/1/images/" + UUID.randomUUID());
     when(dinerImageRepository.save(any()))
         .thenThrow(new RuntimeException());
