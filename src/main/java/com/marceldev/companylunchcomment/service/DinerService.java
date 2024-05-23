@@ -11,6 +11,7 @@ import com.marceldev.companylunchcomment.exception.DinerImageNotFoundException;
 import com.marceldev.companylunchcomment.exception.DinerMaxImageCountExceedException;
 import com.marceldev.companylunchcomment.exception.DinerNotFoundException;
 import com.marceldev.companylunchcomment.exception.DuplicateDinerTagException;
+import com.marceldev.companylunchcomment.exception.ImageDeleteFail;
 import com.marceldev.companylunchcomment.exception.ImageUploadFail;
 import com.marceldev.companylunchcomment.exception.InternalServerError;
 import com.marceldev.companylunchcomment.repository.DinerImageRepository;
@@ -97,7 +98,7 @@ public class DinerService {
     Diner diner = getDiner(id);
     checkMaxImageCount(diner);
 
-    String key = uploadDinerImage(id, file);
+    String key = uploadDinerImageToStorage(id, file);
     saveDinerImage(diner, key);
   }
 
@@ -111,7 +112,7 @@ public class DinerService {
         .orElseThrow(() -> new DinerImageNotFoundException(imageId));
     String key = dinerImage.getLink();
 
-    s3Manager.removeFile(key);
+    deleteDinerImageFromStorage(key);
     dinerImageRepository.delete(dinerImage);
   }
 
@@ -128,12 +129,21 @@ public class DinerService {
     }
   }
 
-  private String uploadDinerImage(long dinerId, MultipartFile file) {
+  private String uploadDinerImageToStorage(long dinerId, MultipartFile file) {
     try {
       return s3Manager.uploadFile(dinerId, file);
     } catch (IOException e) {
       log.error(e.getMessage());
       throw new ImageUploadFail(file.getOriginalFilename());
+    }
+  }
+
+  private void deleteDinerImageFromStorage(String key) {
+    try {
+      s3Manager.removeFile(key);
+    } catch (RuntimeException e) {
+      log.error(e.getMessage());
+      throw new ImageDeleteFail(key);
     }
   }
 

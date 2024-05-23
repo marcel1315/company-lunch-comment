@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -14,9 +15,11 @@ import com.marceldev.companylunchcomment.dto.diner.RemoveDinerTagsDto;
 import com.marceldev.companylunchcomment.dto.diner.UpdateDinerDto;
 import com.marceldev.companylunchcomment.entity.Diner;
 import com.marceldev.companylunchcomment.entity.DinerImage;
+import com.marceldev.companylunchcomment.exception.DinerImageNotFoundException;
 import com.marceldev.companylunchcomment.exception.DinerMaxImageCountExceedException;
 import com.marceldev.companylunchcomment.exception.DinerNotFoundException;
 import com.marceldev.companylunchcomment.exception.DuplicateDinerTagException;
+import com.marceldev.companylunchcomment.exception.ImageDeleteFail;
 import com.marceldev.companylunchcomment.exception.ImageUploadFail;
 import com.marceldev.companylunchcomment.exception.InternalServerError;
 import com.marceldev.companylunchcomment.repository.DinerImageRepository;
@@ -382,5 +385,62 @@ class DinerServiceTest {
     //then
     assertThrows(InternalServerError.class,
         () -> dinerService.addDinerImage(1L, mockImageFile));
+  }
+
+  @Test
+  @DisplayName("식당 이미지 제거 - 성공")
+  void test_update_diner_remove_image() {
+    //given
+    String key = UUID.randomUUID().toString();
+    when(dinerImageRepository.findById(anyLong()))
+        .thenReturn(Optional.of(
+            DinerImage.builder()
+                .id(1L)
+                .link(key)
+                .build()
+        ));
+
+    //when
+    dinerService.removeDinerImage(1L, 1L);
+    ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+
+    //then
+    verify(s3Manager).removeFile(captor.capture());
+    verify(dinerImageRepository).delete(any());
+    assertEquals(captor.getValue(), key);
+  }
+
+  @Test
+  @DisplayName("식당 이미지 제거 - 실패(이미지가 존재하지 않음)")
+  void test_update_diner_remove_image_fail_image_not_found() {
+    //given
+    when(dinerImageRepository.findById(anyLong()))
+        .thenReturn(Optional.empty());
+
+    //when
+    //then
+    assertThrows(DinerImageNotFoundException.class,
+        () -> dinerService.removeDinerImage(1L, 1L));
+  }
+
+  @Test
+  @DisplayName("식당 이미지 제거 - 실패(S3에서 제거 실패)")
+  void test_update_diner_remove_image_fail_s3_delete_fail() {
+    //given
+    String key = UUID.randomUUID().toString();
+    when(dinerImageRepository.findById(anyLong()))
+        .thenReturn(Optional.of(
+            DinerImage.builder()
+                .id(1L)
+                .link(key)
+                .build()
+        ));
+    doThrow(new RuntimeException())
+        .when(s3Manager).removeFile(any());
+
+    //when
+    //then
+    assertThrows(ImageDeleteFail.class,
+        () -> dinerService.removeDinerImage(1L, 1L));
   }
 }
