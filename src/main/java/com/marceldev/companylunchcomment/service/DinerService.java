@@ -7,6 +7,7 @@ import com.marceldev.companylunchcomment.dto.diner.RemoveDinerTagsDto;
 import com.marceldev.companylunchcomment.dto.diner.UpdateDinerDto;
 import com.marceldev.companylunchcomment.entity.Diner;
 import com.marceldev.companylunchcomment.entity.DinerImage;
+import com.marceldev.companylunchcomment.exception.DinerImageNotFoundException;
 import com.marceldev.companylunchcomment.exception.DinerMaxImageCountExceedException;
 import com.marceldev.companylunchcomment.exception.DinerNotFoundException;
 import com.marceldev.companylunchcomment.exception.DuplicateDinerTagException;
@@ -89,8 +90,8 @@ public class DinerService {
   }
 
   /**
-   * 식당 사진 추가
-   * 사진의 순서값은 이미 있는 사진의 가장 큰 값에 +100씩 함
+   * 식당 이미지 추가
+   * 이미지의 순서값은 이미 있는 이미지의 가장 큰 값에 +100씩 함
    */
   public void addDinerImage(long id, MultipartFile file) {
     Diner diner = getDiner(id);
@@ -98,6 +99,20 @@ public class DinerService {
 
     String key = uploadDinerImage(id, file);
     saveDinerImage(diner, key);
+  }
+
+  /**
+   * 식당 이미지 제거
+   */
+  public void removeDinerImage(long dinerId, long imageId) {
+    // dinerId는 추후에 사용자 개념이 들어오면, diner를 지울 수 있는지 확인할 때 쓰려고 남겨놓음
+
+    DinerImage dinerImage = dinerImageRepository.findById(imageId)
+        .orElseThrow(() -> new DinerImageNotFoundException(imageId));
+    String key = dinerImage.getLink();
+
+    s3Manager.removeFile(key);
+    dinerImageRepository.delete(dinerImage);
   }
 
   private Diner getDiner(long id) {
@@ -131,7 +146,7 @@ public class DinerService {
           .build();
       dinerImageRepository.save(dinerImage);
     } catch (RuntimeException e) {
-      throw new InternalServerError("식당 사진 저장 실패");
+      throw new InternalServerError("식당 이미지 저장 실패");
     }
   }
 
