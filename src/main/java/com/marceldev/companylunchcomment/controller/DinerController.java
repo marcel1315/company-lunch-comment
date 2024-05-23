@@ -75,7 +75,7 @@ public class DinerController {
   }
 
   @Operation(
-      summary = "식당 사진 추가"
+      summary = "식당 이미지 추가"
   )
   @PostMapping("/diner/{id}/images")
   public CustomResponse<?> addDinerImage(
@@ -83,6 +83,18 @@ public class DinerController {
       @RequestParam("file") MultipartFile file
   ) {
     dinerService.addDinerImage(id, file);
+    return CustomResponse.success();
+  }
+
+  @Operation(
+      summary = "식당 이미지 제거"
+  )
+  @DeleteMapping("/diner/{dinerId}/images/{imageId}")
+  public CustomResponse<?> removeDinerImage(
+      @PathVariable long dinerId,
+      @PathVariable long imageId
+  ) {
+    dinerService.removeDinerImage(dinerId, imageId);
     return CustomResponse.success();
   }
 }
