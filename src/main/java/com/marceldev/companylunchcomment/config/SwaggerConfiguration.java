@@ -2,8 +2,6 @@ package com.marceldev.companylunchcomment.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
-import org.springdoc.core.models.GroupedOpenApi;
-import org.springframework.context.annotation.Bean;
 
 @OpenAPIDefinition(
     info = @Info(
@@ -14,11 +12,4 @@ import org.springframework.context.annotation.Bean;
 )
 public class SwaggerConfiguration {
 
-  @Bean
-  public GroupedOpenApi dinerApi() {
-    return GroupedOpenApi.builder()
-        .group("Diner")
-        .pathsToMatch("/diner/**")
-        .build();
-  }
 }
