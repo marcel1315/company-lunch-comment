@@ -4,8 +4,7 @@ import com.marceldev.companylunchcomment.entity.Diner;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
 import lombok.Builder;
 import lombok.Data;
 
@@ -27,14 +26,9 @@ public class CreateDinerDto {
   private String longitude;
 
   @Schema(example = "[\"멕시코\", \"감성\"]")
-  private List<String> tags;
+  private LinkedHashSet<String> tags;
 
   public Diner toEntity() {
-    // tags 에 아무것도 들어오지 않을 때, DB에 빈 배열이라도 넣어야 함
-    if (tags == null) {
-      tags = new ArrayList<>();
-    }
-
     return Diner.builder()
         .name(name)
         .link(link)
