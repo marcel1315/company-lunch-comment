@@ -2,15 +2,20 @@ package com.marceldev.companylunchcomment.controller;
 
 import com.marceldev.companylunchcomment.dto.diner.AddDinerTagsDto;
 import com.marceldev.companylunchcomment.dto.diner.CreateDinerDto;
+import com.marceldev.companylunchcomment.dto.diner.ListDinerDto;
 import com.marceldev.companylunchcomment.dto.diner.RemoveDinerTagsDto;
 import com.marceldev.companylunchcomment.dto.diner.UpdateDinerDto;
+import com.marceldev.companylunchcomment.entity.Diner;
 import com.marceldev.companylunchcomment.response.CustomResponse;
 import com.marceldev.companylunchcomment.service.DinerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -38,8 +43,23 @@ public class DinerController {
   }
 
   @Operation(
+      summary = "식당 목록 조회",
+      description = "사용자는 식당의 목록을 조회할 수 있다.<br>"
+          + "식당 이름, 태그, 거리, 코멘트 갯수를 볼 수 있다.<br>"
+          + "회사의 위도와 경도, 식당의 위도와 경도를 사용해 회사로부터 식당의 거리를 표시한다.<br>"
+          + "식당은 식당 이름, 거리, 코멘트 갯수로 정렬할 수 있다."
+  )
+  @GetMapping("/diner")
+  public CustomResponse<?> listDiner(
+      @Validated @ModelAttribute ListDinerDto listDinerDto) {
+    List<Diner> diners = dinerService.listDiner(listDinerDto);
+    return CustomResponse.success(diners);
+  }
+
+  @Operation(
       summary = "식당 정보 수정",
-      description = "사용자는 식당 웹사이트 링크, 위도, 경도 정보를 수정할 수 있다. 자신이 작성하지 않은 식당도 수정할 수 있다."
+      description = "사용자는 식당 웹사이트 링크, 위도, 경도 정보를 수정할 수 있다.<br>"
+          + "자신이 작성하지 않은 식당도 수정할 수 있다."
   )
   @PostMapping("/diner/{id}")
   public CustomResponse<?> updateDiner(
