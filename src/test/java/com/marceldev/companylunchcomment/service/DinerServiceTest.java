@@ -18,7 +18,6 @@ import com.marceldev.companylunchcomment.entity.DinerImage;
 import com.marceldev.companylunchcomment.exception.DinerImageNotFoundException;
 import com.marceldev.companylunchcomment.exception.DinerMaxImageCountExceedException;
 import com.marceldev.companylunchcomment.exception.DinerNotFoundException;
-import com.marceldev.companylunchcomment.exception.DuplicateDinerTagException;
 import com.marceldev.companylunchcomment.exception.ImageDeleteFail;
 import com.marceldev.companylunchcomment.exception.ImageUploadFail;
 import com.marceldev.companylunchcomment.exception.InternalServerError;
@@ -26,7 +25,7 @@ import com.marceldev.companylunchcomment.repository.DinerImageRepository;
 import com.marceldev.companylunchcomment.repository.DinerRepository;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -78,7 +77,7 @@ class DinerServiceTest {
   @DisplayName("식당 생성 - 성공")
   void test_create_diner() {
     //given
-    List<String> tags = new ArrayList<>();
+    LinkedHashSet<String> tags = new LinkedHashSet<>();
     tags.add("멕시코");
     tags.add("분위기좋은");
 
@@ -101,7 +100,7 @@ class DinerServiceTest {
     assertEquals(diner.getLink(), "diner.com");
     assertEquals(diner.getLatitude(), "37.29283882");
     assertEquals(diner.getLongitude(), "127.39232323");
-    assertEquals(diner.getTags().get(1), "분위기좋은");
+    assertEquals(diner.getTags().getLast(), "분위기좋은");
   }
 
   @Test
@@ -202,7 +201,7 @@ class DinerServiceTest {
             Diner
                 .builder()
                 .id(1L)
-                .tags(new ArrayList<>())
+                .tags(new LinkedHashSet<>())
                 .build()
         ));
 
@@ -227,7 +226,7 @@ class DinerServiceTest {
             Diner
                 .builder()
                 .id(1L)
-                .tags(new ArrayList<>(List.of("태그1")))
+                .tags(new LinkedHashSet<>(List.of("태그1")))
                 .build()
         ));
 
@@ -242,7 +241,7 @@ class DinerServiceTest {
   }
 
   @Test
-  @DisplayName("식당 태그 추가 - 실패(동일한 이름의 태그가 이미 존재함)")
+  @DisplayName("식당 태그 추가 - 성공(동일한 이름의 태그가 이미 존재하더라도 없는 것만 추가하고, 에러는 내지 않음)")
   void test_update_diner_add_tag_already_exist_tag() {
     //given
     AddDinerTagsDto dto = new AddDinerTagsDto();
@@ -253,15 +252,17 @@ class DinerServiceTest {
             Diner
                 .builder()
                 .id(1L)
-                .tags(new ArrayList<>(List.of("태그2")))
+                .tags(new LinkedHashSet<>(List.of("태그2")))
                 .build()
         ));
 
     //when
+    ArgumentCaptor<Diner> captor = ArgumentCaptor.forClass(Diner.class);
+    dinerService.addDinerTag(1, dto);
+
     //then
-    assertThrows(DuplicateDinerTagException.class,
-        () -> dinerService.addDinerTag(1, dto)
-    );
+    verify(dinerRepository).save(captor.capture());
+    assertEquals(captor.getValue().getTags().size(), 2);
   }
 
   @Test
@@ -276,7 +277,7 @@ class DinerServiceTest {
             Diner
                 .builder()
                 .id(1L)
-                .tags(new ArrayList<>(List.of("태그1", "태그2", "태그3")))
+                .tags(new LinkedHashSet<>(List.of("태그1", "태그2", "태그3")))
                 .build()
         ));
 

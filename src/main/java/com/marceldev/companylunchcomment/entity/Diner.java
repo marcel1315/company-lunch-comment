@@ -6,14 +6,13 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import java.util.List;
+import java.util.LinkedHashSet;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -48,8 +47,7 @@ public class Diner extends BaseEntity {
 
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "JSON DEFAULT '[]'", nullable = false)
-  @ColumnDefault("'[]'")
-  private List<String> tags;
+  private LinkedHashSet<String> tags;
 
   public void addTag(String tag) {
     tags.add(tag);

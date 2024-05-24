@@ -10,7 +10,6 @@ import com.marceldev.companylunchcomment.entity.DinerImage;
 import com.marceldev.companylunchcomment.exception.DinerImageNotFoundException;
 import com.marceldev.companylunchcomment.exception.DinerMaxImageCountExceedException;
 import com.marceldev.companylunchcomment.exception.DinerNotFoundException;
-import com.marceldev.companylunchcomment.exception.DuplicateDinerTagException;
 import com.marceldev.companylunchcomment.exception.ImageDeleteFail;
 import com.marceldev.companylunchcomment.exception.ImageUploadFail;
 import com.marceldev.companylunchcomment.exception.InternalServerError;
@@ -71,14 +70,7 @@ public class DinerService {
   @Transactional
   public void addDinerTag(long id, AddDinerTagsDto dto) {
     Diner diner = getDiner(id);
-    dto.getTags().forEach((tag) -> {
-      if (!diner.getTags().contains(tag)) {
-        diner.addTag(tag);
-      } else {
-        throw new DuplicateDinerTagException(tag);
-      }
-    });
-
+    dto.getTags().forEach(diner::addTag);
     saveDiner(diner);
   }
 
