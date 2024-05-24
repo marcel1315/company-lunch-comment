@@ -1,6 +1,7 @@
 package com.marceldev.companylunchcomment.service;
 
 import com.marceldev.companylunchcomment.component.S3Manager;
+import com.marceldev.companylunchcomment.dto.diner.ListDinerDto;
 import com.marceldev.companylunchcomment.dto.diner.AddDinerTagsDto;
 import com.marceldev.companylunchcomment.dto.diner.CreateDinerDto;
 import com.marceldev.companylunchcomment.dto.diner.RemoveDinerTagsDto;
@@ -16,6 +17,7 @@ import com.marceldev.companylunchcomment.exception.InternalServerError;
 import com.marceldev.companylunchcomment.repository.DinerImageRepository;
 import com.marceldev.companylunchcomment.repository.DinerRepository;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +45,14 @@ public class DinerService {
    */
   public void createDiner(CreateDinerDto createDinerDto) {
     saveDiner(createDinerDto.toEntity());
+  }
+
+  /**
+   * 식당 조회
+   */
+  public List<Diner> listDiner(ListDinerDto listDinerDto) {
+    List<Diner> all = dinerRepository.findAll();
+    return all;
   }
 
   /**
