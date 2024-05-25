@@ -2,6 +2,7 @@ package com.marceldev.companylunchcomment.controller;
 
 import com.marceldev.companylunchcomment.dto.diner.AddDinerTagsDto;
 import com.marceldev.companylunchcomment.dto.diner.CreateDinerDto;
+import com.marceldev.companylunchcomment.dto.diner.DinerOutputDto;
 import com.marceldev.companylunchcomment.dto.diner.ListDinerDto;
 import com.marceldev.companylunchcomment.dto.diner.RemoveDinerTagsDto;
 import com.marceldev.companylunchcomment.dto.diner.UpdateDinerDto;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -52,7 +54,7 @@ public class DinerController {
   @GetMapping("/diner")
   public CustomResponse<?> listDiner(
       @Validated @ModelAttribute ListDinerDto listDinerDto) {
-    List<Diner> diners = dinerService.listDiner(listDinerDto);
+    Page<DinerOutputDto> diners = dinerService.listDiner(listDinerDto);
     return CustomResponse.success(diners);
   }
 
