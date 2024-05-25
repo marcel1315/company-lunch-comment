@@ -1,6 +1,7 @@
 package com.marceldev.companylunchcomment.service;
 
 import com.marceldev.companylunchcomment.component.S3Manager;
+import com.marceldev.companylunchcomment.dto.diner.DinerOutputDto;
 import com.marceldev.companylunchcomment.dto.diner.ListDinerDto;
 import com.marceldev.companylunchcomment.dto.diner.AddDinerTagsDto;
 import com.marceldev.companylunchcomment.dto.diner.CreateDinerDto;
@@ -22,6 +23,10 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -48,11 +53,21 @@ public class DinerService {
   }
 
   /**
-   * 식당 조회
+   * 식당 목록 조회
+   * page는 1부터 시작
    */
-  public List<Diner> listDiner(ListDinerDto listDinerDto) {
-    List<Diner> all = dinerRepository.findAll();
-    return all;
+  public Page<DinerOutputDto> listDiner(ListDinerDto dto) {
+    Pageable pageable = PageRequest.of(
+        dto.getPage() - 1, // Suppose getting 1-based index from client
+        dto.getPageSize(),
+        Sort.by(
+            Sort.Direction.valueOf(dto.getDinerSort().getDirection()),
+            dto.getDinerSort().getField()
+        )
+    );
+
+    return dinerRepository.findAll(pageable)
+        .map(DinerOutputDto::of);
   }
 
   /**
