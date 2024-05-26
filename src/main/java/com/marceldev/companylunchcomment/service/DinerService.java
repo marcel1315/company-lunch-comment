@@ -62,13 +62,7 @@ public class DinerService {
    */
   public DinerDetailOutputDto getDinerDetail(long id) {
     Diner diner = getDiner(id);
-    List<String> dinerImageKeys = diner.getDinerImages().stream().map(DinerImage::getS3Key).toList();
-    List<String> imageUrls = new ArrayList<>();
-    try {
-      imageUrls = s3Manager.getPresignedUrls(dinerImageKeys);
-    } catch (RuntimeException e) {
-      log.error(e.getMessage());
-    }
+    List<String> imageUrls = getImageUrls(diner);
 
     return DinerDetailOutputDto.of(diner, imageUrls);
   }
@@ -122,5 +116,18 @@ public class DinerService {
     } catch (RuntimeException e) {
       throw new InternalServerError("식당 저장 실패");
     }
+  }
+
+  private List<String> getImageUrls(Diner diner) {
+    List<String> imageUrls = new ArrayList<>();
+    List<String> dinerImageKeys = diner.getDinerImages().stream()
+        .map(DinerImage::getS3Key)
+        .toList();
+    try {
+      imageUrls = s3Manager.getPresignedUrls(dinerImageKeys);
+    } catch (RuntimeException e) {
+      log.error(e.getMessage());
+    }
+    return imageUrls;
   }
 }
