@@ -4,7 +4,7 @@ import com.marceldev.companylunchcomment.dto.diner.AddDinerTagsDto;
 import com.marceldev.companylunchcomment.dto.diner.CreateDinerDto;
 import com.marceldev.companylunchcomment.dto.diner.DinerDetailOutputDto;
 import com.marceldev.companylunchcomment.dto.diner.DinerOutputDto;
-import com.marceldev.companylunchcomment.dto.diner.ListDinerDto;
+import com.marceldev.companylunchcomment.dto.diner.GetDinerListDto;
 import com.marceldev.companylunchcomment.dto.diner.RemoveDinerTagsDto;
 import com.marceldev.companylunchcomment.dto.diner.UpdateDinerDto;
 import com.marceldev.companylunchcomment.response.CustomResponse;
@@ -55,9 +55,9 @@ public class DinerController {
   )
   @GetMapping("/diner")
   // TODO: 거리, 코멘트 갯수 추가. 필터 추가
-  public CustomResponse<?> listDiner(
-      @Validated @ModelAttribute ListDinerDto listDinerDto) {
-    Page<DinerOutputDto> diners = dinerService.listDiner(listDinerDto);
+  public CustomResponse<?> getDinerList(
+      @Validated @ModelAttribute GetDinerListDto getDinerListDto) {
+    Page<DinerOutputDto> diners = dinerService.getDinerList(getDinerListDto);
     return CustomResponse.success(diners);
   }
 
