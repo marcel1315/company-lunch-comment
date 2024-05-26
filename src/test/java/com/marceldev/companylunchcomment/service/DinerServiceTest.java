@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -16,6 +18,7 @@ import com.marceldev.companylunchcomment.dto.diner.GetDinerListDto;
 import com.marceldev.companylunchcomment.dto.diner.RemoveDinerTagsDto;
 import com.marceldev.companylunchcomment.dto.diner.UpdateDinerDto;
 import com.marceldev.companylunchcomment.entity.Diner;
+import com.marceldev.companylunchcomment.entity.DinerImage;
 import com.marceldev.companylunchcomment.exception.DinerNotFoundException;
 import com.marceldev.companylunchcomment.exception.InternalServerError;
 import com.marceldev.companylunchcomment.repository.DinerImageRepository;
@@ -40,6 +43,9 @@ class DinerServiceTest {
 
   @Mock
   private DinerRepository dinerRepository;
+
+  @Mock
+  private DinerImageRepository dinerImageRepository;
 
   @Mock
   private S3Manager s3Manager;
@@ -342,5 +348,62 @@ class DinerServiceTest {
 
     //then
     assertEquals(dinerDetail.getName(), "감성타코");
+  }
+
+  @Test
+  @DisplayName("식당 제거 - 성공")
+  void test_remove_diner() {
+    //given
+    Diner diner = Diner.builder()
+        .id(1L)
+        .name("감성타코")
+        .dinerImages(List.of(
+            DinerImage.builder()
+                .s3Key("diner/1/images/unrastu-29823-unr0w-w82nu")
+                .build(),
+            DinerImage.builder()
+                .s3Key("diner/1/images/aryusn2-sutnr-238fu-92uss")
+                .build()
+        ))
+        .build();
+    when(dinerRepository.findById(anyLong()))
+        .thenReturn(Optional.of(diner));
+
+    //when
+    dinerService.removeDiner(1L);
+
+    //then
+    verify(dinerImageRepository).deleteByDinerId(any());
+    verify(dinerRepository).delete(any());
+    verify(s3Manager, times(2)).removeFile(any());
+  }
+
+  @Test
+  @DisplayName("식당 제거 - 성공(S3 저장소의 이미지 삭제를 실패해도 식당 제거는 성공을 내보냄")
+  void test_remove_diner_even_if_s3_fail() {
+    //given
+    Diner diner = Diner.builder()
+        .id(1L)
+        .name("감성타코")
+        .dinerImages(List.of(
+            DinerImage.builder()
+                .s3Key("diner/1/images/unrastu-29823-unr0w-w82nu")
+                .build(),
+            DinerImage.builder()
+                .s3Key("diner/1/images/aryusn2-sutnr-238fu-92uss")
+                .build()
+        ))
+        .build();
+    when(dinerRepository.findById(anyLong()))
+        .thenReturn(Optional.of(diner));
+    doThrow(new RuntimeException())
+        .when(s3Manager).removeFile(any());
+
+    //when
+    dinerService.removeDiner(1L);
+
+    //then
+    verify(dinerImageRepository).deleteByDinerId(any());
+    verify(dinerRepository).delete(any());
   }
 }
