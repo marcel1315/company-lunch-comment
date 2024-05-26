@@ -1,17 +1,16 @@
 package com.marceldev.companylunchcomment.controller;
 
+import com.marceldev.companylunchcomment.dto.diner.DinerDetailOutputDto;
 import com.marceldev.companylunchcomment.dto.diner.AddDinerTagsDto;
 import com.marceldev.companylunchcomment.dto.diner.CreateDinerDto;
 import com.marceldev.companylunchcomment.dto.diner.DinerOutputDto;
 import com.marceldev.companylunchcomment.dto.diner.ListDinerDto;
 import com.marceldev.companylunchcomment.dto.diner.RemoveDinerTagsDto;
 import com.marceldev.companylunchcomment.dto.diner.UpdateDinerDto;
-import com.marceldev.companylunchcomment.entity.Diner;
 import com.marceldev.companylunchcomment.response.CustomResponse;
 import com.marceldev.companylunchcomment.service.DinerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.validation.annotation.Validated;
@@ -56,6 +55,19 @@ public class DinerController {
       @Validated @ModelAttribute ListDinerDto listDinerDto) {
     Page<DinerOutputDto> diners = dinerService.listDiner(listDinerDto);
     return CustomResponse.success(diners);
+  }
+
+  @Operation(
+      summary = "식당 상세 조회",
+      description = "사용자는 식당을 상세 조회할 수 있다.<br>"
+          + "이름, 태그, 거리, 코멘트 갯수, 코멘트 목록, 사진 썸네일 목록을 볼 수 있다.<br>"
+          + "필요한 경우 원본 사진을 가져올 수 있다."
+  )
+  // TODO: 거리, 코멘트 갯수, 코멘트 목록, 사진 썸네일 목록(현재는 원본 사진 목록을 가져옴)
+  @GetMapping("/diner/{id}")
+  public CustomResponse<?> getDinerDetail(@PathVariable long id) {
+    DinerDetailOutputDto diner = dinerService.getDinerDetail(id);
+    return CustomResponse.success(diner);
   }
 
   @Operation(

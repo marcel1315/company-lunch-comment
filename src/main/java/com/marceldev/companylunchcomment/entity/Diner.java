@@ -3,10 +3,12 @@ package com.marceldev.companylunchcomment.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.util.LinkedHashSet;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,7 +23,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @AllArgsConstructor
 @Builder
 @Getter
-@ToString
+@ToString(exclude = "dinerImages")
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 public class Diner extends BaseEntity {
@@ -48,6 +50,9 @@ public class Diner extends BaseEntity {
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "JSON DEFAULT '[]'", nullable = false)
   private LinkedHashSet<String> tags;
+
+  @OneToMany(mappedBy = "diner", fetch = FetchType.LAZY)
+  private List<DinerImage> dinerImages;
 
   public void addTag(String tag) {
     tags.add(tag);

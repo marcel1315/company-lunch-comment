@@ -1,6 +1,7 @@
 package com.marceldev.companylunchcomment.service;
 
 import com.marceldev.companylunchcomment.component.S3Manager;
+import com.marceldev.companylunchcomment.dto.diner.DinerDetailOutputDto;
 import com.marceldev.companylunchcomment.dto.diner.DinerOutputDto;
 import com.marceldev.companylunchcomment.dto.diner.ListDinerDto;
 import com.marceldev.companylunchcomment.dto.diner.AddDinerTagsDto;
@@ -18,6 +19,7 @@ import com.marceldev.companylunchcomment.exception.InternalServerError;
 import com.marceldev.companylunchcomment.repository.DinerImageRepository;
 import com.marceldev.companylunchcomment.repository.DinerRepository;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -68,6 +70,22 @@ public class DinerService {
 
     return dinerRepository.findAll(pageable)
         .map(DinerOutputDto::of);
+  }
+
+  /**
+   * 식당 상세 조회
+   */
+  public DinerDetailOutputDto getDinerDetail(long id) {
+    Diner diner = getDiner(id);
+    List<String> dinerImageKeys = diner.getDinerImages().stream().map(DinerImage::getLink).toList();
+    List<String> presignedUrls = new ArrayList<>();
+    try {
+      presignedUrls = s3Manager.getPresignedUrls(dinerImageKeys);
+    } catch (RuntimeException e) {
+      log.error(e.getMessage());
+    }
+
+    return DinerDetailOutputDto.of(diner, presignedUrls);
   }
 
   /**
