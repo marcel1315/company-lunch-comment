@@ -89,7 +89,7 @@ class DinerImageServiceTest {
 
     //then
     verify(dinerImageRepository).save(captor.capture());
-    assertEquals(captor.getValue().getLink(), key);
+    assertEquals(captor.getValue().getS3Key(), key);
     assertEquals(captor.getValue().getOrders(), 200);
   }
 
@@ -173,7 +173,7 @@ class DinerImageServiceTest {
         .thenReturn(Optional.of(
             DinerImage.builder()
                 .id(1L)
-                .link(key)
+                .s3Key(key)
                 .build()
         ));
 
@@ -209,7 +209,7 @@ class DinerImageServiceTest {
         .thenReturn(Optional.of(
             DinerImage.builder()
                 .id(1L)
-                .link(key)
+                .s3Key(key)
                 .build()
         ));
     doThrow(new RuntimeException())
@@ -230,7 +230,7 @@ class DinerImageServiceTest {
         .thenReturn(Optional.of(
             DinerImage.builder()
                 .id(1L)
-                .link(key)
+                .s3Key(key)
                 .build()
         ));
 

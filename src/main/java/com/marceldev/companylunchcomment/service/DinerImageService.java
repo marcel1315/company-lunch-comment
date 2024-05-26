@@ -52,7 +52,7 @@ public class DinerImageService {
 
     DinerImage dinerImage = dinerImageRepository.findById(imageId)
         .orElseThrow(() -> new DinerImageNotFoundException(imageId));
-    String key = dinerImage.getLink();
+    String key = dinerImage.getS3Key();
 
     deleteDinerImageFromStorage(key);
     try {
@@ -86,7 +86,7 @@ public class DinerImageService {
   private void saveDinerImage(Diner diner, String key) {
     try {
       DinerImage dinerImage = DinerImage.builder()
-          .link(key)
+          .s3Key(key)
           .orders(getNextImageOrder(diner))
           .diner(diner)
           .build();

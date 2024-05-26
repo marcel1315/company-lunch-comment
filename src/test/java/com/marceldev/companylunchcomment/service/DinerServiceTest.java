@@ -7,14 +7,20 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.marceldev.companylunchcomment.component.S3Manager;
 import com.marceldev.companylunchcomment.dto.diner.AddDinerTagsDto;
 import com.marceldev.companylunchcomment.dto.diner.CreateDinerDto;
+import com.marceldev.companylunchcomment.dto.diner.DinerDetailOutputDto;
+import com.marceldev.companylunchcomment.dto.diner.DinerOutputDto;
+import com.marceldev.companylunchcomment.dto.diner.GetDinerListDto;
 import com.marceldev.companylunchcomment.dto.diner.RemoveDinerTagsDto;
 import com.marceldev.companylunchcomment.dto.diner.UpdateDinerDto;
 import com.marceldev.companylunchcomment.entity.Diner;
 import com.marceldev.companylunchcomment.exception.DinerNotFoundException;
 import com.marceldev.companylunchcomment.exception.InternalServerError;
+import com.marceldev.companylunchcomment.repository.DinerImageRepository;
 import com.marceldev.companylunchcomment.repository.DinerRepository;
+import com.marceldev.companylunchcomment.type.DinerSort;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -25,12 +31,18 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 @ExtendWith(MockitoExtension.class)
 class DinerServiceTest {
 
   @Mock
   private DinerRepository dinerRepository;
+
+  @Mock
+  private S3Manager s3Manager;
 
   @InjectMocks
   private DinerService dinerService;
@@ -251,5 +263,84 @@ class DinerServiceTest {
     verify(dinerRepository).save(captor.capture());
     assertEquals(captor.getValue().getTags().size(), 1);
     assertEquals(captor.getValue().getTags().getFirst(), "태그3");
+  }
+
+  @Test
+  @DisplayName("식당 목록 불러오기 - 성공")
+  void test_get_diner_list() {
+    //given
+    GetDinerListDto dto = GetDinerListDto.builder()
+        .page(1)
+        .pageSize(10)
+        .dinerSort(DinerSort.DINER_NAME_ASC)
+        .build();
+
+    Diner diner1 = Diner.builder()
+        .id(1L)
+        .name("감성타코")
+        .link("diner.com")
+        .build();
+    Diner diner2 = Diner.builder()
+        .id(2L)
+        .name("감성타코2")
+        .link("diner2.com")
+        .build();
+
+    Page<Diner> pages = new PageImpl<>(List.of(diner1, diner2));
+    when(dinerRepository.findAll(any(PageRequest.class)))
+        .thenReturn(pages);
+
+    //when
+    Page<DinerOutputDto> page = dinerService.getDinerList(dto);
+
+    //then
+    assertEquals(page.getContent().size(), 2);
+    assertEquals(page.getContent().getFirst().getName(), "감성타코");
+  }
+
+  @Test
+  @DisplayName("식당 상세 불러오기 - 성공")
+  void test_get_diner_detail() {
+    //given
+    Diner diner = Diner.builder()
+        .id(1L)
+        .name("감성타코")
+        .link("diner.com")
+        .dinerImages(List.of())
+        .build();
+    when(dinerRepository.findById(anyLong()))
+        .thenReturn(Optional.of(diner));
+    when(s3Manager.getPresignedUrls(any()))
+        .thenReturn(List.of("https://s3.example.com/1", "https://s3.example.com/2"));
+
+    //when
+    DinerDetailOutputDto dinerDetail = dinerService.getDinerDetail(1L);
+
+    //then
+    assertEquals(dinerDetail.getName(), "감성타코");
+    assertEquals(dinerDetail.getImageUrls().getFirst(), "https://s3.example.com/1");
+  }
+
+  @Test
+  @DisplayName("식당 상세 불러오기 - 성공(S3 저장소에서 url만들기가 실패하더라도 나머지 정보로 성공 돌려주기")
+  void test_get_diner_detail_even_if_s3_fail() {
+    //given
+    Diner diner = Diner.builder()
+        .id(1L)
+        .name("감성타코")
+        .link("diner.com")
+        .dinerImages(List.of())
+        .build();
+
+    when(dinerRepository.findById(anyLong()))
+        .thenReturn(Optional.of(diner));
+    when(s3Manager.getPresignedUrls(any()))
+        .thenThrow(RuntimeException.class);
+
+    //when
+    DinerDetailOutputDto dinerDetail = dinerService.getDinerDetail(1L);
+
+    //then
+    assertEquals(dinerDetail.getName(), "감성타코");
   }
 }
