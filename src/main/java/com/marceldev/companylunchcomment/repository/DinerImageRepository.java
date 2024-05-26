@@ -16,4 +16,9 @@ public interface DinerImageRepository extends JpaRepository<DinerImage, Long> {
    * image의 갯수
    */
   int countByDiner(Diner diner);
+
+  /**
+   * dinerId에 해당하는 모든 image를 제거
+   */
+  void deleteByDinerId(Long dinerId);
 }

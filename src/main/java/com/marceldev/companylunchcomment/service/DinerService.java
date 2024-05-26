@@ -12,6 +12,7 @@ import com.marceldev.companylunchcomment.entity.Diner;
 import com.marceldev.companylunchcomment.entity.DinerImage;
 import com.marceldev.companylunchcomment.exception.DinerNotFoundException;
 import com.marceldev.companylunchcomment.exception.InternalServerError;
+import com.marceldev.companylunchcomment.repository.DinerImageRepository;
 import com.marceldev.companylunchcomment.repository.DinerRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +33,8 @@ public class DinerService {
   private final DinerRepository dinerRepository;
 
   private final S3Manager s3Manager;
+
+  private final DinerImageRepository dinerImageRepository;
 
   /**
    * 식당 생성
@@ -84,6 +87,29 @@ public class DinerService {
     }
 
     saveDiner(diner);
+  }
+
+  /**
+   * 식당 제거
+   */
+  @Transactional
+  public void removeDiner(long id) {
+    Diner diner = getDiner(id);
+    List<String> dinerImageKeys = diner.getDinerImages().stream()
+        .map(DinerImage::getS3Key)
+        .toList();
+
+    dinerImageRepository.deleteByDinerId(id);
+    dinerRepository.delete(diner);
+
+    // diner와 dinerImage가 완전히 지워진 후, s3에 저장된 이미지를 지움
+    // s3 이미지 저장 과정에서 실패하더라도, DB에서 제거되었다면 exception을 내지 않고 성공함
+    // TODO: DB에서 제거하기 전에 S3 접속이 온전한지 체크하기?
+    try {
+      dinerImageKeys.forEach(s3Manager::removeFile);
+    } catch (Exception e) {
+      log.error(e.getMessage());
+    }
   }
 
   /**
