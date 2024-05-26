@@ -89,6 +89,16 @@ public class DinerController {
   }
 
   @Operation(
+      summary = "식당 제거",
+      description = "사용자는 식당을 제거할 수 있다."
+  )
+  @DeleteMapping("/diner/{id}")
+  public CustomResponse<?> removeDiner(@PathVariable long id) {
+    dinerService.removeDiner(id);
+    return CustomResponse.success();
+  }
+
+  @Operation(
       summary = "식당 태그 추가"
   )
   @PutMapping("/diner/{id}/tags")

@@ -30,7 +30,7 @@ public class DinerImage {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(length = 2048)
+  @Column(length = 2048, nullable = false)
   @Setter
   private String s3Key;
 
