@@ -1,6 +1,7 @@
 package com.marceldev.companylunchcomment.dto.diner;
 
 import com.marceldev.companylunchcomment.entity.Diner;
+import java.util.LinkedHashSet;
 import java.util.List;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +15,7 @@ public class DinerDetailOutputDto {
   private String link;
   private String latitude;
   private String longitude;
-  private List<String> tags;
+  private LinkedHashSet<String> tags;
   private List<String> imageUrls;
 
   public static DinerDetailOutputDto of(Diner diner, List<String> imageUrls) {
