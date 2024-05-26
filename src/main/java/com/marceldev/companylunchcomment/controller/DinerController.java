@@ -1,13 +1,14 @@
 package com.marceldev.companylunchcomment.controller;
 
-import com.marceldev.companylunchcomment.dto.diner.DinerDetailOutputDto;
 import com.marceldev.companylunchcomment.dto.diner.AddDinerTagsDto;
 import com.marceldev.companylunchcomment.dto.diner.CreateDinerDto;
+import com.marceldev.companylunchcomment.dto.diner.DinerDetailOutputDto;
 import com.marceldev.companylunchcomment.dto.diner.DinerOutputDto;
 import com.marceldev.companylunchcomment.dto.diner.ListDinerDto;
 import com.marceldev.companylunchcomment.dto.diner.RemoveDinerTagsDto;
 import com.marceldev.companylunchcomment.dto.diner.UpdateDinerDto;
 import com.marceldev.companylunchcomment.response.CustomResponse;
+import com.marceldev.companylunchcomment.service.DinerImageService;
 import com.marceldev.companylunchcomment.service.DinerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,6 +32,8 @@ import org.springframework.web.multipart.MultipartFile;
 public class DinerController {
 
   private final DinerService dinerService;
+
+  private final DinerImageService dinerImageService;
 
   @Operation(
       summary = "식당 생성",
@@ -117,7 +120,7 @@ public class DinerController {
       @PathVariable long id,
       @RequestParam("file") MultipartFile file
   ) {
-    dinerService.addDinerImage(id, file);
+    dinerImageService.addDinerImage(id, file);
     return CustomResponse.success();
   }
 
@@ -129,7 +132,7 @@ public class DinerController {
       @PathVariable long dinerId,
       @PathVariable long imageId
   ) {
-    dinerService.removeDinerImage(dinerId, imageId);
+    dinerImageService.removeDinerImage(dinerId, imageId);
     return CustomResponse.success();
   }
 }
