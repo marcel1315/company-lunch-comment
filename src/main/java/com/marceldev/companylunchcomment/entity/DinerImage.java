@@ -32,7 +32,7 @@ public class DinerImage {
 
   @Column(length = 2048)
   @Setter
-  private String link;
+  private String s3Key;
 
   @Setter
   private int orders;

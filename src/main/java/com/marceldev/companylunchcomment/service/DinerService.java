@@ -12,7 +12,6 @@ import com.marceldev.companylunchcomment.entity.Diner;
 import com.marceldev.companylunchcomment.entity.DinerImage;
 import com.marceldev.companylunchcomment.exception.DinerNotFoundException;
 import com.marceldev.companylunchcomment.exception.InternalServerError;
-import com.marceldev.companylunchcomment.repository.DinerImageRepository;
 import com.marceldev.companylunchcomment.repository.DinerRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,8 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class DinerService {
 
   private final DinerRepository dinerRepository;
-
-  private final DinerImageRepository dinerImageRepository;
 
   private final S3Manager s3Manager;
 
@@ -65,7 +62,7 @@ public class DinerService {
    */
   public DinerDetailOutputDto getDinerDetail(long id) {
     Diner diner = getDiner(id);
-    List<String> dinerImageKeys = diner.getDinerImages().stream().map(DinerImage::getLink).toList();
+    List<String> dinerImageKeys = diner.getDinerImages().stream().map(DinerImage::getS3Key).toList();
     List<String> imageUrls = new ArrayList<>();
     try {
       imageUrls = s3Manager.getPresignedUrls(dinerImageKeys);

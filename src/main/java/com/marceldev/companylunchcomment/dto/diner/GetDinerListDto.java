@@ -3,9 +3,11 @@ package com.marceldev.companylunchcomment.dto.diner;
 import com.marceldev.companylunchcomment.type.DinerSort;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class GetDinerListDto {
 
   // private long companyId;
