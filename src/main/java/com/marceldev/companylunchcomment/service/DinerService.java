@@ -5,7 +5,7 @@ import com.marceldev.companylunchcomment.dto.diner.AddDinerTagsDto;
 import com.marceldev.companylunchcomment.dto.diner.CreateDinerDto;
 import com.marceldev.companylunchcomment.dto.diner.DinerDetailOutputDto;
 import com.marceldev.companylunchcomment.dto.diner.DinerOutputDto;
-import com.marceldev.companylunchcomment.dto.diner.ListDinerDto;
+import com.marceldev.companylunchcomment.dto.diner.GetDinerListDto;
 import com.marceldev.companylunchcomment.dto.diner.RemoveDinerTagsDto;
 import com.marceldev.companylunchcomment.dto.diner.UpdateDinerDto;
 import com.marceldev.companylunchcomment.entity.Diner;
@@ -46,7 +46,7 @@ public class DinerService {
   /**
    * 식당 목록 조회 page는 1부터 시작
    */
-  public Page<DinerOutputDto> listDiner(ListDinerDto dto) {
+  public Page<DinerOutputDto> getDinerList(GetDinerListDto dto) {
     Pageable pageable = PageRequest.of(
         dto.getPage() - 1, // Suppose getting 1-based index from client
         dto.getPageSize(),
@@ -66,14 +66,14 @@ public class DinerService {
   public DinerDetailOutputDto getDinerDetail(long id) {
     Diner diner = getDiner(id);
     List<String> dinerImageKeys = diner.getDinerImages().stream().map(DinerImage::getLink).toList();
-    List<String> presignedUrls = new ArrayList<>();
+    List<String> imageUrls = new ArrayList<>();
     try {
-      presignedUrls = s3Manager.getPresignedUrls(dinerImageKeys);
+      imageUrls = s3Manager.getPresignedUrls(dinerImageKeys);
     } catch (RuntimeException e) {
       log.error(e.getMessage());
     }
 
-    return DinerDetailOutputDto.of(diner, presignedUrls);
+    return DinerDetailOutputDto.of(diner, imageUrls);
   }
 
   /**
