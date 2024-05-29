@@ -30,7 +30,7 @@ public class Member {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
 
-  @Column(length = 50)
+  @Column(length = 50, unique = true)
   private String email;
 
   private String password;

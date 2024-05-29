@@ -34,9 +34,9 @@ public class TokenProvider {
     return 1000 * 60 * 60 * expiredInHour;
   }
 
-  public String generateToken(String username, String role) {
+  public String generateToken(String email, String role) {
     Claims claims = Jwts.claims()
-        .subject(username)
+        .subject(email)
         .add(KEY_ROLE, role)
         .build();
 
