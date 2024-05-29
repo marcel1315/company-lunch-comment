@@ -31,7 +31,7 @@ public class Diner extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  private long id;
 
   @Column(length = 20)
   private String name;
