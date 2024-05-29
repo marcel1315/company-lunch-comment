@@ -60,7 +60,9 @@ public class TokenProvider {
   }
 
   public boolean validateToken(String token) {
-    if (!StringUtils.hasText(token)) return false;
+    if (!StringUtils.hasText(token)) {
+      return false;
+    }
 
     Claims claims = this.parseClaims(token);
     return claims.getExpiration().after(new Date());
