@@ -28,7 +28,7 @@ public class DinerImage {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  private long id;
 
   @Column(length = 2048, nullable = false)
   @Setter
