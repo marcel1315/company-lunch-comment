@@ -17,6 +17,10 @@ spring:
       max-file-size: 20MB
       max-request-size: 20MB
 
+  jwt:
+    secret: Y29tcGFueS1sdW5jaC1jb21tZW50cy1wcm9qZWN0LWp3dC1zZWNyZXQta2V5Cg==
+    expired-in-hour: 24
+
 logging:
   level:
     io.awspring.cloud: debug
