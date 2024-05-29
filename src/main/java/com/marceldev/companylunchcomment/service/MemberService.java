@@ -32,7 +32,7 @@ public class MemberService {
         .email(dto.getEmail())
         .password(encPassword)
         .name(dto.getName())
-        .authYn(true)
+        .authYn(true) // TODO: 이메일 인증을 마친 후 true로 바꿔주도록 수정
         .role(Role.USER)
         .build();
 
