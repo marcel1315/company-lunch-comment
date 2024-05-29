@@ -16,7 +16,7 @@ public class AppConfig {
     JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
 
     // A "email" is used for username
-    String usersByUsernameQuery = "select email, password, authYn from member where email = ?";
+    String usersByUsernameQuery = "select email, password, auth_yn from member where email = ?";
     String authoritiesByUsernameQuery = "select email, role from member where email = ?";
     jdbcUserDetailsManager.setUsersByUsernameQuery(usersByUsernameQuery);
     jdbcUserDetailsManager.setAuthoritiesByUsernameQuery(authoritiesByUsernameQuery);
