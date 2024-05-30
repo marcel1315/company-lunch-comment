@@ -20,7 +20,6 @@ import com.marceldev.companylunchcomment.type.Role;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -125,9 +124,7 @@ public class MemberService {
 
   private void saveVerificationCodeToDb(String email, String code) {
     // 기존에 있다면 제거
-    Optional<SignupVerification> verification = signupVerificationRepository.findByEmail(
-        email);
-    verification.ifPresent(signupVerificationRepository::delete);
+    signupVerificationRepository.findByEmail(email).ifPresent(signupVerificationRepository::delete);
 
     // 새로운 인증번호 저장
     SignupVerification signupVerification = SignupVerification.builder()
