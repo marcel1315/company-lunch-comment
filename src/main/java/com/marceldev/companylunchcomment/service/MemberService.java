@@ -16,6 +16,7 @@ import com.marceldev.companylunchcomment.exception.NotMatchVerificationCode;
 import com.marceldev.companylunchcomment.exception.VerificationCodeNotFound;
 import com.marceldev.companylunchcomment.repository.MemberRepository;
 import com.marceldev.companylunchcomment.repository.SignupVerificationRepository;
+import com.marceldev.companylunchcomment.type.Email;
 import com.marceldev.companylunchcomment.type.Role;
 import com.marceldev.companylunchcomment.util.VerificationCodeGenerator;
 import java.time.LocalDateTime;
@@ -116,7 +117,7 @@ public class MemberService implements UserDetailsService {
       return;
     }
 
-    String domain = email.split("@")[1];
+    String domain = Email.of(email).getDomain();
 
     if (NOT_SUPPORTED_DOMAINS.contains(domain)) {
       throw new EmailIsNotCompanyDomain(domain);

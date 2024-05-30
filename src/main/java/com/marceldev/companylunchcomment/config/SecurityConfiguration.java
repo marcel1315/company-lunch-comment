@@ -30,6 +30,7 @@ public class SecurityConfiguration {
                 "/swagger-resources/**", "/webjars/**").permitAll() // Swagger UI
             .requestMatchers("/signup", "/signin", "/signup/send-verification-code").permitAll()
             .requestMatchers("/diner/**").authenticated()
+            .requestMatchers("/company/**").authenticated()
             .anyRequest().authenticated()
         )
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
