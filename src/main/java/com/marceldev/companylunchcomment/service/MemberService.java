@@ -33,6 +33,8 @@ public class MemberService {
 
   private static final int VERIFICATION_CODE_VALID_SECOND = 60 * 3;
 
+  private static final int VERIFICATION_CODE_LENGTH = 6;
+
   private final MemberRepository memberRepository;
 
   private final PasswordEncoder passwordEncoder;
@@ -91,7 +93,7 @@ public class MemberService {
     checkCompanyDomainNotEmailProvider(email);
     checkAlreadyExistsMember(email);
 
-    String code = verificationCodeGenerator.generate(6);
+    String code = verificationCodeGenerator.generate(VERIFICATION_CODE_LENGTH);
     sendVerificationCodeEmail(email, code);
     saveVerificationCodeToDb(email, code);
   }
