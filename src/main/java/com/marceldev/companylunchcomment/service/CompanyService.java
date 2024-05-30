@@ -23,14 +23,7 @@ public class CompanyService {
     if (companyRepository.existsByDomainAndName(domain, dto.getName())) {
       throw new SameCompanyNameExist();
     }
-
-    Company company = Company.builder()
-        .name(dto.getName())
-        .address(dto.getAddress())
-        .domain(domain)
-        .latitude(dto.getLatitude())
-        .longitude(dto.getLongitude())
-        .build();
+    Company company = dto.toEntityWithDomain(domain);
 
     companyRepository.save(company);
   }
