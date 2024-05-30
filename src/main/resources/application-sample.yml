@@ -12,6 +12,16 @@ spring:
   jwt:
     secret:
     expired-in-hour: 24
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: hello@gmail.com
+    password: abcdabcdabcdabcd
+    properties:
+      mail:
+        smtp:
+          starttls:
+            enable: true
 s3:
   bucket-name:
   diner-max-image-count: 10
