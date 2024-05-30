@@ -129,7 +129,7 @@ public class MemberService {
     // 새로운 인증번호 저장
     SignupVerification signupVerification = SignupVerification.builder()
         .code(code)
-        .expiration(LocalDateTime.now().plusSeconds(VERIFICATION_CODE_VALID_SECOND))
+        .expirationAt(LocalDateTime.now().plusSeconds(VERIFICATION_CODE_VALID_SECOND))
         .email(email)
         .build();
 
@@ -137,7 +137,7 @@ public class MemberService {
   }
 
   private void matchVerificationCode(SignUpDto dto, SignupVerification verification) {
-    if (dto.getNow().isAfter(verification.getExpiration())) {
+    if (dto.getNow().isAfter(verification.getExpirationAt())) {
       throw new NotMatchVerificationCode();
     }
 

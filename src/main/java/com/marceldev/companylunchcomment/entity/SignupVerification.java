@@ -29,7 +29,7 @@ public class SignupVerification {
 
   private String email;
 
-  private LocalDateTime expiration;
+  private LocalDateTime expirationAt;
 
   @Column(length = 6)
   private String code;

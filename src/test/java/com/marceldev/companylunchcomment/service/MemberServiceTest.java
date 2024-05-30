@@ -75,7 +75,7 @@ class MemberServiceTest {
         .thenReturn(Optional.of(SignupVerification.builder()
             .email("hello@example.com")
             .code("123123")
-            .expiration(LocalDateTime.now().plusSeconds(30))
+            .expirationAt(LocalDateTime.now().plusSeconds(30))
             .build()
         ));
 
