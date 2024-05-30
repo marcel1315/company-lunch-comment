@@ -12,6 +12,8 @@ import com.marceldev.companylunchcomment.exception.AlreadyExistMemberException;
 import com.marceldev.companylunchcomment.exception.EmailIsNotCompanyDomain;
 import com.marceldev.companylunchcomment.exception.IncorrectPasswordException;
 import com.marceldev.companylunchcomment.exception.MemberNotExistException;
+import com.marceldev.companylunchcomment.exception.NotMatchVerificationCode;
+import com.marceldev.companylunchcomment.exception.VerificationCodeNotFound;
 import com.marceldev.companylunchcomment.repository.MemberRepository;
 import com.marceldev.companylunchcomment.repository.SignupVerificationRepository;
 import com.marceldev.companylunchcomment.type.Role;
@@ -20,12 +22,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class MemberService {
+
+  private static final int VERIFICATION_CODE_VALID_SECOND = 60 * 3;
 
   private final MemberRepository memberRepository;
 
@@ -45,21 +51,20 @@ public class MemberService {
       "icloud.com", "me.com", "aol.com", "protonmail.com"
   ));
 
+  @Value("${bypass-email-domain-check-for-dev:false}")
+  private boolean bypassEmailDomainCheck;
+
   /**
    * 회원가입
    */
+  @Transactional
   public void signUp(SignUpDto dto) {
-    String encPassword = passwordEncoder.encode(dto.getPassword());
+    SignupVerification verification = signupVerificationRepository.findByEmail(dto.getEmail())
+        .orElseThrow(VerificationCodeNotFound::new);
 
-    Member member = Member.builder()
-        .email(dto.getEmail())
-        .password(encPassword)
-        .name(dto.getName())
-        .authYn(true) // TODO: 이메일 인증을 마친 후 true로 바꿔주도록 수정
-        .role(Role.USER)
-        .build();
-
-    memberRepository.save(member);
+    matchVerificationCode(dto, verification);
+    saveMember(dto);
+    signupVerificationRepository.delete(verification);
   }
 
   /**
@@ -79,24 +84,44 @@ public class MemberService {
   /**
    * 이메일 전송
    */
+  @Transactional
   public void sendVerificationCode(SendVerificationCodeDto dto) {
     String email = dto.getEmail();
+
+    checkCompanyDomainNotEmailProvider(email);
+    checkAlreadyExistsMember(email);
+
+    String code = verificationCodeGenerator.generate(6);
+    sendVerificationCodeEmail(email, code);
+    saveVerificationCodeToDb(email, code);
+  }
+
+  private void checkCompanyDomainNotEmailProvider(String email) {
+    // only for dev
+    if (bypassEmailDomainCheck) {
+      return;
+    }
+
     String domain = email.split("@")[1];
 
     if (NOT_SUPPORTED_DOMAINS.contains(domain)) {
       throw new EmailIsNotCompanyDomain(domain);
     }
+  }
 
+  private void checkAlreadyExistsMember(String email) {
     if (memberRepository.existsByEmail(email)) {
       throw new AlreadyExistMemberException();
     }
+  }
 
-    // 이메일 전송
-    String code = verificationCodeGenerator.generate(6);
+  private void sendVerificationCodeEmail(String email, String code) {
     String subject = "[Company Lunch Comment] 회원가입을 위한 인증번호입니다";
     String body = String.format("인증번호는 %s 입니다. 회원가입란에 입력해주세요.", code);
     emailSender.sendMail(email, subject, body);
+  }
 
+  private void saveVerificationCodeToDb(String email, String code) {
     // 기존에 있다면 제거
     Optional<SignupVerification> verification = signupVerificationRepository.findByEmail(
         email);
@@ -105,10 +130,32 @@ public class MemberService {
     // 새로운 인증번호 저장
     SignupVerification signupVerification = SignupVerification.builder()
         .code(code)
-        .expiration(LocalDateTime.now().plusMinutes(3))
+        .expiration(LocalDateTime.now().plusSeconds(VERIFICATION_CODE_VALID_SECOND))
         .email(email)
         .build();
 
     signupVerificationRepository.save(signupVerification);
+  }
+
+  private void matchVerificationCode(SignUpDto dto, SignupVerification verification) {
+    if (dto.getNow().isAfter(verification.getExpiration())) {
+      throw new NotMatchVerificationCode();
+    }
+
+    if (!verification.getCode().equals(dto.getVerificationCode())) {
+      throw new NotMatchVerificationCode();
+    }
+  }
+
+  private void saveMember(SignUpDto dto) {
+    String encPassword = passwordEncoder.encode(dto.getPassword());
+    Member member = Member.builder()
+        .email(dto.getEmail())
+        .password(encPassword)
+        .name(dto.getName())
+        .role(Role.USER)
+        .build();
+
+    memberRepository.save(member);
   }
 }

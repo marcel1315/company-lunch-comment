@@ -25,3 +25,5 @@ spring:
 s3:
   bucket-name:
   diner-max-image-count: 10
+
+bypass-email-domain-check-for-dev: true # If true, you can receive email with gmail.com, naver.com, ...
