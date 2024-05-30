@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:mariadb://127.0.0.1:3307/companylunchcomment
+    driver-class-name: org.mariadb.jdbc.Driver
+    username:
+    password:
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  jwt:
+    secret:
+    expired-in-hour: 24
+s3:
+  bucket-name:
+  diner-max-image-count: 10
