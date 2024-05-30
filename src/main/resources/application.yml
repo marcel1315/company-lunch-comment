@@ -1,30 +1,9 @@
 spring:
   application:
     name: company-lunch-comment
-  datasource:
-    url: jdbc:mariadb://127.0.0.1:3307/companylunchcomment
-    driver-class-name: org.mariadb.jdbc.Driver
-    username: companylunchcomment_user
-    password: a1234
-  jpa:
-    generate-ddl: true
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-
+  profiles:
+    active: "dev"
   servlet:
     multipart:
       max-file-size: 20MB
       max-request-size: 20MB
-
-  jwt:
-    secret: Y29tcGFueS1sdW5jaC1jb21tZW50cy1wcm9qZWN0LWp3dC1zZWNyZXQta2V5Cg==
-    expired-in-hour: 24
-
-logging:
-  level:
-    io.awspring.cloud: debug
-
-s3:
-  bucket-name: "company-lunch-comment-bucket"
-  diner-max-image-count: 10
