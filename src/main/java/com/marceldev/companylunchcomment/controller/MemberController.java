@@ -1,5 +1,6 @@
 package com.marceldev.companylunchcomment.controller;
 
+import com.marceldev.companylunchcomment.dto.member.SendVerificationCodeDto;
 import com.marceldev.companylunchcomment.dto.member.SignInDto;
 import com.marceldev.companylunchcomment.dto.member.SignUpDto;
 import com.marceldev.companylunchcomment.response.CustomResponse;
@@ -20,6 +21,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberController {
 
   private final MemberService memberService;
+
+  @Operation(
+      summary = "이메일 인증번호 발송",
+      description = "해당 이메일로 인증번호를 발송한다."
+  )
+  @PostMapping("/signup/send-verification-code")
+  public ResponseEntity<?> sendVerificationCode(
+      @Validated @RequestBody SendVerificationCodeDto dto) {
+    memberService.sendVerificationCode(dto);
+    return CustomResponse.success();
+  }
 
   @Operation(
       summary = "회원가입",
