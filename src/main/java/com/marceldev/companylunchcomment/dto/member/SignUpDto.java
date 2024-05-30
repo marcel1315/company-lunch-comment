@@ -1,9 +1,11 @@
 package com.marceldev.companylunchcomment.dto.member;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Data;
 
@@ -24,4 +26,12 @@ public class SignUpDto {
   @NotNull
   @Schema(example = "이영수")
   private String name;
+
+  @NotNull
+  @Schema(example = "인증번호")
+  private String verificationCode;
+
+  // Not getting from client request.
+  @JsonIgnore
+  private final LocalDateTime now = LocalDateTime.now();
 }

@@ -38,14 +38,6 @@ public class Member {
   @Column(length = 20)
   private String name;
 
-  @Column(nullable = false)
-  private boolean authYn;
-
-  @Column(length = 6)
-  private String authNum;
-
-  private LocalDateTime authExp;
-
   @Enumerated(value = EnumType.STRING)
   private Role role;
 }
