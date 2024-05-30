@@ -7,6 +7,8 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -54,6 +56,10 @@ public class Diner extends BaseEntity {
 
   @OneToMany(mappedBy = "diner", fetch = FetchType.LAZY)
   private List<DinerImage> dinerImages;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "company_id")
+  private Company company;
 
   public void addTag(String tag) {
     tags.add(tag);
