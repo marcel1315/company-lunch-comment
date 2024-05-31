@@ -101,7 +101,7 @@ class MemberServiceTest {
         .build();
     when(memberRepository.findByEmail(any()))
         .thenReturn(Optional.of(Member.builder()
-            .id(1)
+            .id(1L)
             .email("hello@example.com")
             .build()));
     when(passwordEncoder.matches(eq(dto.getPassword()), any()))
@@ -143,7 +143,7 @@ class MemberServiceTest {
         .build();
     when(memberRepository.findByEmail(any()))
         .thenReturn(Optional.of(Member.builder()
-            .id(1)
+            .id(1L)
             .email("hello@example.com")
             .build()));
     when(passwordEncoder.matches(eq(dto.getPassword()), any()))
@@ -165,7 +165,7 @@ class MemberServiceTest {
         .build();
     when(memberRepository.findByEmail(any()))
         .thenReturn(Optional.of(Member.builder()
-            .id(1)
+            .id(1L)
             .email("hello@example.com")
             .build()));
     when(passwordEncoder.matches(eq(dto.getPassword()), any()))
