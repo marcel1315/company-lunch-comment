@@ -37,8 +37,6 @@ public class Member {
   @Column(length = 20)
   private String name;
 
-  private boolean authYn;
-
   @Enumerated(value = EnumType.STRING)
   private Role role;
 }
