@@ -1,13 +1,17 @@
 package com.marceldev.companylunchcomment.controller;
 
 import com.marceldev.companylunchcomment.dto.company.CreateCompanyDto;
+import com.marceldev.companylunchcomment.dto.company.UpdateCompanyDto;
+import com.marceldev.companylunchcomment.dto.member.SendVerificationCodeDto;
 import com.marceldev.companylunchcomment.response.CustomResponse;
 import com.marceldev.companylunchcomment.service.CompanyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,6 +35,32 @@ public class CompanyController {
       Authentication auth
   ) {
     companyService.createCompany(createCompanyDto, auth.getName());
+    return CustomResponse.success();
+  }
+
+  @Operation(
+      summary = "이메일 인증번호 발송",
+      description = "해당 이메일로 인증번호를 발송한다."
+  )
+  @PostMapping("/company/send-verification-code")
+  public ResponseEntity<?> sendVerificationCode(
+      @Validated @RequestBody SendVerificationCodeDto dto) {
+    companyService.sendVerificationCode(dto);
+    return CustomResponse.success();
+  }
+
+  @Operation(
+      summary = "회사 정보 수정",
+      description = "사용자는 회사 정보를 수정할 수 있다. 주소, 위도, 경도를 수정할 수 있다.<br>"
+          + "회사 정보 수정을 위해 이메일을 통한 번호 인증을 해야한다."
+  )
+  @PostMapping("/company/{id}")
+  public CustomResponse<?> updateCompany(
+      @PathVariable long id,
+      @Validated @RequestBody UpdateCompanyDto updateCompanyDto,
+      Authentication auth
+  ) {
+    companyService.updateCompany(id, updateCompanyDto, auth.getName());
     return CustomResponse.success();
   }
 }

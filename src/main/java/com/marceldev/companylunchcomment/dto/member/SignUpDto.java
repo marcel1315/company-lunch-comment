@@ -28,7 +28,7 @@ public class SignUpDto {
   private String name;
 
   @NotNull
-  @Schema(example = "인증번호")
+  @Schema(example = "123123")
   private String verificationCode;
 
   // Not getting from client request.

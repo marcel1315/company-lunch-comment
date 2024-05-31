@@ -21,7 +21,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @ToString
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-public class SignupVerification {
+public class Verification {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

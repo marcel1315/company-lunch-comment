@@ -11,18 +11,18 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.marceldev.companylunchcomment.component.EmailSender;
-import com.marceldev.companylunchcomment.dto.SignInResult;
 import com.marceldev.companylunchcomment.dto.member.SendVerificationCodeDto;
 import com.marceldev.companylunchcomment.dto.member.SignInDto;
+import com.marceldev.companylunchcomment.dto.member.SignInResult;
 import com.marceldev.companylunchcomment.dto.member.SignUpDto;
 import com.marceldev.companylunchcomment.entity.Member;
-import com.marceldev.companylunchcomment.entity.SignupVerification;
+import com.marceldev.companylunchcomment.entity.Verification;
 import com.marceldev.companylunchcomment.exception.AlreadyExistMemberException;
 import com.marceldev.companylunchcomment.exception.EmailIsNotCompanyDomain;
 import com.marceldev.companylunchcomment.exception.IncorrectPasswordException;
 import com.marceldev.companylunchcomment.exception.MemberNotExistException;
 import com.marceldev.companylunchcomment.repository.MemberRepository;
-import com.marceldev.companylunchcomment.repository.SignupVerificationRepository;
+import com.marceldev.companylunchcomment.repository.VerificationRepository;
 import com.marceldev.companylunchcomment.type.Role;
 import com.marceldev.companylunchcomment.util.VerificationCodeGenerator;
 import java.time.LocalDateTime;
@@ -49,7 +49,7 @@ class MemberServiceTest {
   private EmailSender emailSender;
 
   @Mock
-  private SignupVerificationRepository signupVerificationRepository;
+  private VerificationRepository verificationRepository;
 
   @InjectMocks
   private MemberService memberService;
@@ -65,8 +65,8 @@ class MemberServiceTest {
         .verificationCode("123123")
         .build();
 
-    when(signupVerificationRepository.findByEmail(any()))
-        .thenReturn(Optional.of(SignupVerification.builder()
+    when(verificationRepository.findByEmail(any()))
+        .thenReturn(Optional.of(Verification.builder()
             .email("hello@example.com")
             .code("123123")
             .expirationAt(LocalDateTime.now().plusSeconds(30))
