@@ -166,7 +166,6 @@ public class MemberService implements UserDetailsService {
         .email(dto.getEmail())
         .password(encPassword)
         .name(dto.getName())
-        .authYn(true)
         .role(Role.USER)
         .build();
 
