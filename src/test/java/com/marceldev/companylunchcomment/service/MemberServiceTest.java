@@ -11,8 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.marceldev.companylunchcomment.component.EmailSender;
-import com.marceldev.companylunchcomment.component.TokenProvider;
-import com.marceldev.companylunchcomment.component.VerificationCodeGenerator;
+import com.marceldev.companylunchcomment.dto.SignInResult;
 import com.marceldev.companylunchcomment.dto.member.SendVerificationCodeDto;
 import com.marceldev.companylunchcomment.dto.member.SignInDto;
 import com.marceldev.companylunchcomment.dto.member.SignUpDto;
@@ -25,6 +24,7 @@ import com.marceldev.companylunchcomment.exception.MemberNotExistException;
 import com.marceldev.companylunchcomment.repository.MemberRepository;
 import com.marceldev.companylunchcomment.repository.SignupVerificationRepository;
 import com.marceldev.companylunchcomment.type.Role;
+import com.marceldev.companylunchcomment.util.VerificationCodeGenerator;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -46,13 +46,7 @@ class MemberServiceTest {
   private PasswordEncoder passwordEncoder;
 
   @Mock
-  private TokenProvider tokenProvider;
-
-  @Mock
   private EmailSender emailSender;
-
-  @Mock
-  private VerificationCodeGenerator verificationCodeGenerator;
 
   @Mock
   private SignupVerificationRepository signupVerificationRepository;
@@ -103,17 +97,16 @@ class MemberServiceTest {
         .thenReturn(Optional.of(Member.builder()
             .id(1L)
             .email("hello@example.com")
+            .role(Role.USER)
             .build()));
     when(passwordEncoder.matches(eq(dto.getPassword()), any()))
         .thenReturn(true);
-    when(tokenProvider.generateToken(eq(dto.getEmail()), eq(Role.USER.toString())))
-        .thenReturn("1111.2222.3333");
 
     //when
-    String token = memberService.signIn(dto);
+    SignInResult result = memberService.signIn(dto);
 
     //then
-    assertEquals(token, "1111.2222.3333");
+    assertEquals(result.getEmail(), "hello@example.com");
   }
 
   @Test
@@ -156,30 +149,6 @@ class MemberServiceTest {
   }
 
   @Test
-  @DisplayName("로그인 - 실패(token 생성 실패)")
-  void sign_in_fail_create_token() {
-    //given
-    SignInDto dto = SignInDto.builder()
-        .email("hello@example.com")
-        .password("a1234")
-        .build();
-    when(memberRepository.findByEmail(any()))
-        .thenReturn(Optional.of(Member.builder()
-            .id(1L)
-            .email("hello@example.com")
-            .build()));
-    when(passwordEncoder.matches(eq(dto.getPassword()), any()))
-        .thenReturn(true);
-    when(tokenProvider.generateToken(eq(dto.getEmail()), eq(Role.USER.toString())))
-        .thenThrow(RuntimeException.class);
-
-    //when
-    //then
-    assertThrows(RuntimeException.class,
-        () -> memberService.signIn(dto));
-  }
-
-  @Test
   @DisplayName("인증번호 이메일 전송 - 성공")
   void send_verification_code() {
     //given
@@ -188,8 +157,7 @@ class MemberServiceTest {
 
     when(memberRepository.existsByEmail(any()))
         .thenReturn(false);
-    when(verificationCodeGenerator.generate(anyInt()))
-        .thenReturn("123123");
+    String code = VerificationCodeGenerator.generate(anyInt());
 
     ArgumentCaptor<String> captor1 = ArgumentCaptor.forClass(String.class);
     ArgumentCaptor<String> captor2 = ArgumentCaptor.forClass(String.class);
@@ -200,7 +168,7 @@ class MemberServiceTest {
     //then
     verify(emailSender).sendMail(captor1.capture(), any(), captor2.capture());
     assertEquals(captor1.getValue(), "hello@example.com");
-    assertTrue(captor2.getValue().contains("123123"));
+    assertTrue(captor2.getValue().contains(code));
   }
 
   @Test
