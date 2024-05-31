@@ -40,7 +40,6 @@ public class MemberController {
           + "구글, 네이버, 카카오, 다음, 한메일, 야후 등 이메일 공급자로부터 받은 이메일은 가입할 수 없다. 회사 도메인을 사용해야 한다.<br>"
           + "회원가입 중 이메일을 통한 번호인증을 한다."
   )
-  // TODO: 이메일 공급자 예외. 번호인증
   @PostMapping("/signup")
   public ResponseEntity<?> signUp(@Validated @RequestBody SignUpDto signUpDto) {
     memberService.signUp(signUpDto);
