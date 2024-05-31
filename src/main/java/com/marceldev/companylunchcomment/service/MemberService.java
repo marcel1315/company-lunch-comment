@@ -1,8 +1,9 @@
 package com.marceldev.companylunchcomment.service;
 
 import com.marceldev.companylunchcomment.component.EmailSender;
-import com.marceldev.companylunchcomment.component.TokenProvider;
 import com.marceldev.companylunchcomment.component.VerificationCodeGenerator;
+import com.marceldev.companylunchcomment.dto.SignInResult;
+import com.marceldev.companylunchcomment.dto.member.SecurityMember;
 import com.marceldev.companylunchcomment.dto.member.SendVerificationCodeDto;
 import com.marceldev.companylunchcomment.dto.member.SignInDto;
 import com.marceldev.companylunchcomment.dto.member.SignUpDto;
@@ -22,13 +23,16 @@ import java.util.HashSet;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class MemberService {
+public class MemberService implements UserDetailsService {
 
   private static final int VERIFICATION_CODE_VALID_SECOND = 60 * 3;
 
@@ -37,8 +41,6 @@ public class MemberService {
   private final MemberRepository memberRepository;
 
   private final PasswordEncoder passwordEncoder;
-
-  private final TokenProvider tokenProvider;
 
   private final EmailSender emailSender;
 
@@ -71,7 +73,7 @@ public class MemberService {
   /**
    * 로그인
    */
-  public String signIn(SignInDto dto) {
+  public SignInResult signIn(SignInDto dto) {
     Member member = memberRepository.findByEmail(dto.getEmail())
         .orElseThrow(MemberNotExistException::new);
 
@@ -79,7 +81,7 @@ public class MemberService {
       throw new IncorrectPasswordException();
     }
 
-    return tokenProvider.generateToken(member.getEmail(), Role.USER.toString());
+    return new SignInResult(member.getEmail(), member.getRole());
   }
 
   /**
@@ -95,6 +97,19 @@ public class MemberService {
     String code = verificationCodeGenerator.generate(VERIFICATION_CODE_LENGTH);
     sendVerificationCodeEmail(email, code);
     saveVerificationCodeToDb(email, code);
+  }
+
+  /**
+   * Spring Security의 UserDetailsService의 메서드 구현
+   * Spring Security의 username으로 해당 서비스의 email이 사용됨
+   */
+  @Override
+  public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    return memberRepository.findByEmail(email)
+        .map(SecurityMember::new)
+        .orElseThrow(
+            () -> new UsernameNotFoundException(String.format("Member email not found: %s", email))
+        );
   }
 
   private void checkCompanyDomainNotEmailProvider(String email) {

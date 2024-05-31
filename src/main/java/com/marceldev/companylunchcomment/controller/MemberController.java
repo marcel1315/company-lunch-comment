@@ -1,5 +1,7 @@
 package com.marceldev.companylunchcomment.controller;
 
+import com.marceldev.companylunchcomment.component.TokenProvider;
+import com.marceldev.companylunchcomment.dto.SignInResult;
 import com.marceldev.companylunchcomment.dto.member.SendVerificationCodeDto;
 import com.marceldev.companylunchcomment.dto.member.SignInDto;
 import com.marceldev.companylunchcomment.dto.member.SignUpDto;
@@ -21,6 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberController {
 
   private final MemberService memberService;
+
+  private final TokenProvider tokenProvider;
 
   @Operation(
       summary = "이메일 인증번호 발송",
@@ -52,7 +56,8 @@ public class MemberController {
   )
   @PostMapping("/signin")
   public ResponseEntity<?> signIn(@Validated @RequestBody SignInDto signInDto) {
-    String token = memberService.signIn(signInDto);
+    SignInResult result = memberService.signIn(signInDto);
+    String token = tokenProvider.generateToken(result.getEmail(), result.getRoleString());
     return CustomResponse.success(new TokenDto(token));
   }
 }
