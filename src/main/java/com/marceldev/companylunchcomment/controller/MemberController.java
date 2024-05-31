@@ -1,9 +1,9 @@
 package com.marceldev.companylunchcomment.controller;
 
 import com.marceldev.companylunchcomment.component.TokenProvider;
-import com.marceldev.companylunchcomment.dto.SignInResult;
 import com.marceldev.companylunchcomment.dto.member.SendVerificationCodeDto;
 import com.marceldev.companylunchcomment.dto.member.SignInDto;
+import com.marceldev.companylunchcomment.dto.member.SignInResult;
 import com.marceldev.companylunchcomment.dto.member.SignUpDto;
 import com.marceldev.companylunchcomment.dto.member.TokenDto;
 import com.marceldev.companylunchcomment.response.CustomResponse;

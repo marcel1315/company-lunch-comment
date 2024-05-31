@@ -1,21 +1,20 @@
 package com.marceldev.companylunchcomment.service;
 
 import com.marceldev.companylunchcomment.component.EmailSender;
-import com.marceldev.companylunchcomment.dto.SignInResult;
 import com.marceldev.companylunchcomment.dto.member.SecurityMember;
 import com.marceldev.companylunchcomment.dto.member.SendVerificationCodeDto;
 import com.marceldev.companylunchcomment.dto.member.SignInDto;
+import com.marceldev.companylunchcomment.dto.member.SignInResult;
 import com.marceldev.companylunchcomment.dto.member.SignUpDto;
 import com.marceldev.companylunchcomment.entity.Member;
-import com.marceldev.companylunchcomment.entity.SignupVerification;
+import com.marceldev.companylunchcomment.entity.Verification;
 import com.marceldev.companylunchcomment.exception.AlreadyExistMemberException;
 import com.marceldev.companylunchcomment.exception.EmailIsNotCompanyDomain;
 import com.marceldev.companylunchcomment.exception.IncorrectPasswordException;
 import com.marceldev.companylunchcomment.exception.MemberNotExistException;
-import com.marceldev.companylunchcomment.exception.NotMatchVerificationCode;
 import com.marceldev.companylunchcomment.exception.VerificationCodeNotFound;
 import com.marceldev.companylunchcomment.repository.MemberRepository;
-import com.marceldev.companylunchcomment.repository.SignupVerificationRepository;
+import com.marceldev.companylunchcomment.repository.VerificationRepository;
 import com.marceldev.companylunchcomment.type.Email;
 import com.marceldev.companylunchcomment.type.Role;
 import com.marceldev.companylunchcomment.util.VerificationCodeGenerator;
@@ -45,7 +44,7 @@ public class MemberService implements UserDetailsService {
 
   private final EmailSender emailSender;
 
-  private final SignupVerificationRepository signupVerificationRepository;
+  private final VerificationRepository verificationRepository;
 
   private final HashSet<String> NOT_SUPPORTED_DOMAINS = new HashSet<>(List.of(
       "naver.com", "gmail.com", "daum.net", "kakao.com", "hanmail.net", "yahoo.com",
@@ -61,12 +60,12 @@ public class MemberService implements UserDetailsService {
    */
   @Transactional
   public void signUp(SignUpDto dto) {
-    SignupVerification verification = signupVerificationRepository.findByEmail(dto.getEmail())
+    Verification verification = verificationRepository.findByEmail(dto.getEmail())
         .orElseThrow(VerificationCodeNotFound::new);
 
     matchVerificationCode(dto, verification);
     saveMember(dto);
-    signupVerificationRepository.delete(verification);
+    verificationRepository.delete(verification);
   }
 
   /**
@@ -138,25 +137,25 @@ public class MemberService implements UserDetailsService {
 
   private void saveVerificationCodeToDb(String email, String code) {
     // 기존에 있다면 제거
-    signupVerificationRepository.findByEmail(email).ifPresent(signupVerificationRepository::delete);
+    verificationRepository.findByEmail(email).ifPresent(verificationRepository::delete);
 
     // 새로운 인증번호 저장
-    SignupVerification signupVerification = SignupVerification.builder()
+    Verification verification = Verification.builder()
         .code(code)
         .expirationAt(LocalDateTime.now().plusSeconds(VERIFICATION_CODE_VALID_SECOND))
         .email(email)
         .build();
 
-    signupVerificationRepository.save(signupVerification);
+    verificationRepository.save(verification);
   }
 
-  private void matchVerificationCode(SignUpDto dto, SignupVerification verification) {
+  private void matchVerificationCode(SignUpDto dto, Verification verification) {
     if (dto.getNow().isAfter(verification.getExpirationAt())) {
-      throw new NotMatchVerificationCode();
+      throw new VerificationCodeNotFound();
     }
 
     if (!verification.getCode().equals(dto.getVerificationCode())) {
-      throw new NotMatchVerificationCode();
+      throw new VerificationCodeNotFound();
     }
   }
 

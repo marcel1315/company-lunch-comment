@@ -1,4 +1,4 @@
-package com.marceldev.companylunchcomment.dto;
+package com.marceldev.companylunchcomment.dto.member;
 
 import com.marceldev.companylunchcomment.type.Role;
 import lombok.Data;
