@@ -25,7 +25,7 @@ public class SignupVerification {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private long id;
+  private Long id;
 
   private String email;
 
