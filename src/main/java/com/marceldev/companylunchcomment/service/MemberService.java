@@ -1,7 +1,6 @@
 package com.marceldev.companylunchcomment.service;
 
 import com.marceldev.companylunchcomment.component.EmailSender;
-import com.marceldev.companylunchcomment.component.VerificationCodeGenerator;
 import com.marceldev.companylunchcomment.dto.SignInResult;
 import com.marceldev.companylunchcomment.dto.member.SecurityMember;
 import com.marceldev.companylunchcomment.dto.member.SendVerificationCodeDto;
@@ -18,6 +17,7 @@ import com.marceldev.companylunchcomment.exception.VerificationCodeNotFound;
 import com.marceldev.companylunchcomment.repository.MemberRepository;
 import com.marceldev.companylunchcomment.repository.SignupVerificationRepository;
 import com.marceldev.companylunchcomment.type.Role;
+import com.marceldev.companylunchcomment.util.VerificationCodeGenerator;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -43,8 +43,6 @@ public class MemberService implements UserDetailsService {
   private final PasswordEncoder passwordEncoder;
 
   private final EmailSender emailSender;
-
-  private final VerificationCodeGenerator verificationCodeGenerator;
 
   private final SignupVerificationRepository signupVerificationRepository;
 
@@ -94,7 +92,7 @@ public class MemberService implements UserDetailsService {
     checkCompanyDomainNotEmailProvider(email);
     checkAlreadyExistsMember(email);
 
-    String code = verificationCodeGenerator.generate(VERIFICATION_CODE_LENGTH);
+    String code = VerificationCodeGenerator.generate(VERIFICATION_CODE_LENGTH);
     sendVerificationCodeEmail(email, code);
     saveVerificationCodeToDb(email, code);
   }
