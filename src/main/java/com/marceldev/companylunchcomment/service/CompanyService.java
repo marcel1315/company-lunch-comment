@@ -1,7 +1,6 @@
 package com.marceldev.companylunchcomment.service;
 
 import com.marceldev.companylunchcomment.component.EmailSender;
-import com.marceldev.companylunchcomment.dto.company.ChooseCompanyDto;
 import com.marceldev.companylunchcomment.dto.company.CompanyOutputDto;
 import com.marceldev.companylunchcomment.dto.company.CreateCompanyDto;
 import com.marceldev.companylunchcomment.dto.company.GetCompanyListDto;

@@ -98,8 +98,7 @@ public class MemberService implements UserDetailsService {
   }
 
   /**
-   * Spring Security의 UserDetailsService의 메서드 구현
-   * Spring Security의 username으로 해당 서비스의 email이 사용됨
+   * Spring Security의 UserDetailsService의 메서드 구현 Spring Security의 username으로 해당 서비스의 email이 사용됨
    */
   @Override
   public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
