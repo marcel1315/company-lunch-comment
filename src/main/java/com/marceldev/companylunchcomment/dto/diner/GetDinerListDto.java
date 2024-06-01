@@ -13,6 +13,7 @@ import org.springframework.data.domain.Sort;
 @Builder
 public class GetDinerListDto {
 
+  @Positive
   private long companyId;
 
   @Positive

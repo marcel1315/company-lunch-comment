@@ -15,7 +15,6 @@ import com.marceldev.companylunchcomment.entity.Member;
 import com.marceldev.companylunchcomment.exception.CompanyNotExistException;
 import com.marceldev.companylunchcomment.exception.DinerNotFoundException;
 import com.marceldev.companylunchcomment.exception.InternalServerError;
-import com.marceldev.companylunchcomment.repository.CompanyRepository;
 import com.marceldev.companylunchcomment.repository.DinerImageRepository;
 import com.marceldev.companylunchcomment.repository.DinerRepository;
 import com.marceldev.companylunchcomment.repository.MemberRepository;
@@ -25,8 +24,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,13 +59,10 @@ public class DinerService {
    * 식당 목록 조회. page 는 1부터 시작
    */
   public Page<DinerOutputDto> getDinerList(GetDinerListDto dto) {
-    Pageable pageable = PageRequest.of(
-        dto.getPage(), // Suppose getting 1-based index from client
-        dto.getPageSize(),
-        dto.getSort()
-    );
-
-    return dinerRepository.findAll(pageable)
+    return dinerRepository.findByCompanyId(
+            dto.getCompanyId(),
+            PageRequest.of(dto.getPage(), dto.getPageSize(), dto.getSort())
+        )
         .map(DinerOutputDto::of);
   }
 
@@ -141,8 +137,21 @@ public class DinerService {
     saveDiner(diner);
   }
 
+  /**
+   * 식당을 가져옴. 인증된 사용자가 선택한 회사에 속한 식당인지 확인함
+   */
   private Diner getDiner(long id) {
+    UserDetails user = (UserDetails) SecurityContextHolder.getContext()
+        .getAuthentication()
+        .getPrincipal();
+
+    long companyId = memberRepository.findByEmail(user.getUsername())
+        .map(Member::getCompany)
+        .map(Company::getId)
+        .orElseThrow(CompanyNotExistException::new);
+
     return dinerRepository.findById(id)
+        .filter((diner) -> diner.getCompany().getId().equals(companyId))
         .orElseThrow(() -> new DinerNotFoundException(id));
   }
 

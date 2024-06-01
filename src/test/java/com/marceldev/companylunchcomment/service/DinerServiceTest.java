@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -17,6 +19,7 @@ import com.marceldev.companylunchcomment.dto.diner.DinerOutputDto;
 import com.marceldev.companylunchcomment.dto.diner.GetDinerListDto;
 import com.marceldev.companylunchcomment.dto.diner.RemoveDinerTagsDto;
 import com.marceldev.companylunchcomment.dto.diner.UpdateDinerDto;
+import com.marceldev.companylunchcomment.dto.member.SecurityMember;
 import com.marceldev.companylunchcomment.entity.Company;
 import com.marceldev.companylunchcomment.entity.Diner;
 import com.marceldev.companylunchcomment.entity.DinerImage;
@@ -28,9 +31,14 @@ import com.marceldev.companylunchcomment.repository.DinerImageRepository;
 import com.marceldev.companylunchcomment.repository.DinerRepository;
 import com.marceldev.companylunchcomment.repository.MemberRepository;
 import com.marceldev.companylunchcomment.type.DinerSort;
+import com.marceldev.companylunchcomment.type.Role;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,7 +48,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @ExtendWith(MockitoExtension.class)
 class DinerServiceTest {
@@ -59,6 +71,51 @@ class DinerServiceTest {
 
   @InjectMocks
   private DinerService dinerService;
+
+  // 테스트에서 목으로 사용될 member. diner를 가져올 때, 적절한 member가 아니면 가져올 수 없음
+  Member member1 = Member.builder()
+      .id(1L)
+      .email("kys@example.com")
+      .name("김영수")
+      .role(Role.USER)
+      .password("somehashedvalue")
+      .company(Company.builder().id(1L).build())
+      .build();
+
+  // 테스트에서 목으로 사용될 company. diner를 가져올 때, member가 속한 company의 diner가 아니면 가져올 수 없음
+  Company company1 = Company.builder()
+      .id(1L)
+      .name("좋은회사")
+      .address("서울특별시 강남구 강남대로 200")
+      .latitude("37.123123")
+      .longitude("127.123123")
+      .domain("example.com")
+      .build();
+
+  @BeforeEach
+  public void setupMember() {
+    GrantedAuthority authority = new SimpleGrantedAuthority("USER");
+    Collection authorities = Collections.singleton(authority); // Use raw type here
+
+    Authentication authentication = mock(Authentication.class);
+    lenient().when(authentication.getAuthorities()).thenReturn(authorities);
+
+    SecurityMember securityMember = SecurityMember.builder().member(member1).build();
+    lenient().when(authentication.getPrincipal()).thenReturn(securityMember);
+
+    SecurityContext securityContext = mock(SecurityContext.class);
+    lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
+
+    SecurityContextHolder.setContext(securityContext);
+
+    lenient().when(memberRepository.findByEmail(any()))
+        .thenReturn(Optional.of(member1));
+  }
+
+  @AfterEach
+  public void clearSecurityContext() {
+    SecurityContextHolder.clearContext();
+  }
 
   @Test
   @DisplayName("식당 생성 - 성공")
@@ -140,6 +197,7 @@ class DinerServiceTest {
                 .link("diner.com")
                 .latitude("37.11111111")
                 .longitude("127.11111111")
+                .company(company1)
                 .build()
         ));
 
@@ -182,6 +240,7 @@ class DinerServiceTest {
             Diner
                 .builder()
                 .id(1L)
+                .company(company1)
                 .build()
         ));
     when(dinerRepository.save(any()))
@@ -205,6 +264,7 @@ class DinerServiceTest {
             Diner
                 .builder()
                 .id(1L)
+                .company(company1)
                 .tags(new LinkedHashSet<>())
                 .build()
         ));
@@ -230,6 +290,7 @@ class DinerServiceTest {
             Diner
                 .builder()
                 .id(1L)
+                .company(company1)
                 .tags(new LinkedHashSet<>(List.of("태그1")))
                 .build()
         ));
@@ -256,6 +317,7 @@ class DinerServiceTest {
             Diner
                 .builder()
                 .id(1L)
+                .company(company1)
                 .tags(new LinkedHashSet<>(List.of("태그2")))
                 .build()
         ));
@@ -281,6 +343,7 @@ class DinerServiceTest {
             Diner
                 .builder()
                 .id(1L)
+                .company(company1)
                 .tags(new LinkedHashSet<>(List.of("태그1", "태그2", "태그3")))
                 .build()
         ));
@@ -317,7 +380,7 @@ class DinerServiceTest {
         .build();
 
     Page<Diner> pages = new PageImpl<>(List.of(diner1, diner2));
-    when(dinerRepository.findAll(any(PageRequest.class)))
+    when(dinerRepository.findByCompanyId(anyLong(), any()))
         .thenReturn(pages);
 
     //when
@@ -337,6 +400,7 @@ class DinerServiceTest {
         .name("감성타코")
         .link("diner.com")
         .dinerImages(List.of())
+        .company(company1)
         .build();
     when(dinerRepository.findById(anyLong()))
         .thenReturn(Optional.of(diner));
@@ -359,6 +423,7 @@ class DinerServiceTest {
         .id(1L)
         .name("감성타코")
         .link("diner.com")
+        .company(company1)
         .dinerImages(List.of())
         .build();
 
@@ -381,6 +446,7 @@ class DinerServiceTest {
     Diner diner = Diner.builder()
         .id(1L)
         .name("감성타코")
+        .company(company1)
         .dinerImages(List.of(
             DinerImage.builder()
                 .s3Key("diner/1/images/unrastu-29823-unr0w-w82nu")
@@ -409,6 +475,7 @@ class DinerServiceTest {
     Diner diner = Diner.builder()
         .id(1L)
         .name("감성타코")
+        .company(company1)
         .dinerImages(List.of(
             DinerImage.builder()
                 .s3Key("diner/1/images/unrastu-29823-unr0w-w82nu")
