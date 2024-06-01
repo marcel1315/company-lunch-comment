@@ -8,12 +8,17 @@ import com.marceldev.companylunchcomment.dto.diner.DinerOutputDto;
 import com.marceldev.companylunchcomment.dto.diner.GetDinerListDto;
 import com.marceldev.companylunchcomment.dto.diner.RemoveDinerTagsDto;
 import com.marceldev.companylunchcomment.dto.diner.UpdateDinerDto;
+import com.marceldev.companylunchcomment.entity.Company;
 import com.marceldev.companylunchcomment.entity.Diner;
 import com.marceldev.companylunchcomment.entity.DinerImage;
+import com.marceldev.companylunchcomment.entity.Member;
+import com.marceldev.companylunchcomment.exception.CompanyNotExistException;
 import com.marceldev.companylunchcomment.exception.DinerNotFoundException;
 import com.marceldev.companylunchcomment.exception.InternalServerError;
+import com.marceldev.companylunchcomment.repository.CompanyRepository;
 import com.marceldev.companylunchcomment.repository.DinerImageRepository;
 import com.marceldev.companylunchcomment.repository.DinerRepository;
+import com.marceldev.companylunchcomment.repository.MemberRepository;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -36,11 +41,19 @@ public class DinerService {
 
   private final DinerImageRepository dinerImageRepository;
 
+  private final MemberRepository memberRepository;
+
   /**
    * 식당 생성
    */
-  public void createDiner(CreateDinerDto createDinerDto) {
-    saveDiner(createDinerDto.toEntity());
+  public void createDiner(CreateDinerDto createDinerDto, String email) {
+    Company company = memberRepository.findByEmail(email)
+        .map(Member::getCompany)
+        .orElseThrow(CompanyNotExistException::new);
+    Diner diner = createDinerDto.toEntity();
+    diner.setCompany(company);
+
+    saveDiner(diner);
   }
 
   /**
