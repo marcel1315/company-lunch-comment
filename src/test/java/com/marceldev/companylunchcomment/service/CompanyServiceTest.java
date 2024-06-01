@@ -7,10 +7,19 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.marceldev.companylunchcomment.dto.company.CreateCompanyDto;
+import com.marceldev.companylunchcomment.dto.company.UpdateCompanyDto;
 import com.marceldev.companylunchcomment.entity.Company;
+import com.marceldev.companylunchcomment.entity.Member;
+import com.marceldev.companylunchcomment.entity.Verification;
+import com.marceldev.companylunchcomment.exception.CompanyNotExistException;
 import com.marceldev.companylunchcomment.exception.InvalidEmailFormatException;
 import com.marceldev.companylunchcomment.exception.SameCompanyNameExist;
+import com.marceldev.companylunchcomment.exception.VerificationCodeNotFound;
 import com.marceldev.companylunchcomment.repository.CompanyRepository;
+import com.marceldev.companylunchcomment.repository.MemberRepository;
+import com.marceldev.companylunchcomment.repository.VerificationRepository;
+import java.time.LocalDateTime;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +33,12 @@ class CompanyServiceTest {
 
   @Mock
   private CompanyRepository companyRepository;
+
+  @Mock
+  private MemberRepository memberRepository;
+
+  @Mock
+  private VerificationRepository verificationRepository;
 
   @InjectMocks
   private CompanyService companyService;
@@ -88,5 +103,114 @@ class CompanyServiceTest {
     //then
     assertThrows(InvalidEmailFormatException.class,
         () -> companyService.createCompany(dto, "hello")); // hello@example.com 이 들어가야 함
+  }
+
+  @Test
+  @DisplayName("회사 정보 수정 - 성공")
+  void update_company() {
+    //given
+    UpdateCompanyDto dto = UpdateCompanyDto.builder()
+        .address("서울시 강남구 역삼동 123-456")
+        .latitude("37.123456")
+        .longitude("127.123456")
+        .verificationCode("123456")
+        .build();
+    String email = "hello@example.com";
+    when(memberRepository.findByEmailAndCompanyId(email, 1L))
+        .thenReturn(Optional.of(Member.builder()
+            .company(Company.builder().id(1L).build())
+            .build()
+        ));
+    when(verificationRepository.findByEmail(email))
+        .thenReturn(Optional.of(Verification.builder()
+            .code("123456")
+            .expirationAt(LocalDateTime.now().plusMinutes(2))
+            .build()
+        ));
+
+    //when
+    companyService.updateCompany(1L, dto, email);
+
+    //then
+    verify(companyRepository).save(any());
+    verify(verificationRepository).delete(any());
+  }
+
+  @Test
+  @DisplayName("회사 정보 수정 - 실패(해당 회사가 존재하지 않음)")
+  void update_company_fail_no_company() {
+    //given
+    UpdateCompanyDto dto = UpdateCompanyDto.builder()
+        .address("서울시 강남구 역삼동 123-456")
+        .latitude("37.123456")
+        .longitude("127.123456")
+        .verificationCode("123456")
+        .build();
+    String email = "hello@example.com";
+    when(memberRepository.findByEmailAndCompanyId(email, 1L))
+        .thenReturn(Optional.empty());
+
+    //when
+    //then
+    assertThrows(CompanyNotExistException.class,
+        () -> companyService.updateCompany(1L, dto, email));
+  }
+
+  @Test
+  @DisplayName("회사 정보 수정 - 실패(인증번호가 맞지 않음)")
+  void update_company_fail_verification_code_incorrect() {
+    //given
+    UpdateCompanyDto dto = UpdateCompanyDto.builder()
+        .address("서울시 강남구 역삼동 123-456")
+        .latitude("37.123456")
+        .longitude("127.123456")
+        .verificationCode("123456")
+        .build();
+    String email = "hello@example.com";
+    when(memberRepository.findByEmailAndCompanyId(email, 1L))
+        .thenReturn(Optional.of(Member.builder()
+            .company(Company.builder().id(1L).build())
+            .build()
+        ));
+    when(verificationRepository.findByEmail(email))
+        .thenReturn(Optional.of(Verification.builder()
+            .code("111111")
+            .expirationAt(LocalDateTime.now().plusMinutes(2))
+            .build()
+        ));
+
+    //when
+    //then
+    assertThrows(VerificationCodeNotFound.class,
+        () -> companyService.updateCompany(1L, dto, email));
+  }
+
+  @Test
+  @DisplayName("회사 정보 수정 - 실패(인증번호의 만료시간이 현재시간보다 먼저인 경우)")
+  void update_company_fail_verification_code_expired() {
+    //given
+    UpdateCompanyDto dto = UpdateCompanyDto.builder()
+        .address("서울시 강남구 역삼동 123-456")
+        .latitude("37.123456")
+        .longitude("127.123456")
+        .verificationCode("123456")
+        .build();
+    String email = "hello@example.com";
+    when(memberRepository.findByEmailAndCompanyId(email, 1L))
+        .thenReturn(Optional.of(Member.builder()
+            .company(Company.builder().id(1L).build())
+            .build()
+        ));
+    when(verificationRepository.findByEmail(email))
+        .thenReturn(Optional.of(Verification.builder()
+            .code("123456")
+            .expirationAt(LocalDateTime.now().minusMinutes(2))
+            .build()
+        ));
+
+    //when
+    //then
+    assertThrows(VerificationCodeNotFound.class,
+        () -> companyService.updateCompany(1L, dto, email));
   }
 }
