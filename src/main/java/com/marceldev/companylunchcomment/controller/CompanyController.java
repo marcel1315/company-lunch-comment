@@ -1,6 +1,8 @@
 package com.marceldev.companylunchcomment.controller;
 
+import com.marceldev.companylunchcomment.dto.company.CompanyOutputDto;
 import com.marceldev.companylunchcomment.dto.company.CreateCompanyDto;
+import com.marceldev.companylunchcomment.dto.company.GetCompanyListDto;
 import com.marceldev.companylunchcomment.dto.company.UpdateCompanyDto;
 import com.marceldev.companylunchcomment.dto.member.SendVerificationCodeDto;
 import com.marceldev.companylunchcomment.response.CustomResponse;
@@ -8,9 +10,12 @@ import com.marceldev.companylunchcomment.service.CompanyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -62,5 +67,19 @@ public class CompanyController {
   ) {
     companyService.updateCompany(id, updateCompanyDto, auth.getName());
     return CustomResponse.success();
+  }
+
+  @Operation(
+      summary = "회사 목록 조회",
+      description = "사용자는 가입한 이메일 도메인으로 등록된 회사들을 조회할 수 있다."
+  )
+  @GetMapping("/company")
+  public CustomResponse<?> listCompany(
+      @Validated @ModelAttribute GetCompanyListDto getCompanyListDto,
+      Authentication auth
+  ) {
+    Page<CompanyOutputDto> companies = companyService.listCompany(getCompanyListDto,
+        auth.getName());
+    return CustomResponse.success(companies);
   }
 }
