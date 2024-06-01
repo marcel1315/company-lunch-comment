@@ -96,7 +96,7 @@ public class CompanyService {
   /**
    * 회사 목록 보기. 로그인한 사용자의 이메일 도메인에 해당하는 회사들 목록만 볼 수 있음
    */
-  public Page<CompanyOutputDto> listCompany(GetCompanyListDto dto, String email) {
+  public Page<CompanyOutputDto> getCompanyList(GetCompanyListDto dto, String email) {
     return companyRepository.findByDomain(
             Email.of(email).getDomain(),
             PageRequest.of(dto.getPage(), dto.getPageSize(), dto.getSort())

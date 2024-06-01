@@ -78,7 +78,7 @@ public class CompanyController {
       @Validated @ModelAttribute GetCompanyListDto getCompanyListDto,
       Authentication auth
   ) {
-    Page<CompanyOutputDto> companies = companyService.listCompany(getCompanyListDto,
+    Page<CompanyOutputDto> companies = companyService.getCompanyList(getCompanyListDto,
         auth.getName());
     return CustomResponse.success(companies);
   }
