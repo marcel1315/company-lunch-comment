@@ -74,12 +74,26 @@ public class CompanyController {
       description = "사용자는 가입한 이메일 도메인으로 등록된 회사들을 조회할 수 있다."
   )
   @GetMapping("/company")
-  public CustomResponse<?> listCompany(
+  public CustomResponse<?> getCompanyList(
       @Validated @ModelAttribute GetCompanyListDto getCompanyListDto,
       Authentication auth
   ) {
     Page<CompanyOutputDto> companies = companyService.getCompanyList(getCompanyListDto,
         auth.getName());
     return CustomResponse.success(companies);
+  }
+
+  @Operation(
+      summary = "회사 선택",
+      description = "사용자는 회사를 선택할 수 있다.<br>"
+          + "같은 회사라도 여러 지점이 있을 수 있다. 자신이 점심 먹는 회사를 선택한다."
+  )
+  @PostMapping("/company/{id}/choose")
+  public CustomResponse<?> chooseCompany(
+      @PathVariable long id,
+      Authentication auth
+  ) {
+    companyService.chooseCompany(id, auth.getName());
+    return CustomResponse.success();
   }
 }

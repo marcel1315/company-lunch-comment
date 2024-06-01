@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -43,6 +44,7 @@ public class Member {
   @Enumerated(value = EnumType.STRING)
   private Role role;
 
+  @Setter
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "company_id")
   private Company company;

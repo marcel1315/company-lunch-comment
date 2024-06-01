@@ -1,6 +1,7 @@
 package com.marceldev.companylunchcomment.service;
 
 import com.marceldev.companylunchcomment.component.EmailSender;
+import com.marceldev.companylunchcomment.dto.company.ChooseCompanyDto;
 import com.marceldev.companylunchcomment.dto.company.CompanyOutputDto;
 import com.marceldev.companylunchcomment.dto.company.CreateCompanyDto;
 import com.marceldev.companylunchcomment.dto.company.GetCompanyListDto;
@@ -10,6 +11,7 @@ import com.marceldev.companylunchcomment.entity.Company;
 import com.marceldev.companylunchcomment.entity.Member;
 import com.marceldev.companylunchcomment.entity.Verification;
 import com.marceldev.companylunchcomment.exception.CompanyNotExistException;
+import com.marceldev.companylunchcomment.exception.MemberNotExistException;
 import com.marceldev.companylunchcomment.exception.SameCompanyNameExist;
 import com.marceldev.companylunchcomment.exception.VerificationCodeNotFound;
 import com.marceldev.companylunchcomment.repository.CompanyRepository;
@@ -102,6 +104,20 @@ public class CompanyService {
             PageRequest.of(dto.getPage(), dto.getPageSize(), dto.getSort())
         )
         .map(CompanyOutputDto::of);
+  }
+
+  /**
+   * 회사 선택하기
+   */
+  public void chooseCompany(long companyId, String email) {
+    Member member = memberRepository.findByEmail(email)
+        .orElseThrow(MemberNotExistException::new);
+    Company company = companyRepository.findById(companyId)
+        .filter(c -> c.getDomain().equals(Email.of(email).getDomain()))
+        .orElseThrow(CompanyNotExistException::new);
+
+    member.setCompany(company);
+    memberRepository.save(member);
   }
 
   private void sendVerificationCodeEmail(String email, String code) {
