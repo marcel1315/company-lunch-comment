@@ -21,6 +21,7 @@ import com.marceldev.companylunchcomment.repository.CompanyRepository;
 import com.marceldev.companylunchcomment.repository.MemberRepository;
 import com.marceldev.companylunchcomment.repository.VerificationRepository;
 import com.marceldev.companylunchcomment.type.CompanySort;
+import com.marceldev.companylunchcomment.type.Role;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -278,5 +279,83 @@ class CompanyServiceTest {
     //then
     assertEquals(0, companies.getSize());
     assertEquals(0, companies.getTotalElements());
+  }
+
+  @Test
+  @DisplayName("회사 선택하기 - 성공")
+  void choose_company() {
+    //given
+    Member member = Member.builder()
+        .id(1L)
+        .email("hello@example.com")
+        .role(Role.USER)
+        .build();
+    Company company = Company.builder()
+        .id(1L)
+        .name("감정타코 강남점")
+        .address("서울시 강남구 역삼동 123-456")
+        .latitude("37.123456")
+        .longitude("127.123456")
+        .domain("example.com")
+        .build();
+    when(companyRepository.findById(1L))
+        .thenReturn(Optional.of(company));
+    when(memberRepository.findByEmail("hello@example.com"))
+        .thenReturn(Optional.of(member));
+
+    //when
+    companyService.chooseCompany(1L, "hello@example.com");
+
+    //then
+    assertEquals("감정타코 강남점", member.getCompany().getName());
+  }
+
+  @Test
+  @DisplayName("회사 선택하기 - 실패(회사가 없음")
+  void choose_company_fail_no_company() {
+    //given
+    Member member = Member.builder()
+        .id(1L)
+        .email("hello@example.com")
+        .role(Role.USER)
+        .build();
+    when(companyRepository.findById(1L))
+        .thenReturn(Optional.empty());
+    when(memberRepository.findByEmail("hello@example.com"))
+        .thenReturn(Optional.of(member));
+
+    //when
+    //then
+    assertThrows(CompanyNotExistException.class,
+        () -> companyService.chooseCompany(1L, "hello@example.com"));
+  }
+
+  @Test
+  @DisplayName("회사 선택하기 - 실패(회사가 있지만, 사용자의 이메일 도메인과 회사 도메인이 다름")
+  void choose_company_fail_different_company_domain() {
+    //given
+    String email = "hello@example.com";
+    Member member = Member.builder()
+        .id(1L)
+        .email(email)
+        .role(Role.USER)
+        .build();
+    Company company = Company.builder()
+        .id(1L)
+        .name("감정타코 강남점")
+        .address("서울시 강남구 역삼동 123-456")
+        .latitude("37.123456")
+        .longitude("127.123456")
+        .domain("example.net") // example.com 이 아닌 도메인
+        .build();
+    when(companyRepository.findById(1L))
+        .thenReturn(Optional.of(company));
+    when(memberRepository.findByEmail(email))
+        .thenReturn(Optional.of(member));
+
+    //when
+    //then
+    assertThrows(CompanyNotExistException.class,
+        () -> companyService.chooseCompany(1L, email));
   }
 }
