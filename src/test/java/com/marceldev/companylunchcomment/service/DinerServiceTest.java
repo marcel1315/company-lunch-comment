@@ -17,12 +17,16 @@ import com.marceldev.companylunchcomment.dto.diner.DinerOutputDto;
 import com.marceldev.companylunchcomment.dto.diner.GetDinerListDto;
 import com.marceldev.companylunchcomment.dto.diner.RemoveDinerTagsDto;
 import com.marceldev.companylunchcomment.dto.diner.UpdateDinerDto;
+import com.marceldev.companylunchcomment.entity.Company;
 import com.marceldev.companylunchcomment.entity.Diner;
 import com.marceldev.companylunchcomment.entity.DinerImage;
+import com.marceldev.companylunchcomment.entity.Member;
+import com.marceldev.companylunchcomment.exception.CompanyNotExistException;
 import com.marceldev.companylunchcomment.exception.DinerNotFoundException;
 import com.marceldev.companylunchcomment.exception.InternalServerError;
 import com.marceldev.companylunchcomment.repository.DinerImageRepository;
 import com.marceldev.companylunchcomment.repository.DinerRepository;
+import com.marceldev.companylunchcomment.repository.MemberRepository;
 import com.marceldev.companylunchcomment.type.DinerSort;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -48,6 +52,9 @@ class DinerServiceTest {
   private DinerImageRepository dinerImageRepository;
 
   @Mock
+  private MemberRepository memberRepository;
+
+  @Mock
   private S3Manager s3Manager;
 
   @InjectMocks
@@ -69,9 +76,21 @@ class DinerServiceTest {
         .tags(tags)
         .build();
 
+    Company company = Company.builder()
+        .id(1L)
+        .name("좋은회사")
+        .build();
+
+    when(memberRepository.findByEmail(any()))
+        .thenReturn(Optional.of(
+            Member.builder()
+                .company(company)
+                .build()
+        ));
+
     //when
     ArgumentCaptor<Diner> captor = ArgumentCaptor.forClass(Diner.class);
-    dinerService.createDiner(dto);
+    dinerService.createDiner(dto, "hello@example.com");
 
     //then
     verify(dinerRepository).save(captor.capture());
@@ -84,20 +103,25 @@ class DinerServiceTest {
   }
 
   @Test
-  @DisplayName("식당 생성 - 실패(DB)")
-  void test_create_diner_db_fail() {
+  @DisplayName("식당 생성 - 실패(선택된 회사가 없음)")
+  void test_create_diner_no_company_chosen() {
     //given
     CreateDinerDto dto = CreateDinerDto.builder()
         .name("감성타코")
         .build();
-    when(dinerRepository.save(any()))
-        .thenThrow(RuntimeException.class);
+
+    when(memberRepository.findByEmail(any()))
+        .thenReturn(Optional.of(
+            Member.builder()
+                .company(null)
+                .build()
+        ));
 
     //when
     //then
     assertThrows(
-        InternalServerError.class,
-        () -> dinerService.createDiner(dto)
+        CompanyNotExistException.class,
+        () -> dinerService.createDiner(dto, "hello@example.com")
     );
   }
 

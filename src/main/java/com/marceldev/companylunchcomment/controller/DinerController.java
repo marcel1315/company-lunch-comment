@@ -8,12 +8,14 @@ import com.marceldev.companylunchcomment.dto.diner.GetDinerListDto;
 import com.marceldev.companylunchcomment.dto.diner.RemoveDinerTagsDto;
 import com.marceldev.companylunchcomment.dto.diner.UpdateDinerDto;
 import com.marceldev.companylunchcomment.response.CustomResponse;
+import com.marceldev.companylunchcomment.service.CompanyService;
 import com.marceldev.companylunchcomment.service.DinerImageService;
 import com.marceldev.companylunchcomment.service.DinerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,6 +36,7 @@ public class DinerController {
   private final DinerService dinerService;
 
   private final DinerImageService dinerImageService;
+  private final CompanyService companyService;
 
   @Operation(
       summary = "식당 생성",
@@ -41,8 +44,11 @@ public class DinerController {
           + "식당 태그도 입력 가능하다. (#한식, #양식, #깔끔, #간단, #매움, #양많음 등 사용자가 임의 등록 가능)"
   )
   @PostMapping("/diner")
-  public CustomResponse<?> createDiner(@Validated @RequestBody CreateDinerDto createDinerDto) {
-    dinerService.createDiner(createDinerDto);
+  public CustomResponse<?> createDiner(
+      @Validated @RequestBody CreateDinerDto createDinerDto,
+      Authentication auth
+  ) {
+    dinerService.createDiner(createDinerDto, auth.getName());
     return CustomResponse.success();
   }
 

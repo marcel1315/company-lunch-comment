@@ -57,8 +57,9 @@ public class Diner extends BaseEntity {
   @OneToMany(mappedBy = "diner", fetch = FetchType.LAZY)
   private List<DinerImage> dinerImages;
 
+  @Setter
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "company_id")
+  @JoinColumn(name = "company_id", nullable = false)
   private Company company;
 
   public void addTag(String tag) {
