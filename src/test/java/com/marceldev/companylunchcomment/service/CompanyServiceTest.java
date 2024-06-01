@@ -6,7 +6,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.marceldev.companylunchcomment.dto.company.CompanyOutputDto;
 import com.marceldev.companylunchcomment.dto.company.CreateCompanyDto;
+import com.marceldev.companylunchcomment.dto.company.GetCompanyListDto;
 import com.marceldev.companylunchcomment.dto.company.UpdateCompanyDto;
 import com.marceldev.companylunchcomment.entity.Company;
 import com.marceldev.companylunchcomment.entity.Member;
@@ -18,7 +20,9 @@ import com.marceldev.companylunchcomment.exception.VerificationCodeNotFound;
 import com.marceldev.companylunchcomment.repository.CompanyRepository;
 import com.marceldev.companylunchcomment.repository.MemberRepository;
 import com.marceldev.companylunchcomment.repository.VerificationRepository;
+import com.marceldev.companylunchcomment.type.CompanySort;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,6 +31,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 
 @ExtendWith(MockitoExtension.class)
 class CompanyServiceTest {
@@ -212,5 +218,65 @@ class CompanyServiceTest {
     //then
     assertThrows(VerificationCodeNotFound.class,
         () -> companyService.updateCompany(1L, dto, email));
+  }
+
+  @Test
+  @DisplayName("회사 목록 불러오기 - 성공")
+  void get_company_list() {
+    //given
+    GetCompanyListDto dto = GetCompanyListDto.builder()
+        .page(1)
+        .pageSize(10)
+        .companySort(CompanySort.COMPANY_NAME_ASC)
+        .build();
+    String email = "hello@example.com";
+    Company company1 = Company.builder()
+        .id(1L)
+        .name("감정타코 강남점")
+        .address("서울시 강남구 역삼동 123-456")
+        .latitude("37.123456")
+        .longitude("127.123456")
+        .build();
+    Company company2 = Company.builder()
+        .id(2L)
+        .name("감정타코 신사점")
+        .address("서울시 강남구 신사동 123-456")
+        .latitude("37.123457")
+        .longitude("127.123457")
+        .build();
+
+    Page<Company> pages = new PageImpl<>(List.of(company1, company2));
+
+    when(companyRepository.findByDomain(any(), any()))
+        .thenReturn(pages);
+
+    //when
+    Page<CompanyOutputDto> companies = companyService.getCompanyList(dto, email);
+
+    //then
+    assertEquals(2, companies.getSize());
+  }
+
+  @Test
+  @DisplayName("회사 목록 불러오기 - 성공(빈 페이지)")
+  void get_company_list_empty_page() {
+    //given
+    GetCompanyListDto dto = GetCompanyListDto.builder()
+        .page(1)
+        .pageSize(10)
+        .companySort(CompanySort.COMPANY_NAME_ASC)
+        .build();
+    String email = "hello@example.com";
+
+    Page<Company> pages = new PageImpl<>(List.of());
+    when(companyRepository.findByDomain(any(), any()))
+        .thenReturn(pages);
+
+    //when
+    Page<CompanyOutputDto> companies = companyService.getCompanyList(dto, email);
+
+    //then
+    assertEquals(0, companies.getSize());
+    assertEquals(0, companies.getTotalElements());
   }
 }
