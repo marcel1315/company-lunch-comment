@@ -44,16 +44,13 @@ public class DinerService {
   }
 
   /**
-   * 식당 목록 조회 page는 1부터 시작
+   * 식당 목록 조회. page 는 1부터 시작
    */
   public Page<DinerOutputDto> getDinerList(GetDinerListDto dto) {
     Pageable pageable = PageRequest.of(
-        dto.getPage() - 1, // Suppose getting 1-based index from client
+        dto.getPage(), // Suppose getting 1-based index from client
         dto.getPageSize(),
-        Sort.by(
-            Sort.Direction.valueOf(dto.getDinerSort().getDirection()),
-            dto.getDinerSort().getField()
-        )
+        dto.getSort()
     );
 
     return dinerRepository.findAll(pageable)
