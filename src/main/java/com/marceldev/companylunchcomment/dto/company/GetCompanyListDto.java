@@ -22,9 +22,9 @@ public class GetCompanyListDto {
   private int pageSize;
 
   @NotNull
-  @Schema(example = "DINER_NAME_ASC", allowableValues = {
-      "DINER_NAME_ASC",
-      "DINER_NAME_DESC"
+  @Schema(example = "COMPANY_NAME_ASC", allowableValues = {
+      "COMPANY_NAME_ASC",
+      "COMPANY_NAME_DESC"
   })
   private CompanySort companySort;
 
