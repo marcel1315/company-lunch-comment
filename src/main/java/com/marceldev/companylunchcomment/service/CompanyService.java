@@ -1,7 +1,9 @@
 package com.marceldev.companylunchcomment.service;
 
 import com.marceldev.companylunchcomment.component.EmailSender;
+import com.marceldev.companylunchcomment.dto.company.CompanyOutputDto;
 import com.marceldev.companylunchcomment.dto.company.CreateCompanyDto;
+import com.marceldev.companylunchcomment.dto.company.GetCompanyListDto;
 import com.marceldev.companylunchcomment.dto.company.UpdateCompanyDto;
 import com.marceldev.companylunchcomment.dto.member.SendVerificationCodeDto;
 import com.marceldev.companylunchcomment.entity.Company;
@@ -18,6 +20,8 @@ import com.marceldev.companylunchcomment.util.VerificationCodeGenerator;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,6 +55,9 @@ public class CompanyService {
     companyRepository.save(company);
   }
 
+  /**
+   * 인증번호 발송. 회사 정보 수정을 위해 인정번호를 입력해야 함
+   */
   public void sendVerificationCode(SendVerificationCodeDto dto) {
     String email = dto.getEmail();
     String code = VerificationCodeGenerator.generate(VERIFICATION_CODE_LENGTH);
@@ -86,6 +93,17 @@ public class CompanyService {
     verificationRepository.delete(verification);
   }
 
+  /**
+   * 회사 목록 보기. 로그인한 사용자의 이메일 도메인에 해당하는 회사들 목록만 볼 수 있음
+   */
+  public Page<CompanyOutputDto> listCompany(GetCompanyListDto dto, String email) {
+    return companyRepository.findByDomain(
+            Email.of(email).getDomain(),
+            PageRequest.of(dto.getPage(), dto.getPageSize(), dto.getSort())
+        )
+        .map(CompanyOutputDto::of);
+  }
+
   private void sendVerificationCodeEmail(String email, String code) {
     String subject = "[Company Lunch Comment] 회사정보 수정을 위한 인증번호입니다";
     String body = String.format("인증번호는 %s 입니다. 회사정보 수정란에 입력해주세요.", code);
@@ -105,4 +123,5 @@ public class CompanyService {
 
     verificationRepository.save(verification);
   }
+
 }
