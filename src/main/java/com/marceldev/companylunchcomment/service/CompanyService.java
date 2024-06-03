@@ -16,7 +16,7 @@ import com.marceldev.companylunchcomment.exception.VerificationCodeNotFound;
 import com.marceldev.companylunchcomment.repository.CompanyRepository;
 import com.marceldev.companylunchcomment.repository.MemberRepository;
 import com.marceldev.companylunchcomment.repository.VerificationRepository;
-import com.marceldev.companylunchcomment.type.Email;
+import com.marceldev.companylunchcomment.util.ExtractDomain;
 import com.marceldev.companylunchcomment.util.VerificationCodeGenerator;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -46,7 +46,7 @@ public class CompanyService {
    * 회사 생성. 등록하는 사용자의 이메일 도메인을 활용한다. 같은 도메인 이름으로 동일한 회사명은 있을 수 없다.
    */
   public void createCompany(CreateCompanyDto dto, String memberEmail) {
-    String domain = Email.of(memberEmail).getDomain();
+    String domain = ExtractDomain.from(memberEmail);
 
     if (companyRepository.existsByDomainAndName(domain, dto.getName())) {
       throw new SameCompanyNameExist();
@@ -99,7 +99,7 @@ public class CompanyService {
    */
   public Page<CompanyOutputDto> getCompanyList(GetCompanyListDto dto, String email) {
     return companyRepository.findByDomain(
-            Email.of(email).getDomain(),
+            ExtractDomain.from(email),
             PageRequest.of(dto.getPage(), dto.getPageSize(), dto.getSort())
         )
         .map(CompanyOutputDto::of);
@@ -112,7 +112,7 @@ public class CompanyService {
     Member member = memberRepository.findByEmail(email)
         .orElseThrow(MemberNotExistException::new);
     Company company = companyRepository.findById(companyId)
-        .filter(c -> c.getDomain().equals(Email.of(email).getDomain()))
+        .filter(c -> c.getDomain().equals(ExtractDomain.from(email)))
         .orElseThrow(CompanyNotExistException::new);
 
     member.setCompany(company);
