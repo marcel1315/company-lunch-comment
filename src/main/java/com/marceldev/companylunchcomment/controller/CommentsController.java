@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -52,5 +53,18 @@ public class CommentsController {
         dinerId, auth, getCommentsListDto
     );
     return CustomResponse.success(comments);
+  }
+
+  @Operation(
+      summary = "코멘트 삭제",
+      description = "사용자는 자신이 작성한 코멘트를 삭제할 수 있다."
+  )
+  @DeleteMapping("/diner/{dinerId}/comments/{commentsId}")
+  public CustomResponse<?> deleteComments(
+      @PathVariable long commentsId,
+      Authentication auth
+  ) {
+    commentsService.deleteComments(commentsId, auth.getName());
+    return CustomResponse.success();
   }
 }
