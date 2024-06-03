@@ -3,6 +3,7 @@ package com.marceldev.companylunchcomment.controller;
 import com.marceldev.companylunchcomment.dto.comments.CommentsOutputDto;
 import com.marceldev.companylunchcomment.dto.comments.CreateCommentDto;
 import com.marceldev.companylunchcomment.dto.comments.GetCommentsListDto;
+import com.marceldev.companylunchcomment.dto.comments.UpdateCommentsDto;
 import com.marceldev.companylunchcomment.response.CustomResponse;
 import com.marceldev.companylunchcomment.service.CommentsService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -53,6 +54,20 @@ public class CommentsController {
         dinerId, auth, getCommentsListDto
     );
     return CustomResponse.success(comments);
+  }
+
+  @Operation(
+      summary = "코멘트 수정",
+      description = "사용자는 자신이 작성한 코멘트를 수정할 수 있다."
+  )
+  @PostMapping("/diner/{dinerId}/comments/{commentsId}")
+  public CustomResponse<?> updateComments(
+      @PathVariable long commentsId,
+      @RequestBody UpdateCommentsDto updateCommentsDto,
+      Authentication auth
+  ) {
+    commentsService.updateComments(commentsId, auth.getName(), updateCommentsDto);
+    return CustomResponse.success();
   }
 
   @Operation(
