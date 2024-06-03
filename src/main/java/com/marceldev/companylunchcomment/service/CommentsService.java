@@ -60,14 +60,15 @@ public class CommentsService {
   @Transactional
   public Page<CommentsOutputDto> getCommentsList(long dinerId, Authentication auth,
       GetCommentsListDto dto) {
-    Member member = memberRepository.findByEmail(auth.getName())
+    String myName = memberRepository.findByEmail(auth.getName())
+        .map(Member::getName)
         .orElseThrow(MemberNotExistException::new);
     PageRequest pageable = PageRequest.of(dto.getPage(), dto.getPageSize());
 
-    long total = commentsMapper.selectListCount(dinerId, member.getName(), dto);
+    long total = commentsMapper.selectListCount(dinerId, myName, dto);
     List<CommentsOutputDto> commentsList = commentsMapper.selectList(
         dinerId,
-        member.getName(), // 자신이 남긴 코멘트는 shareStatus가 ME라도 볼러와야 하기 때문에 필요
+        myName, // 자신이 남긴 코멘트는 shareStatus가 ME라도 볼러와야 하기 때문에 필요
         dto,
         pageable,
         dto.getCommentsSort().toString() // mybatis의 경우 pageable 속 sort를 사용하지 않고, 별도로 넣어줌
