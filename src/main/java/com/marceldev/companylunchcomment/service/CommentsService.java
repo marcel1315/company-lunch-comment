@@ -6,6 +6,7 @@ import com.marceldev.companylunchcomment.dto.comments.GetCommentsListDto;
 import com.marceldev.companylunchcomment.entity.Comments;
 import com.marceldev.companylunchcomment.entity.Diner;
 import com.marceldev.companylunchcomment.entity.Member;
+import com.marceldev.companylunchcomment.exception.CommentsNotFoundException;
 import com.marceldev.companylunchcomment.exception.DinerNotFoundException;
 import com.marceldev.companylunchcomment.exception.MemberNotExistException;
 import com.marceldev.companylunchcomment.mapper.CommentsMapper;
@@ -75,5 +76,14 @@ public class CommentsService {
     );
 
     return new PageImpl<>(commentsList, pageable, total);
+  }
+
+  /**
+   * 코멘트 삭제. 자신의 email로 되어 있는 코멘트만 삭제 가능함
+   */
+  public void deleteComments(long commentsId, String email) {
+    Comments comments = commentsRepository.findByIdAndMember_Email(commentsId, email)
+        .orElseThrow(CommentsNotFoundException::new);
+    commentsRepository.delete(comments);
   }
 }
