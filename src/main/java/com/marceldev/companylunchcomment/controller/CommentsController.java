@@ -1,12 +1,16 @@
 package com.marceldev.companylunchcomment.controller;
 
+import com.marceldev.companylunchcomment.dto.comments.CommentsOutputDto;
 import com.marceldev.companylunchcomment.dto.comments.CreateCommentDto;
+import com.marceldev.companylunchcomment.dto.comments.GetCommentsListDto;
 import com.marceldev.companylunchcomment.response.CustomResponse;
 import com.marceldev.companylunchcomment.service.CommentsService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,5 +35,23 @@ public class CommentsController {
   ) {
     commentsService.createComment(dinerId, createCommentDto, auth.getName());
     return CustomResponse.success();
+  }
+
+  @Operation(
+      summary = "식당의 코멘트 조회",
+      description = "사용자는 사내 공유된 식당의 코멘트 목록을 조회할 수 있다.<br>"
+          + "본인 여부, 작성자 이름, 코멘트 내용으로 목록을 조회할 수 있다."
+  )
+  // TODO: 본인 여부, 작성자 이름, 코멘트 내용 필터
+  @GetMapping("/diner/{dinerId}/comments")
+  public CustomResponse<?> getCommentsList(
+      @PathVariable long dinerId,
+      @Validated GetCommentsListDto getCommentsListDto,
+      Authentication auth
+  ) {
+    Page<CommentsOutputDto> comments = commentsService.getCommentsList(
+        dinerId, auth, getCommentsListDto
+    );
+    return CustomResponse.success(comments);
   }
 }

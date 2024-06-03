@@ -27,3 +27,9 @@ s3:
   diner-max-image-count: 10
 
 bypass-email-domain-check-for-dev: true # If true, you can receive email with gmail.com, naver.com, ...
+
+mybatis:
+  mapper-locations: mybatis/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
