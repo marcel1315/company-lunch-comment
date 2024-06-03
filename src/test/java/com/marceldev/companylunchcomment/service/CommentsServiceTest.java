@@ -18,6 +18,7 @@ import com.marceldev.companylunchcomment.entity.Comments;
 import com.marceldev.companylunchcomment.entity.Company;
 import com.marceldev.companylunchcomment.entity.Diner;
 import com.marceldev.companylunchcomment.entity.Member;
+import com.marceldev.companylunchcomment.exception.CommentsNotFoundException;
 import com.marceldev.companylunchcomment.exception.DinerNotFoundException;
 import com.marceldev.companylunchcomment.exception.MemberNotExistException;
 import com.marceldev.companylunchcomment.mapper.CommentsMapper;
@@ -213,5 +214,28 @@ class CommentsServiceTest {
     assertEquals(20L, commentsPage.getTotalElements());
   }
 
+  @Test
+  @DisplayName("코멘트 삭제 - 성공")
+  void delete_comments() {
+    //given
+    when(commentsRepository.findByIdAndMember_Email(anyLong(), any()))
+        .thenReturn(Optional.of(Comments.builder().build()));
 
+    //when
+    //then
+    commentsService.deleteComments(1L, "hello@example.com");
+  }
+
+  @Test
+  @DisplayName("코멘트 삭제 - 실패(코멘트 아이디와 자신의 이메일로 검색했을 때, 삭제하려는 코멘트가 없음)")
+  void delete_comments_no_comments() {
+    //given
+    when(commentsRepository.findByIdAndMember_Email(anyLong(), any()))
+        .thenReturn(Optional.empty());
+
+    //when
+    //then
+    assertThrows(CommentsNotFoundException.class,
+        () -> commentsService.deleteComments(1L, "hello@example.com"));
+  }
 }
