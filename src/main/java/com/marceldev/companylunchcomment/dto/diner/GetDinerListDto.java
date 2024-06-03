@@ -5,6 +5,7 @@ import com.marceldev.companylunchcomment.type.DinerSort;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.domain.Sort;
@@ -16,8 +17,8 @@ public class GetDinerListDto {
   @Positive
   private long companyId;
 
-  @Positive
-  @Schema(example = "1")
+  @PositiveOrZero
+  @Schema(example = "0", description = "페이지번호는 0부터 시작")
   private int page;
 
   @Positive
@@ -30,11 +31,6 @@ public class GetDinerListDto {
       "DINER_NAME_DESC"
   })
   private DinerSort dinerSort;
-
-  // Client 에서 받는 입력은 1번부터 시작하지만, DB에 호출할 때는 0번부터 시작해야 함
-  public int getPage() {
-    return page - 1;
-  }
 
   @JsonIgnore
   public Sort getSort() {
