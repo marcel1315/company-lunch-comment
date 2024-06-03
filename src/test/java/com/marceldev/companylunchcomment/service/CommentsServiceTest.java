@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 import com.marceldev.companylunchcomment.dto.comments.CommentsOutputDto;
 import com.marceldev.companylunchcomment.dto.comments.CreateCommentDto;
 import com.marceldev.companylunchcomment.dto.comments.GetCommentsListDto;
+import com.marceldev.companylunchcomment.dto.comments.UpdateCommentsDto;
 import com.marceldev.companylunchcomment.dto.member.SecurityMember;
 import com.marceldev.companylunchcomment.entity.Comments;
 import com.marceldev.companylunchcomment.entity.Company;
@@ -40,6 +41,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.internal.matchers.NotNull;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
@@ -224,6 +226,7 @@ class CommentsServiceTest {
     //when
     //then
     commentsService.deleteComments(1L, "hello@example.com");
+    verify(commentsRepository).delete(any());
   }
 
   @Test
@@ -237,5 +240,45 @@ class CommentsServiceTest {
     //then
     assertThrows(CommentsNotFoundException.class,
         () -> commentsService.deleteComments(1L, "hello@example.com"));
+  }
+
+  @Test
+  @DisplayName("코멘트 수정 - 성공")
+  void update_comments() {
+    //given
+    UpdateCommentsDto dto = UpdateCommentsDto.builder()
+        .content("맛있어요")
+        .shareStatus(ShareStatus.COMPANY)
+        .build();
+    when(commentsRepository.findByIdAndMember_Email(anyLong(), any()))
+        .thenReturn(Optional.of(Comments.builder()
+            .content("친절해요")
+            .shareStatus(ShareStatus.ME)
+            .build()));
+
+    //when
+    commentsService.updateComments(1L, "hello@example.com", dto);
+    ArgumentCaptor<Comments> captor = ArgumentCaptor.forClass(Comments.class);
+
+    //then
+    verify(commentsRepository).save(captor.capture());
+    assertEquals("맛있어요", captor.getValue().getContent());
+    assertEquals(ShareStatus.COMPANY, captor.getValue().getShareStatus());
+  }
+
+  @Test
+  @DisplayName("코멘트 수정 - 실패(코멘트 아이디와 자신의 이메일로 검색했을 때, 삭제하려는 코멘트가 없음)")
+  void update_comments_fail() {
+    //given
+    UpdateCommentsDto dto = UpdateCommentsDto.builder()
+        .content("맛있어요")
+        .shareStatus(ShareStatus.COMPANY)
+        .build();
+    when(commentsRepository.findByIdAndMember_Email(anyLong(), any()))
+        .thenReturn(Optional.empty());
+
+    //when
+    assertThrows(CommentsNotFoundException.class,
+        () -> commentsService.updateComments(1L, "hello@example.com", dto));
   }
 }
