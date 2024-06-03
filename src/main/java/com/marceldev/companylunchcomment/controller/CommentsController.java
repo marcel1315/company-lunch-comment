@@ -40,9 +40,8 @@ public class CommentsController {
   @Operation(
       summary = "식당의 코멘트 조회",
       description = "사용자는 사내 공유된 식당의 코멘트 목록을 조회할 수 있다.<br>"
-          + "본인 여부, 작성자 이름, 코멘트 내용으로 목록을 조회할 수 있다."
+          + "작성자 이름, 코멘트 내용으로 목록을 조회할 수 있다. 작성시간순으로 정렬할 수 있다."
   )
-  // TODO: 본인 여부, 작성자 이름, 코멘트 내용 필터
   @GetMapping("/diner/{dinerId}/comments")
   public CustomResponse<?> getCommentsList(
       @PathVariable long dinerId,
