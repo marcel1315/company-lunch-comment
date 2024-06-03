@@ -28,10 +28,10 @@ public class CreateCompanyDto {
 
   public Company toEntityWithDomain(String domain) {
     return Company.builder()
-        .name(getName())
-        .address(getAddress())
-        .latitude(getLatitude())
-        .longitude(getLongitude())
+        .name(name)
+        .address(address)
+        .latitude(latitude)
+        .longitude(longitude)
         .domain(domain)
         .build();
   }
