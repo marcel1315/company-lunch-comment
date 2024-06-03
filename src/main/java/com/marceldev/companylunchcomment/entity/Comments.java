@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -32,9 +33,11 @@ public class Comments extends BaseEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @Setter
   @Column(length = 300, nullable = false)
   private String content;
 
+  @Setter
   @Column(length = 10, nullable = false)
   @Enumerated(EnumType.STRING)
   private ShareStatus shareStatus;

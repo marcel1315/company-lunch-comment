@@ -3,6 +3,7 @@ package com.marceldev.companylunchcomment.service;
 import com.marceldev.companylunchcomment.dto.comments.CommentsOutputDto;
 import com.marceldev.companylunchcomment.dto.comments.CreateCommentDto;
 import com.marceldev.companylunchcomment.dto.comments.GetCommentsListDto;
+import com.marceldev.companylunchcomment.dto.comments.UpdateCommentsDto;
 import com.marceldev.companylunchcomment.entity.Comments;
 import com.marceldev.companylunchcomment.entity.Diner;
 import com.marceldev.companylunchcomment.entity.Member;
@@ -13,6 +14,7 @@ import com.marceldev.companylunchcomment.mapper.CommentsMapper;
 import com.marceldev.companylunchcomment.repository.CommentsRepository;
 import com.marceldev.companylunchcomment.repository.DinerRepository;
 import com.marceldev.companylunchcomment.repository.MemberRepository;
+import com.marceldev.companylunchcomment.type.ShareStatus;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -79,7 +81,18 @@ public class CommentsService {
   }
 
   /**
-   * 코멘트 삭제. 자신의 email로 되어 있는 코멘트만 삭제 가능함
+   * 코멘트 수정. 자신의 이메일로 되어 있는 코멘트만 수정 가능함
+   */
+  public void updateComments(long commentsId, String email, UpdateCommentsDto dto) {
+    Comments comments = commentsRepository.findByIdAndMember_Email(commentsId, email)
+        .orElseThrow(CommentsNotFoundException::new);
+    comments.setContent(dto.getContent());
+    comments.setShareStatus(dto.getShareStatus());
+    commentsRepository.save(comments);
+  }
+
+  /**
+   * 코멘트 삭제. 자신의 이메일로 되어 있는 코멘트만 삭제 가능함
    */
   public void deleteComments(long commentsId, String email) {
     Comments comments = commentsRepository.findByIdAndMember_Email(commentsId, email)
