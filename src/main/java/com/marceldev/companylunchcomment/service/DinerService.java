@@ -48,7 +48,7 @@ public class DinerService extends AbstractDinerService {
   }
 
   /**
-   * 식당 목록 조회. page 는 1부터 시작
+   * 식당 목록 조회
    */
   @Override
   Page<DinerOutputDto> getDinerListAfterCheck(GetDinerListDto dto, Company company) {
