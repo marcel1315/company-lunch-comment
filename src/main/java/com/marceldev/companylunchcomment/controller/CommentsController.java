@@ -51,7 +51,7 @@ public class CommentsController {
       Authentication auth
   ) {
     Page<CommentsOutputDto> comments = commentsService.getCommentsList(
-        dinerId, auth, getCommentsListDto
+        dinerId, auth.getName(), getCommentsListDto
     );
     return CustomResponse.success(comments);
   }

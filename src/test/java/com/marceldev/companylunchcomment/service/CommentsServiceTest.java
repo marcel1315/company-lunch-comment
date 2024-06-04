@@ -209,7 +209,7 @@ class CommentsServiceTest {
         .thenReturn(List.of(comments1, comments2));
 
     //when
-    Page<CommentsOutputDto> commentsPage = commentsService.getCommentsList(1L, auth, dto);
+    Page<CommentsOutputDto> commentsPage = commentsService.getCommentsList(1L, auth.getName(), dto);
 
     //then
     assertEquals(2, commentsPage.getContent().size());
