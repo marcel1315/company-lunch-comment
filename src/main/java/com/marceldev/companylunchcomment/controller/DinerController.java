@@ -15,7 +15,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,10 +44,9 @@ public class DinerController {
   )
   @PostMapping("/diner")
   public CustomResponse<?> createDiner(
-      @Validated @RequestBody CreateDinerDto createDinerDto,
-      Authentication auth
+      @Validated @RequestBody CreateDinerDto createDinerDto
   ) {
-    dinerService.createDiner(createDinerDto, auth.getName());
+    dinerService.createDiner(createDinerDto);
     return CustomResponse.success();
   }
 
