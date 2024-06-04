@@ -61,9 +61,9 @@ public class CommentsService {
    * 식당의 코멘트 조회
    */
   @Transactional
-  public Page<CommentsOutputDto> getCommentsList(long dinerId, Authentication auth,
+  public Page<CommentsOutputDto> getCommentsList(long dinerId, String email,
       GetCommentsListDto dto) {
-    String myName = memberRepository.findByEmail(auth.getName())
+    String myName = memberRepository.findByEmail(email)
         .map(Member::getName)
         .orElseThrow(MemberNotExistException::new);
     PageRequest pageable = PageRequest.of(dto.getPage(), dto.getPageSize());
