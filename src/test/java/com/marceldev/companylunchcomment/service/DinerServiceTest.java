@@ -26,7 +26,6 @@ import com.marceldev.companylunchcomment.entity.DinerImage;
 import com.marceldev.companylunchcomment.entity.Member;
 import com.marceldev.companylunchcomment.exception.CompanyNotExistException;
 import com.marceldev.companylunchcomment.exception.DinerNotFoundException;
-import com.marceldev.companylunchcomment.exception.InternalServerError;
 import com.marceldev.companylunchcomment.repository.DinerImageRepository;
 import com.marceldev.companylunchcomment.repository.DinerRepository;
 import com.marceldev.companylunchcomment.repository.MemberRepository;
@@ -147,7 +146,7 @@ class DinerServiceTest {
 
     //when
     ArgumentCaptor<Diner> captor = ArgumentCaptor.forClass(Diner.class);
-    dinerService.createDiner(dto, "hello@example.com");
+    dinerService.createDiner(dto);
 
     //then
     verify(dinerRepository).save(captor.capture());
@@ -178,7 +177,7 @@ class DinerServiceTest {
     //then
     assertThrows(
         CompanyNotExistException.class,
-        () -> dinerService.createDiner(dto, "hello@example.com")
+        () -> dinerService.createDiner(dto)
     );
   }
 
@@ -188,6 +187,8 @@ class DinerServiceTest {
     //given
     UpdateDinerDto dto = UpdateDinerDto.builder()
         .link("diner1.com")
+        .latitude("37.11111111")
+        .longitude("127.11111111")
         .build();
     when(dinerRepository.findById(anyLong()))
         .thenReturn(Optional.ofNullable(
@@ -248,7 +249,7 @@ class DinerServiceTest {
 
     //when
     //then
-    assertThrows(InternalServerError.class,
+    assertThrows(RuntimeException.class,
         () -> dinerService.updateDiner(1, dto));
   }
 
@@ -366,6 +367,7 @@ class DinerServiceTest {
         .page(1)
         .pageSize(10)
         .dinerSort(DinerSort.DINER_NAME_ASC)
+        .companyId(1L)
         .build();
 
     Diner diner1 = Diner.builder()
