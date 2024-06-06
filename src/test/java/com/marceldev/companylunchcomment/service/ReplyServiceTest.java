@@ -1,15 +1,19 @@
 package com.marceldev.companylunchcomment.service;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.marceldev.companylunchcomment.dto.reply.CreateReplyDto;
+import com.marceldev.companylunchcomment.dto.reply.UpdateReplyDto;
 import com.marceldev.companylunchcomment.entity.Comments;
 import com.marceldev.companylunchcomment.entity.Member;
 import com.marceldev.companylunchcomment.entity.Reply;
 import com.marceldev.companylunchcomment.exception.CommentsNotFoundException;
+import com.marceldev.companylunchcomment.exception.ReplyNotFoundException;
 import com.marceldev.companylunchcomment.repository.CommentsRepository;
 import com.marceldev.companylunchcomment.repository.MemberRepository;
 import com.marceldev.companylunchcomment.repository.ReplyRepository;
@@ -82,5 +86,51 @@ class ReplyServiceTest {
     //then
     assertThrows(CommentsNotFoundException.class,
         () -> replyService.createReply(1L, dto, "hello@example.com"));
+  }
+
+  @Test
+  @DisplayName("댓글 수정 - 성공")
+  void update_reply() {
+    //given
+    UpdateReplyDto dto = UpdateReplyDto.builder()
+        .content("댓글 수정")
+        .build();
+    when(memberRepository.findByEmail(any()))
+        .thenReturn(Optional.of(
+            Member.builder().id(1L).build()
+        ));
+    when(replyRepository.findById(2L))
+        .thenReturn(Optional.of(
+            Reply.builder()
+                .id(2L)
+                .member(Member.builder().id(1L).build())
+                .build()
+        ));
+
+    //when
+    replyService.updateReply(2L, dto, "hello@example.com");
+
+    //then
+    verify(replyRepository).findById(2L);
+  }
+
+  @Test
+  @DisplayName("댓글 수정 - 실패(댓글이 존재하지 않음)")
+  void update_reply_no_reply() {
+    //given
+    UpdateReplyDto dto = UpdateReplyDto.builder()
+        .content("댓글 수정")
+        .build();
+    when(memberRepository.findByEmail(any()))
+        .thenReturn(Optional.of(
+            Member.builder().id(1L).build()
+        ));
+    when(replyRepository.findById(2L))
+        .thenReturn(Optional.empty());
+
+    //when
+    //then
+    assertThrows(ReplyNotFoundException.class,
+        () -> replyService.updateReply(2L, dto, "hello@example.com"));
   }
 }
