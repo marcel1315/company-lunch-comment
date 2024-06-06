@@ -1,19 +1,19 @@
 package com.marceldev.companylunchcomment.service;
 
-import com.marceldev.companylunchcomment.dto.comments.CreateCommentDto;
 import com.marceldev.companylunchcomment.dto.reply.CreateReplyDto;
+import com.marceldev.companylunchcomment.dto.reply.UpdateReplyDto;
 import com.marceldev.companylunchcomment.entity.Comments;
-import com.marceldev.companylunchcomment.entity.Diner;
 import com.marceldev.companylunchcomment.entity.Member;
 import com.marceldev.companylunchcomment.entity.Reply;
 import com.marceldev.companylunchcomment.exception.CommentsNotFoundException;
-import com.marceldev.companylunchcomment.exception.DinerNotFoundException;
 import com.marceldev.companylunchcomment.exception.MemberNotExistException;
+import com.marceldev.companylunchcomment.exception.ReplyNotFoundException;
 import com.marceldev.companylunchcomment.repository.CommentsRepository;
 import com.marceldev.companylunchcomment.repository.MemberRepository;
 import com.marceldev.companylunchcomment.repository.ReplyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -42,5 +42,20 @@ public class ReplyService {
         .build();
 
     replyRepository.save(reply);
+  }
+
+  /**
+   * 댓글 수정
+   */
+  @Transactional
+  public void updateReply(long replyId, UpdateReplyDto dto, String email) {
+    Member member = memberRepository.findByEmail(email)
+        .orElseThrow(MemberNotExistException::new);
+
+    Reply reply = replyRepository.findById(replyId)
+        .filter((r) -> r.getMember().getId().equals(member.getId()))
+        .orElseThrow(ReplyNotFoundException::new);
+
+    reply.setContent(dto.getContent());
   }
 }
