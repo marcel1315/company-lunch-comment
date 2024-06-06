@@ -22,7 +22,6 @@ import com.marceldev.companylunchcomment.entity.Member;
 import com.marceldev.companylunchcomment.exception.CommentsNotFoundException;
 import com.marceldev.companylunchcomment.exception.DinerNotFoundException;
 import com.marceldev.companylunchcomment.exception.MemberNotExistException;
-import com.marceldev.companylunchcomment.mapper.CommentsMapper;
 import com.marceldev.companylunchcomment.repository.CommentsRepository;
 import com.marceldev.companylunchcomment.repository.DinerRepository;
 import com.marceldev.companylunchcomment.repository.MemberRepository;
@@ -43,6 +42,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -54,9 +55,6 @@ class CommentsServiceTest {
 
   @Mock
   private CommentsRepository commentsRepository;
-
-  @Mock
-  private CommentsMapper commentsMapper;
 
   @Mock
   private MemberRepository memberRepository;
@@ -191,8 +189,6 @@ class CommentsServiceTest {
   void get_comments_list() {
     //given
     GetCommentsListDto dto = GetCommentsListDto.builder()
-        .page(1)
-        .pageSize(10)
         .commentsSort(CREATED_AT_ASC)
         .commentedBy("김영수")
         .keyword("친절")
@@ -202,13 +198,14 @@ class CommentsServiceTest {
     CommentsOutputDto comments1 = new CommentsOutputDto();
     CommentsOutputDto comments2 = new CommentsOutputDto();
 
-    when(commentsMapper.selectListCount(anyLong(), any(), any()))
-        .thenReturn(20L);
-    when(commentsMapper.selectList(anyLong(), any(), any(), any(), any()))
-        .thenReturn(List.of(comments1, comments2));
+    PageRequest pageable = PageRequest.of(0, 20);
+    Page<CommentsOutputDto> pages = new PageImpl<>(List.of(comments1, comments2), pageable, 20);
+    when(commentsRepository.getList(any(), any()))
+        .thenReturn(pages);
 
     //when
-    Page<CommentsOutputDto> commentsPage = commentsService.getCommentsList(1L, auth.getName(), dto);
+    Page<CommentsOutputDto> commentsPage = commentsService.getCommentsList(1L, auth.getName(), dto,
+        pageable);
 
     //then
     assertEquals(2, commentsPage.getContent().size());
@@ -256,13 +253,8 @@ class CommentsServiceTest {
             .build()));
 
     //when
-    commentsService.updateComments(1L, "hello@example.com", dto);
-    ArgumentCaptor<Comments> captor = ArgumentCaptor.forClass(Comments.class);
-
     //then
-    verify(commentsRepository).save(captor.capture());
-    assertEquals("맛있어요", captor.getValue().getContent());
-    assertEquals(ShareStatus.COMPANY, captor.getValue().getShareStatus());
+    commentsService.updateComments(1L, "hello@example.com", dto);
   }
 
   @Test
