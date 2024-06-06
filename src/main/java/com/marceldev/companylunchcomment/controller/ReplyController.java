@@ -24,7 +24,7 @@ public class ReplyController {
   @PostMapping("/diner/{dinerId}/comments/{commentsId}/reply")
   public CustomResponse<?> createReply(
       @PathVariable long commentsId,
-      @RequestBody CreateReplyDto createReplyDto,
+      @Validated @RequestBody CreateReplyDto createReplyDto,
       Authentication auth
   ) {
     replyService.createReply(commentsId, createReplyDto, auth.getName());
