@@ -1,6 +1,7 @@
 package com.marceldev.companylunchcomment.service;
 
 import com.marceldev.companylunchcomment.dto.reply.CreateReplyDto;
+import com.marceldev.companylunchcomment.dto.reply.ReplyOutputDto;
 import com.marceldev.companylunchcomment.dto.reply.UpdateReplyDto;
 import com.marceldev.companylunchcomment.entity.Comments;
 import com.marceldev.companylunchcomment.entity.Member;
@@ -11,7 +12,10 @@ import com.marceldev.companylunchcomment.exception.ReplyNotFoundException;
 import com.marceldev.companylunchcomment.repository.CommentsRepository;
 import com.marceldev.companylunchcomment.repository.MemberRepository;
 import com.marceldev.companylunchcomment.repository.ReplyRepository;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +46,17 @@ public class ReplyService {
         .build();
 
     replyRepository.save(reply);
+  }
+
+  /**
+   * 댓글 조회
+   */
+  // TODO: Sort by createdAt desc
+  public List<ReplyOutputDto> getReplyList(long commentsId, String email) {
+    // TODO: Filter out if member can't see the comments
+    return replyRepository.findByCommentsId(commentsId).stream()
+        .map(ReplyOutputDto::of)
+        .toList();
   }
 
   /**
