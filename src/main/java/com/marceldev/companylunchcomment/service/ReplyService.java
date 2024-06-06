@@ -58,4 +58,18 @@ public class ReplyService {
 
     reply.setContent(dto.getContent());
   }
+
+  /**
+   * 댓글 삭제
+   */
+  public void deleteReply(long replyId, String name) {
+    Member member = memberRepository.findByEmail(name)
+        .orElseThrow(MemberNotExistException::new);
+
+    Reply reply = replyRepository.findById(replyId)
+        .filter((r) -> r.getMember().getId().equals(member.getId()))
+        .orElseThrow(ReplyNotFoundException::new);
+
+    replyRepository.delete(reply);
+  }
 }

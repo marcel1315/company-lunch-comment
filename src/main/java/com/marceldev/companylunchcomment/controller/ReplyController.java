@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -45,6 +46,20 @@ public class ReplyController {
       Authentication auth
   ) {
     replyService.updateReply(replyId, updateReplyDto, auth.getName());
+    return CustomResponse.success();
+  }
+
+  @Operation(
+      summary = "댓글 삭제",
+      description = "사용자는 댓글 삭제가 가능하다.<br>"
+          + "삭제는 자신이 작성한 댓글만 가능하다."
+  )
+  @DeleteMapping("/diner/{dinerId}/comments/{commentsId}/reply/{replyId}")
+  public CustomResponse<?> deleteReply(
+      @PathVariable long replyId,
+      Authentication auth
+  ) {
+    replyService.deleteReply(replyId, auth.getName());
     return CustomResponse.success();
   }
 }
