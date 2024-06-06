@@ -24,7 +24,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @ToString(exclude = {"member", "comments"})
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-public class Reply {
+public class Reply extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

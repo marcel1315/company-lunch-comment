@@ -1,14 +1,17 @@
 package com.marceldev.companylunchcomment.controller;
 
 import com.marceldev.companylunchcomment.dto.reply.CreateReplyDto;
+import com.marceldev.companylunchcomment.dto.reply.ReplyOutputDto;
 import com.marceldev.companylunchcomment.dto.reply.UpdateReplyDto;
 import com.marceldev.companylunchcomment.response.CustomResponse;
 import com.marceldev.companylunchcomment.service.ReplyService;
 import io.swagger.v3.oas.annotations.Operation;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,6 +35,19 @@ public class ReplyController {
   ) {
     replyService.createReply(commentsId, createReplyDto, auth.getName());
     return CustomResponse.success();
+  }
+
+  @Operation(
+      summary = "댓글 조회",
+      description = "사용자는 코멘트에 작성된 댓글을 조회할 수 있다."
+  )
+  @GetMapping("/diner/{dinerId}/comments/{commentsId}/reply")
+  public CustomResponse<?> getReplyList(
+      @PathVariable long commentsId,
+      Authentication auth
+  ) {
+    List<ReplyOutputDto> replies = replyService.getReplyList(commentsId, auth.getName());
+    return CustomResponse.success(replies);
   }
 
   @Operation(
