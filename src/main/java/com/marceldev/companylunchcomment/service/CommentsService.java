@@ -10,20 +10,18 @@ import com.marceldev.companylunchcomment.entity.Member;
 import com.marceldev.companylunchcomment.exception.CommentsNotFoundException;
 import com.marceldev.companylunchcomment.exception.DinerNotFoundException;
 import com.marceldev.companylunchcomment.exception.MemberNotExistException;
-import com.marceldev.companylunchcomment.mapper.CommentsMapper;
 import com.marceldev.companylunchcomment.repository.CommentsRepository;
 import com.marceldev.companylunchcomment.repository.DinerRepository;
 import com.marceldev.companylunchcomment.repository.MemberRepository;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CommentsService {
 
   private final CommentsRepository commentsRepository;
@@ -32,11 +30,10 @@ public class CommentsService {
 
   private final MemberRepository memberRepository;
 
-  private final CommentsMapper commentsMapper;
-
   /**
    * 식당에 코멘트 작성
    */
+  @Transactional
   public void createComment(long dinerId, CreateCommentDto dto, String email) {
     Member member = memberRepository.findByEmail(email)
         .orElseThrow(MemberNotExistException::new);
@@ -58,40 +55,28 @@ public class CommentsService {
   /**
    * 식당의 코멘트 조회
    */
-  @Transactional
   public Page<CommentsOutputDto> getCommentsList(long dinerId, String email,
-      GetCommentsListDto dto) {
-    String myName = memberRepository.findByEmail(email)
-        .map(Member::getName)
-        .orElseThrow(MemberNotExistException::new);
-    PageRequest pageable = PageRequest.of(dto.getPage(), dto.getPageSize());
+      GetCommentsListDto dto, Pageable pageable) {
+    // TODO: Check diner exist
 
-    long total = commentsMapper.selectListCount(dinerId, myName, dto);
-    List<CommentsOutputDto> commentsList = commentsMapper.selectList(
-        dinerId,
-        myName, // 자신이 남긴 코멘트는 shareStatus가 ME라도 볼러와야 하기 때문에 필요
-        dto,
-        pageable,
-        dto.getCommentsSort().toString() // mybatis의 경우 pageable 속 sort를 사용하지 않고, 별도로 넣어줌
-    );
-
-    return new PageImpl<>(commentsList, pageable, total);
+    return commentsRepository.getList(dto, pageable);
   }
 
   /**
    * 코멘트 수정. 자신의 이메일로 되어 있는 코멘트만 수정 가능함
    */
+  @Transactional
   public void updateComments(long commentsId, String email, UpdateCommentsDto dto) {
     Comments comments = commentsRepository.findByIdAndMember_Email(commentsId, email)
         .orElseThrow(CommentsNotFoundException::new);
     comments.setContent(dto.getContent());
     comments.setShareStatus(dto.getShareStatus());
-    commentsRepository.save(comments);
   }
 
   /**
    * 코멘트 삭제. 자신의 이메일로 되어 있는 코멘트만 삭제 가능함
    */
+  @Transactional
   public void deleteComments(long commentsId, String email) {
     Comments comments = commentsRepository.findByIdAndMember_Email(commentsId, email)
         .orElseThrow(CommentsNotFoundException::new);

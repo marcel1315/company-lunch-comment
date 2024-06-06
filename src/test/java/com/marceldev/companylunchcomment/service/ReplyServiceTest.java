@@ -17,7 +17,6 @@ import com.marceldev.companylunchcomment.exception.ReplyNotFoundException;
 import com.marceldev.companylunchcomment.repository.CommentsRepository;
 import com.marceldev.companylunchcomment.repository.MemberRepository;
 import com.marceldev.companylunchcomment.repository.ReplyRepository;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -180,15 +179,7 @@ class ReplyServiceTest {
   @DisplayName("댓글 조회 - 성공")
   void get_reply_list() {
     //given
-    when(memberRepository.findByEmail(any()))
-        .thenReturn(Optional.of(
-            Member.builder().id(1L).build()
-        ));
-    when(commentsRepository.findById(1L))
-        .thenReturn(Optional.of(
-            Comments.builder().id(1L).build()
-        ));
-    when(replyRepository.findAll())
+    when(replyRepository.findByCommentsId(anyLong()))
         .thenReturn(
             List.of(
                 Reply.builder()

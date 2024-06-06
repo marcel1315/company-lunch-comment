@@ -9,6 +9,7 @@ import com.marceldev.companylunchcomment.service.CommentsService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -48,10 +49,11 @@ public class CommentsController {
   public CustomResponse<?> getCommentsList(
       @PathVariable long dinerId,
       @Validated GetCommentsListDto getCommentsListDto,
+      Pageable pageable,
       Authentication auth
   ) {
     Page<CommentsOutputDto> comments = commentsService.getCommentsList(
-        dinerId, auth.getName(), getCommentsListDto
+        dinerId, auth.getName(), getCommentsListDto, pageable
     );
     return CustomResponse.success(comments);
   }
