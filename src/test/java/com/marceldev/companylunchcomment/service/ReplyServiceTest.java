@@ -116,7 +116,7 @@ class ReplyServiceTest {
 
   @Test
   @DisplayName("댓글 수정 - 실패(댓글이 존재하지 않음)")
-  void update_reply_no_reply() {
+  void update_reply_fail_no_reply() {
     //given
     UpdateReplyDto dto = UpdateReplyDto.builder()
         .content("댓글 수정")
@@ -132,5 +132,45 @@ class ReplyServiceTest {
     //then
     assertThrows(ReplyNotFoundException.class,
         () -> replyService.updateReply(2L, dto, "hello@example.com"));
+  }
+
+  @Test
+  @DisplayName("댓글 삭제 - 성공")
+  void delete_reply() {
+    //given
+    when(memberRepository.findByEmail(any()))
+        .thenReturn(Optional.of(
+            Member.builder().id(1L).build()
+        ));
+    when(replyRepository.findById(1L))
+        .thenReturn(Optional.of(
+            Reply.builder()
+                .id(1L)
+                .member(Member.builder().id(1L).build())
+                .build()
+        ));
+
+    //when
+    replyService.deleteReply(1L, "hello@example.com");
+
+    //then
+    verify(replyRepository).delete(any());
+  }
+
+  @Test
+  @DisplayName("댓글 삭제 - 실패(댓글이 존재하지 않음)")
+  void delete_reply_fail_no_reply() {
+    //given
+    when(memberRepository.findByEmail(any()))
+        .thenReturn(Optional.of(
+            Member.builder().id(1L).build()
+        ));
+    when(replyRepository.findById(2L))
+        .thenReturn(Optional.empty());
+
+    //when
+    //then
+    assertThrows(ReplyNotFoundException.class,
+        () -> replyService.deleteReply(2L, "hello@example.com"));
   }
 }
