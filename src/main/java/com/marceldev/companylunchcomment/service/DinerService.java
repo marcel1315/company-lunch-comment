@@ -11,9 +11,9 @@ import com.marceldev.companylunchcomment.dto.diner.UpdateDinerDto;
 import com.marceldev.companylunchcomment.entity.Company;
 import com.marceldev.companylunchcomment.entity.Diner;
 import com.marceldev.companylunchcomment.entity.DinerImage;
-import com.marceldev.companylunchcomment.repository.DinerImageRepository;
-import com.marceldev.companylunchcomment.repository.DinerRepository;
-import com.marceldev.companylunchcomment.repository.MemberRepository;
+import com.marceldev.companylunchcomment.repository.diner.DinerImageRepository;
+import com.marceldev.companylunchcomment.repository.diner.DinerRepository;
+import com.marceldev.companylunchcomment.repository.member.MemberRepository;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -52,8 +52,7 @@ public class DinerService extends AbstractDinerService {
   @Override
   Page<DinerOutputDto> getDinerListAfterCheck(GetDinerListDto dto, Company company,
       Pageable pageable) {
-    return dinerRepository.findByCompanyId(dto.getCompanyId(), pageable)
-        .map(DinerOutputDto::of);
+    return dinerRepository.getList(company.getId(), dto, pageable);
   }
 
   /**

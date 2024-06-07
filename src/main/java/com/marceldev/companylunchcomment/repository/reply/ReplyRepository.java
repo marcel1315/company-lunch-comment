@@ -1,4 +1,4 @@
-package com.marceldev.companylunchcomment.repository;
+package com.marceldev.companylunchcomment.repository.reply;
 
 import com.marceldev.companylunchcomment.entity.Reply;
 import org.springframework.data.domain.Page;

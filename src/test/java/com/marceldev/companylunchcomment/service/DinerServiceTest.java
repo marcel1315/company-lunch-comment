@@ -26,9 +26,9 @@ import com.marceldev.companylunchcomment.entity.DinerImage;
 import com.marceldev.companylunchcomment.entity.Member;
 import com.marceldev.companylunchcomment.exception.CompanyNotExistException;
 import com.marceldev.companylunchcomment.exception.DinerNotFoundException;
-import com.marceldev.companylunchcomment.repository.DinerImageRepository;
-import com.marceldev.companylunchcomment.repository.DinerRepository;
-import com.marceldev.companylunchcomment.repository.MemberRepository;
+import com.marceldev.companylunchcomment.repository.diner.DinerImageRepository;
+import com.marceldev.companylunchcomment.repository.diner.DinerRepository;
+import com.marceldev.companylunchcomment.repository.member.MemberRepository;
 import com.marceldev.companylunchcomment.type.DinerSort;
 import com.marceldev.companylunchcomment.type.Role;
 import java.util.Collection;
@@ -317,25 +317,28 @@ class DinerServiceTest {
   void test_get_diner_list() {
     //given
     GetDinerListDto dto = GetDinerListDto.builder()
-        .page(1)
-        .pageSize(10)
         .dinerSort(DinerSort.DINER_NAME_ASC)
-        .companyId(1L)
         .build();
 
-    Diner diner1 = Diner.builder()
+    DinerOutputDto diner1 = DinerOutputDto.builder()
         .id(1L)
         .name("감성타코")
         .link("diner.com")
+        .latitude("37.123123")
+        .longitude("127.123123")
+        .tags(new LinkedHashSet<>(List.of("태그1", "태그2")))
         .build();
-    Diner diner2 = Diner.builder()
+    DinerOutputDto diner2 = DinerOutputDto.builder()
         .id(2L)
         .name("감성타코2")
         .link("diner2.com")
+        .latitude("37.123123")
+        .longitude("127.123123")
+        .tags(new LinkedHashSet<>(List.of("태그1", "태그2")))
         .build();
 
-    Page<Diner> pages = new PageImpl<>(List.of(diner1, diner2));
-    when(dinerRepository.findByCompanyId(anyLong(), any()))
+    Page<DinerOutputDto> pages = new PageImpl<>(List.of(diner1, diner2));
+    when(dinerRepository.getList(anyLong(), any(), any()))
         .thenReturn(pages);
     PageRequest pageable = PageRequest.of(0, 10);
 

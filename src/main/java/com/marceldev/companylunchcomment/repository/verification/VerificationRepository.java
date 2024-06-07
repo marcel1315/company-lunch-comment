@@ -1,4 +1,4 @@
-package com.marceldev.companylunchcomment.repository;
+package com.marceldev.companylunchcomment.repository.verification;
 
 import com.marceldev.companylunchcomment.entity.Verification;
 import java.util.Optional;
