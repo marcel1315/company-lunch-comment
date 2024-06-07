@@ -18,8 +18,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public abstract class AbstractDinerService {
 
   protected final MemberRepository memberRepository;
@@ -40,6 +42,7 @@ public abstract class AbstractDinerService {
 
   abstract void removeDinerTagAfterCheck(long id, RemoveDinerTagsDto dto, Diner diner);
 
+  @Transactional
   public void createDiner(CreateDinerDto createDinerDto) {
     Company company = checkMemberHasCompany();
     createDinerAfterCheck(createDinerDto, company);
@@ -55,21 +58,25 @@ public abstract class AbstractDinerService {
     return getDinerDetailAfterCheck(id, diner);
   }
 
+  @Transactional
   public void updateDiner(long id, UpdateDinerDto dto) {
     Diner diner = checkMemberCanAccessDiner(id);
     updateDinerAfterCheck(id, dto, diner);
   }
 
+  @Transactional
   public void removeDiner(long id) {
     Diner diner = checkMemberCanAccessDiner(id);
     removeDinerAfterCheck(id, diner);
   }
 
+  @Transactional
   public void addDinerTag(long id, AddDinerTagsDto dto) {
     Diner diner = checkMemberCanAccessDiner(id);
     addDinerTagAfterCheck(id, dto, diner);
   }
 
+  @Transactional
   public void removeDinerTag(long id, RemoveDinerTagsDto dto) {
     Diner diner = checkMemberCanAccessDiner(id);
     removeDinerTagAfterCheck(id, dto, diner);

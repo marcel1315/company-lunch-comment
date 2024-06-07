@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CompanyService {
 
   private static final int VERIFICATION_CODE_VALID_SECOND = 60 * 3;
@@ -45,6 +46,7 @@ public class CompanyService {
   /**
    * 회사 생성. 등록하는 사용자의 이메일 도메인을 활용한다. 같은 도메인 이름으로 동일한 회사명은 있을 수 없다.
    */
+  @Transactional
   public void createCompany(CreateCompanyDto dto, String memberEmail) {
     String domain = ExtractDomain.from(memberEmail);
 
@@ -59,6 +61,7 @@ public class CompanyService {
   /**
    * 인증번호 발송. 회사 정보 수정을 위해 인정번호를 입력해야 함
    */
+  @Transactional
   public void sendVerificationCode(SendVerificationCodeDto dto) {
     String email = dto.getEmail();
     String code = VerificationCodeGenerator.generate(VERIFICATION_CODE_LENGTH);
@@ -90,7 +93,6 @@ public class CompanyService {
     Optional.ofNullable(updateCompanyDto.getLongitude())
         .ifPresent(company::setLongitude);
 
-    companyRepository.save(company);
     verificationRepository.delete(verification);
   }
 
@@ -108,6 +110,7 @@ public class CompanyService {
   /**
    * 회사 선택하기
    */
+  @Transactional
   public void chooseCompany(long companyId, String email) {
     Member member = memberRepository.findByEmail(email)
         .orElseThrow(MemberNotExistException::new);
@@ -116,7 +119,6 @@ public class CompanyService {
         .orElseThrow(CompanyNotExistException::new);
 
     member.setCompany(company);
-    memberRepository.save(member);
   }
 
   private void sendVerificationCodeEmail(String email, String code) {
@@ -138,5 +140,4 @@ public class CompanyService {
 
     verificationRepository.save(verification);
   }
-
 }

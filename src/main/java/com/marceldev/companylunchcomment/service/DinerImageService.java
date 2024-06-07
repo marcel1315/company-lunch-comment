@@ -17,11 +17,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class DinerImageService {
 
   @Value("${s3.diner-max-image-count}")
@@ -36,6 +38,7 @@ public class DinerImageService {
   /**
    * 식당 이미지 추가 이미지의 순서값은 이미 있는 이미지의 가장 큰 값에 +100씩 함
    */
+  @Transactional
   public void addDinerImage(long id, MultipartFile file) {
     Diner diner = getDiner(id);
     checkMaxImageCount(diner);
@@ -47,6 +50,7 @@ public class DinerImageService {
   /**
    * 식당 이미지 제거
    */
+  @Transactional
   public void removeDinerImage(long dinerId, long imageId) {
     // dinerId는 추후에 사용자 개념이 들어오면, diner를 지울 수 있는지 확인할 때 쓰려고 남겨놓음
 
