@@ -1,4 +1,4 @@
-package com.marceldev.companylunchcomment.repository;
+package com.marceldev.companylunchcomment.repository.diner;
 
 import com.marceldev.companylunchcomment.entity.Diner;
 import com.marceldev.companylunchcomment.entity.DinerImage;

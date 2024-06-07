@@ -1,4 +1,4 @@
-package com.marceldev.companylunchcomment.repository;
+package com.marceldev.companylunchcomment.repository.comments;
 
 import static com.marceldev.companylunchcomment.entity.QComments.comments;
 

@@ -1,4 +1,4 @@
-package com.marceldev.companylunchcomment.repository;
+package com.marceldev.companylunchcomment.repository.comments;
 
 import com.marceldev.companylunchcomment.entity.Comments;
 import java.util.Optional;

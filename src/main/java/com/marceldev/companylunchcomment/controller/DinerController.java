@@ -54,10 +54,10 @@ public class DinerController {
       description = "사용자는 식당의 목록을 조회할 수 있다.<br>"
           + "식당 이름, 태그, 거리, 코멘트 갯수를 볼 수 있다.<br>"
           + "회사의 위도와 경도, 식당의 위도와 경도를 사용해 회사로부터 식당의 거리를 표시한다.<br>"
-          + "식당은 식당 이름, 거리, 코멘트 갯수로 정렬할 수 있다."
+          + "식당 이름, 거리, 코멘트 갯수로 정렬할 수 있다."
   )
   @GetMapping("/diner")
-  // TODO: 거리, 코멘트 갯수 추가. 필터 추가
+  // TODO: 거리, 코멘트 갯수 추가
   public CustomResponse<?> getDinerList(
       @Validated @ModelAttribute GetDinerListDto getDinerListDto,
       Pageable pageable

@@ -12,8 +12,8 @@ import com.marceldev.companylunchcomment.entity.Diner;
 import com.marceldev.companylunchcomment.entity.Member;
 import com.marceldev.companylunchcomment.exception.CompanyNotExistException;
 import com.marceldev.companylunchcomment.exception.DinerNotFoundException;
-import com.marceldev.companylunchcomment.repository.DinerRepository;
-import com.marceldev.companylunchcomment.repository.MemberRepository;
+import com.marceldev.companylunchcomment.repository.diner.DinerRepository;
+import com.marceldev.companylunchcomment.repository.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -51,7 +51,7 @@ public abstract class AbstractDinerService {
   }
 
   public Page<DinerOutputDto> getDinerList(GetDinerListDto dto, Pageable pageable) {
-    Company company = checkMemberCanAccessCompany(dto.getCompanyId());
+    Company company = checkMemberHasCompany();
     return getDinerListAfterCheck(dto, company, pageable);
   }
 
@@ -98,16 +98,6 @@ public abstract class AbstractDinerService {
     return dinerRepository.findById(dinerId)
         .filter((diner) -> diner.getCompany().getId().equals(companyId))
         .orElseThrow(() -> new DinerNotFoundException(dinerId));
-  }
-
-  // 회원이 회사에 속했는지 확인
-  private Company checkMemberCanAccessCompany(long companyId) {
-    Company company = checkMemberHasCompany();
-    if (company.getId() == companyId) {
-      return company;
-    } else {
-      throw new CompanyNotExistException();
-    }
   }
 
   // 회원이 회사를 선택했는지 확인
