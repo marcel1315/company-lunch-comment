@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
@@ -76,10 +77,11 @@ public class CompanyController {
   @GetMapping("/company")
   public CustomResponse<?> getCompanyList(
       @Validated @ModelAttribute GetCompanyListDto getCompanyListDto,
+      Pageable pageable,
       Authentication auth
   ) {
     Page<CompanyOutputDto> companies = companyService.getCompanyList(getCompanyListDto,
-        auth.getName());
+        auth.getName(), pageable);
     return CustomResponse.success(companies);
   }
 

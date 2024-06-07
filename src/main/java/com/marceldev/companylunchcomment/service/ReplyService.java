@@ -12,8 +12,9 @@ import com.marceldev.companylunchcomment.exception.ReplyNotFoundException;
 import com.marceldev.companylunchcomment.repository.CommentsRepository;
 import com.marceldev.companylunchcomment.repository.MemberRepository;
 import com.marceldev.companylunchcomment.repository.ReplyRepository;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,11 +53,10 @@ public class ReplyService {
    * 댓글 조회
    */
   // TODO: Sort by createdAt desc
-  public List<ReplyOutputDto> getReplyList(long commentsId, String email) {
+  public Page<ReplyOutputDto> getReplyList(long commentsId, String email, Pageable pageable) {
     // TODO: Filter out if member can't see the comments
-    return replyRepository.findByCommentsId(commentsId).stream()
-        .map(ReplyOutputDto::of)
-        .toList();
+    return replyRepository.findByCommentsId(commentsId, pageable)
+        .map(ReplyOutputDto::of);
   }
 
   /**

@@ -47,6 +47,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -336,9 +337,10 @@ class DinerServiceTest {
     Page<Diner> pages = new PageImpl<>(List.of(diner1, diner2));
     when(dinerRepository.findByCompanyId(anyLong(), any()))
         .thenReturn(pages);
+    PageRequest pageable = PageRequest.of(0, 10);
 
     //when
-    Page<DinerOutputDto> page = dinerService.getDinerList(dto);
+    Page<DinerOutputDto> page = dinerService.getDinerList(dto, pageable);
 
     //then
     assertEquals(page.getContent().size(), 2);

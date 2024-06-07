@@ -8,13 +8,13 @@ import com.marceldev.companylunchcomment.dto.diner.GetDinerListDto;
 import com.marceldev.companylunchcomment.dto.diner.RemoveDinerTagsDto;
 import com.marceldev.companylunchcomment.dto.diner.UpdateDinerDto;
 import com.marceldev.companylunchcomment.response.CustomResponse;
-import com.marceldev.companylunchcomment.service.CompanyService;
 import com.marceldev.companylunchcomment.service.DinerImageService;
 import com.marceldev.companylunchcomment.service.DinerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,7 +35,6 @@ public class DinerController {
   private final DinerService dinerService;
 
   private final DinerImageService dinerImageService;
-  private final CompanyService companyService;
 
   @Operation(
       summary = "식당 생성",
@@ -60,8 +59,10 @@ public class DinerController {
   @GetMapping("/diner")
   // TODO: 거리, 코멘트 갯수 추가. 필터 추가
   public CustomResponse<?> getDinerList(
-      @Validated @ModelAttribute GetDinerListDto getDinerListDto) {
-    Page<DinerOutputDto> diners = dinerService.getDinerList(getDinerListDto);
+      @Validated @ModelAttribute GetDinerListDto getDinerListDto,
+      Pageable pageable
+  ) {
+    Page<DinerOutputDto> diners = dinerService.getDinerList(getDinerListDto, pageable);
     return CustomResponse.success(diners);
   }
 
