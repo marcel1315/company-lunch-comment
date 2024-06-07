@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -50,11 +50,9 @@ public class DinerService extends AbstractDinerService {
    * 식당 목록 조회
    */
   @Override
-  Page<DinerOutputDto> getDinerListAfterCheck(GetDinerListDto dto, Company company) {
-    return dinerRepository.findByCompanyId(
-            dto.getCompanyId(),
-            PageRequest.of(dto.getPage(), dto.getPageSize(), dto.getSort())
-        )
+  Page<DinerOutputDto> getDinerListAfterCheck(GetDinerListDto dto, Company company,
+      Pageable pageable) {
+    return dinerRepository.findByCompanyId(dto.getCompanyId(), pageable)
         .map(DinerOutputDto::of);
   }
 

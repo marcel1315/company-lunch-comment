@@ -26,6 +26,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 @ExtendWith(MockitoExtension.class)
 class ReplyServiceTest {
@@ -179,19 +182,19 @@ class ReplyServiceTest {
   @DisplayName("댓글 조회 - 성공")
   void get_reply_list() {
     //given
-    when(replyRepository.findByCommentsId(anyLong()))
-        .thenReturn(
-            List.of(
-                Reply.builder()
-                    .id(1L)
-                    .content("댓글입니다.")
-                    .member(Member.builder().id(1L).name("홍길동").build())
-                    .build()
-            )
-        );
+    Page<Reply> page = new PageImpl<>(List.of(
+        Reply.builder()
+            .id(1L)
+            .content("댓글입니다.")
+            .member(Member.builder().id(1L).name("김영수").build())
+            .build()
+    ));
+    PageRequest pageable = PageRequest.of(0, 10);
+    when(replyRepository.findByCommentsId(anyLong(), any()))
+        .thenReturn(page);
 
     //when
     //then
-    replyService.getReplyList(1L, "hello@example.com");
+    replyService.getReplyList(1L, "hello@example.com", pageable);
   }
 }

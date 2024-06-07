@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -99,11 +99,9 @@ public class CompanyService {
   /**
    * 회사 목록 보기. 로그인한 사용자의 이메일 도메인에 해당하는 회사들 목록만 볼 수 있음
    */
-  public Page<CompanyOutputDto> getCompanyList(GetCompanyListDto dto, String email) {
-    return companyRepository.findByDomain(
-            ExtractDomain.from(email),
-            PageRequest.of(dto.getPage(), dto.getPageSize(), dto.getSort())
-        )
+  public Page<CompanyOutputDto> getCompanyList(GetCompanyListDto dto, String email,
+      Pageable pageable) {
+    return companyRepository.findByDomain(ExtractDomain.from(email), pageable)
         .map(CompanyOutputDto::of);
   }
 

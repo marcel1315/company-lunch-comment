@@ -34,6 +34,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 @ExtendWith(MockitoExtension.class)
 class CompanyServiceTest {
@@ -225,8 +226,6 @@ class CompanyServiceTest {
   void get_company_list() {
     //given
     GetCompanyListDto dto = GetCompanyListDto.builder()
-        .page(1)
-        .pageSize(10)
         .companySort(CompanySort.COMPANY_NAME_ASC)
         .build();
     String email = "hello@example.com";
@@ -246,12 +245,12 @@ class CompanyServiceTest {
         .build();
 
     Page<Company> pages = new PageImpl<>(List.of(company1, company2));
-
+    PageRequest pageable = PageRequest.of(0, 10);
     when(companyRepository.findByDomain(any(), any()))
         .thenReturn(pages);
 
     //when
-    Page<CompanyOutputDto> companies = companyService.getCompanyList(dto, email);
+    Page<CompanyOutputDto> companies = companyService.getCompanyList(dto, email, pageable);
 
     //then
     assertEquals(2, companies.getSize());
@@ -262,18 +261,17 @@ class CompanyServiceTest {
   void get_company_list_empty_page() {
     //given
     GetCompanyListDto dto = GetCompanyListDto.builder()
-        .page(1)
-        .pageSize(10)
         .companySort(CompanySort.COMPANY_NAME_ASC)
         .build();
     String email = "hello@example.com";
 
     Page<Company> pages = new PageImpl<>(List.of());
+    PageRequest pageable = PageRequest.of(0, 10);
     when(companyRepository.findByDomain(any(), any()))
         .thenReturn(pages);
 
     //when
-    Page<CompanyOutputDto> companies = companyService.getCompanyList(dto, email);
+    Page<CompanyOutputDto> companies = companyService.getCompanyList(dto, email, pageable);
 
     //then
     assertEquals(0, companies.getSize());

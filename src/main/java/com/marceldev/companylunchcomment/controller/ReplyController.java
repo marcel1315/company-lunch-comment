@@ -6,8 +6,9 @@ import com.marceldev.companylunchcomment.dto.reply.UpdateReplyDto;
 import com.marceldev.companylunchcomment.response.CustomResponse;
 import com.marceldev.companylunchcomment.service.ReplyService;
 import io.swagger.v3.oas.annotations.Operation;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -44,9 +45,10 @@ public class ReplyController {
   @GetMapping("/diner/{dinerId}/comments/{commentsId}/reply")
   public CustomResponse<?> getReplyList(
       @PathVariable long commentsId,
+      Pageable pageable,
       Authentication auth
   ) {
-    List<ReplyOutputDto> replies = replyService.getReplyList(commentsId, auth.getName());
+    Page<ReplyOutputDto> replies = replyService.getReplyList(commentsId, auth.getName(), pageable);
     return CustomResponse.success(replies);
   }
 

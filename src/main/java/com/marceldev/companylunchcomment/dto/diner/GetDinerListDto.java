@@ -17,14 +17,6 @@ public class GetDinerListDto {
   @Positive
   private long companyId;
 
-  @PositiveOrZero
-  @Schema(example = "0", description = "페이지번호는 0부터 시작")
-  private int page;
-
-  @Positive
-  @Schema(example = "10")
-  private int pageSize;
-
   @NotNull
   @Schema(example = "DINER_NAME_ASC", allowableValues = {
       "DINER_NAME_ASC",

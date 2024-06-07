@@ -16,6 +16,7 @@ import com.marceldev.companylunchcomment.repository.DinerRepository;
 import com.marceldev.companylunchcomment.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +31,8 @@ public abstract class AbstractDinerService {
 
   abstract void createDinerAfterCheck(CreateDinerDto createDinerDto, Company company);
 
-  abstract Page<DinerOutputDto> getDinerListAfterCheck(GetDinerListDto dto, Company company);
+  abstract Page<DinerOutputDto> getDinerListAfterCheck(GetDinerListDto dto, Company company,
+      Pageable pageable);
 
   abstract DinerDetailOutputDto getDinerDetailAfterCheck(long id, Diner diner);
 
@@ -48,9 +50,9 @@ public abstract class AbstractDinerService {
     createDinerAfterCheck(createDinerDto, company);
   }
 
-  public Page<DinerOutputDto> getDinerList(GetDinerListDto dto) {
+  public Page<DinerOutputDto> getDinerList(GetDinerListDto dto, Pageable pageable) {
     Company company = checkMemberCanAccessCompany(dto.getCompanyId());
-    return getDinerListAfterCheck(dto, company);
+    return getDinerListAfterCheck(dto, company, pageable);
   }
 
   public DinerDetailOutputDto getDinerDetail(long id) {
