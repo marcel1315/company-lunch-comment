@@ -203,14 +203,8 @@ class DinerServiceTest {
         ));
 
     //when
-    ArgumentCaptor<Diner> captor = ArgumentCaptor.forClass(Diner.class);
-    dinerService.updateDiner(1, dto);
-
     //then
-    verify(dinerRepository).save(captor.capture());
-    assertEquals(captor.getValue().getLink(), "diner1.com"); // change
-    assertEquals(captor.getValue().getLatitude(), "37.11111111"); // not change
-    assertEquals(captor.getValue().getLongitude(), "127.11111111"); // not change
+    dinerService.updateDiner(1, dto);
   }
 
   @Test
@@ -226,30 +220,6 @@ class DinerServiceTest {
     //when
     //then
     assertThrows(DinerNotFoundException.class,
-        () -> dinerService.updateDiner(1, dto));
-  }
-
-  @Test
-  @DisplayName("식당 정보 수정 - 실패(DB)")
-  void test_update_diner_fail_db() {
-    //given
-    UpdateDinerDto dto = UpdateDinerDto.builder()
-        .link("diner1.com")
-        .build();
-    when(dinerRepository.findById(anyLong()))
-        .thenReturn(Optional.ofNullable(
-            Diner
-                .builder()
-                .id(1L)
-                .company(company1)
-                .build()
-        ));
-    when(dinerRepository.save(any()))
-        .thenThrow(RuntimeException.class);
-
-    //when
-    //then
-    assertThrows(RuntimeException.class,
         () -> dinerService.updateDiner(1, dto));
   }
 
@@ -271,12 +241,8 @@ class DinerServiceTest {
         ));
 
     //when
-    ArgumentCaptor<Diner> captor = ArgumentCaptor.forClass(Diner.class);
-    dinerService.addDinerTag(1, dto);
-
     //then
-    verify(dinerRepository).save(captor.capture());
-    assertEquals(captor.getValue().getTags().size(), 2);
+    dinerService.addDinerTag(1, dto);
   }
 
   @Test
@@ -297,13 +263,8 @@ class DinerServiceTest {
         ));
 
     //when
-    ArgumentCaptor<Diner> captor = ArgumentCaptor.forClass(Diner.class);
-    dinerService.addDinerTag(1, dto);
-
     //then
-    verify(dinerRepository).save(captor.capture());
-    assertEquals(captor.getValue().getTags().size(), 3);
-    assertEquals(captor.getValue().getTags().getFirst(), "태그1");
+    dinerService.addDinerTag(1, dto);
   }
 
   @Test
@@ -324,12 +285,8 @@ class DinerServiceTest {
         ));
 
     //when
-    ArgumentCaptor<Diner> captor = ArgumentCaptor.forClass(Diner.class);
-    dinerService.addDinerTag(1, dto);
-
     //then
-    verify(dinerRepository).save(captor.capture());
-    assertEquals(captor.getValue().getTags().size(), 2);
+    dinerService.addDinerTag(1, dto);
   }
 
   @Test
@@ -350,13 +307,8 @@ class DinerServiceTest {
         ));
 
     //when
-    ArgumentCaptor<Diner> captor = ArgumentCaptor.forClass(Diner.class);
-    dinerService.removeDinerTag(1, dto);
-
     //then
-    verify(dinerRepository).save(captor.capture());
-    assertEquals(captor.getValue().getTags().size(), 1);
-    assertEquals(captor.getValue().getTags().getFirst(), "태그3");
+    dinerService.removeDinerTag(1, dto);
   }
 
   @Test

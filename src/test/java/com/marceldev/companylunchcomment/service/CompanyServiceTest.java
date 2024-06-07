@@ -139,7 +139,6 @@ class CompanyServiceTest {
     companyService.updateCompany(1L, dto, email);
 
     //then
-    verify(companyRepository).save(any());
     verify(verificationRepository).delete(any());
   }
 

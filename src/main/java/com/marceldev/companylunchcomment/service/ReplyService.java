@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ReplyService {
 
   private final ReplyRepository replyRepository;
@@ -30,6 +31,7 @@ public class ReplyService {
   /**
    * 댓글 작성
    */
+  @Transactional
   public void createReply(long commentId, CreateReplyDto dto, String email) {
     Member member = memberRepository.findByEmail(email)
         .orElseThrow(MemberNotExistException::new);
@@ -75,6 +77,7 @@ public class ReplyService {
   /**
    * 댓글 삭제
    */
+  @Transactional
   public void deleteReply(long replyId, String name) {
     Member member = memberRepository.findByEmail(name)
         .orElseThrow(MemberNotExistException::new);

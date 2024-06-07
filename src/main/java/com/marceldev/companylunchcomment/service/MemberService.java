@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MemberService implements UserDetailsService {
 
   private static final int VERIFICATION_CODE_VALID_SECOND = 60 * 3;

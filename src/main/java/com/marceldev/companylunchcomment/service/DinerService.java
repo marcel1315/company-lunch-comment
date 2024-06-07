@@ -20,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -76,14 +75,12 @@ public class DinerService extends AbstractDinerService {
     diner.setLink(dto.getLink());
     diner.setLatitude(dto.getLatitude());
     diner.setLongitude(dto.getLongitude());
-    dinerRepository.save(diner);
   }
 
   /**
    * 식당 제거
    */
   @Override
-  @Transactional
   void removeDinerAfterCheck(long id, Diner diner) {
     List<String> dinerImageKeys = diner.getDinerImages().stream()
         .map(DinerImage::getS3Key)
@@ -105,13 +102,11 @@ public class DinerService extends AbstractDinerService {
   @Override
   void addDinerTagAfterCheck(long id, AddDinerTagsDto dto, Diner diner) {
     dto.getTags().forEach(diner::addTag);
-    dinerRepository.save(diner);
   }
 
   @Override
   void removeDinerTagAfterCheck(long id, RemoveDinerTagsDto dto, Diner diner) {
     dto.getTags().forEach(diner::removeTag);
-    dinerRepository.save(diner);
   }
 
   private List<String> getImageUrls(Diner diner) {
