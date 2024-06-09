@@ -57,7 +57,6 @@ public class DinerController {
           + "식당 이름, 거리, 코멘트 갯수로 정렬할 수 있다."
   )
   @GetMapping("/diner")
-  // TODO: 거리, 코멘트 갯수 추가
   public CustomResponse<?> getDinerList(
       @Validated @ModelAttribute GetDinerListDto getDinerListDto,
       Pageable pageable

@@ -1,5 +1,6 @@
 package com.marceldev.companylunchcomment.entity;
 
+import com.marceldev.companylunchcomment.util.CalculateDistance;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -10,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -57,10 +59,15 @@ public class Diner extends BaseEntity {
   @OneToMany(mappedBy = "diner", fetch = FetchType.LAZY)
   private List<DinerImage> dinerImages;
 
+  private Integer distance;
+
   @Setter
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "company_id", nullable = false)
   private Company company;
+
+  @OneToMany(mappedBy = "diner", fetch = FetchType.LAZY)
+  private List<Comments> comments = new ArrayList<>();
 
   public void addTag(String tag) {
     tags.add(tag);
@@ -68,5 +75,18 @@ public class Diner extends BaseEntity {
 
   public void removeTag(String tag) {
     tags.remove(tag);
+  }
+
+  public void calculateDistance(Company company) {
+    if (company.getLatitude() != null
+        && company.getLongitude() != null
+        && latitude != null
+        && longitude != null) {
+      double lat1 = Double.parseDouble(company.getLatitude());
+      double lon1 = Double.parseDouble(company.getLongitude());
+      double lat2 = Double.parseDouble(this.latitude);
+      double lon2 = Double.parseDouble(this.longitude);
+      distance = CalculateDistance.calculate(lat1, lon1, lat2, lon2);
+    }
   }
 }

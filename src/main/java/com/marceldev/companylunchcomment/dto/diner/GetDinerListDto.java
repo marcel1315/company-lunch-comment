@@ -16,7 +16,11 @@ public class GetDinerListDto {
   @NotNull
   @Schema(example = "DINER_NAME_ASC", allowableValues = {
       "DINER_NAME_ASC",
-      "DINER_NAME_DESC"
+      "DINER_NAME_DESC",
+      "COMMENTS_COUNT_ASC",
+      "COMMENTS_COUNT_DESC",
+      "DISTANCE_ASC",
+      "DISTANCE_DESC"
   })
   private DinerSort dinerSort;
 }
