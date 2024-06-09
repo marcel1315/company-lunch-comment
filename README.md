@@ -102,6 +102,8 @@
 
 - Spring Data JPA
 
+- QueryDSL
+
 - MariaDB
 
 - Java Mail Sender
