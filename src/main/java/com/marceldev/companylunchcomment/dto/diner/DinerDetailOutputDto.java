@@ -1,8 +1,10 @@
 package com.marceldev.companylunchcomment.dto.diner;
 
+import com.marceldev.companylunchcomment.dto.comments.CommentsOutputDto;
 import com.marceldev.companylunchcomment.entity.Diner;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import lombok.Builder;
 import lombok.Data;
 
@@ -17,6 +19,8 @@ public class DinerDetailOutputDto {
   private String longitude;
   private LinkedHashSet<String> tags;
   private List<String> imageUrls;
+  private long commentsCount;
+  private int distanceFromCompany;
 
   public static DinerDetailOutputDto of(Diner diner, List<String> imageUrls) {
     return DinerDetailOutputDto.builder()
@@ -27,6 +31,8 @@ public class DinerDetailOutputDto {
         .longitude(diner.getLongitude())
         .tags(diner.getTags())
         .imageUrls(imageUrls)
+        .commentsCount(diner.getComments().size())
+        .distanceFromCompany(Optional.ofNullable(diner.getDistance()).orElse(-1))
         .build();
   }
 }
