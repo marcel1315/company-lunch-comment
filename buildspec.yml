@@ -1,0 +1,19 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      java: corretto21
+  build:
+    commands:
+      - echo "Build start on `date`"
+      - chmod u+x gradlew
+      - ./gradlew clean build
+  post_build:
+    commands:
+      - echo "Build completed on `date`"
+      - ls -al build/libs/
+artifacts:
+  files:
+    - build/libs/company-lunch-comment-*.jar
+  discard-paths: yes
