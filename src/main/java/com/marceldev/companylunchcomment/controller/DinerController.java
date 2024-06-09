@@ -71,7 +71,7 @@ public class DinerController {
           + "이름, 태그, 거리, 코멘트 갯수, 코멘트 목록, 사진 썸네일 목록을 볼 수 있다.<br>"
           + "필요한 경우 원본 사진을 가져올 수 있다."
   )
-  // TODO: 거리, 코멘트 갯수, 코멘트 목록, 사진 썸네일 목록(현재는 원본 사진 목록을 가져옴)
+  // TODO: 사진 썸네일 목록(현재는 원본 사진 목록을 가져옴)
   @GetMapping("/diner/{id}")
   public CustomResponse<?> getDinerDetail(@PathVariable long id) {
     DinerDetailOutputDto diner = dinerService.getDinerDetail(id);
