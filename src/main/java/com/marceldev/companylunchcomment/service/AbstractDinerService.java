@@ -36,7 +36,7 @@ public abstract class AbstractDinerService {
 
   abstract DinerDetailOutputDto getDinerDetailAfterCheck(long id, Diner diner);
 
-  abstract void updateDinerAfterCheck(long id, UpdateDinerDto dto, Diner diner);
+  abstract void updateDinerAfterCheck(long id, UpdateDinerDto dto, Diner diner, Company company);
 
   abstract void removeDinerAfterCheck(long id, Diner diner);
 
@@ -63,7 +63,8 @@ public abstract class AbstractDinerService {
   @Transactional
   public void updateDiner(long id, UpdateDinerDto dto) {
     Diner diner = checkMemberCanAccessDiner(id);
-    updateDinerAfterCheck(id, dto, diner);
+    Company company = checkMemberHasCompany();
+    updateDinerAfterCheck(id, dto, diner, company);
   }
 
   @Transactional
