@@ -20,6 +20,7 @@ import com.marceldev.companylunchcomment.dto.diner.GetDinerListDto;
 import com.marceldev.companylunchcomment.dto.diner.RemoveDinerTagsDto;
 import com.marceldev.companylunchcomment.dto.diner.UpdateDinerDto;
 import com.marceldev.companylunchcomment.dto.member.SecurityMember;
+import com.marceldev.companylunchcomment.entity.Comments;
 import com.marceldev.companylunchcomment.entity.Company;
 import com.marceldev.companylunchcomment.entity.Diner;
 import com.marceldev.companylunchcomment.entity.DinerImage;
@@ -360,6 +361,7 @@ class DinerServiceTest {
         .link("diner.com")
         .dinerImages(List.of())
         .company(company1)
+        .comments(List.of(Comments.builder().build()))
         .build();
     when(dinerRepository.findById(anyLong()))
         .thenReturn(Optional.of(diner));
@@ -384,6 +386,7 @@ class DinerServiceTest {
         .link("diner.com")
         .company(company1)
         .dinerImages(List.of())
+        .comments(List.of(Comments.builder().build()))
         .build();
 
     when(dinerRepository.findById(anyLong()))
