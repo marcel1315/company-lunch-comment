@@ -11,6 +11,14 @@ java {
     sourceCompatibility = '21'
 }
 
+bootJar {
+    archiveFileName = "company-lunch-comment-${version}.jar"
+}
+
+jar {
+    enabled = false
+}
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
