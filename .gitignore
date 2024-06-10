@@ -38,3 +38,4 @@ out/
 
 ### Config ###
 src/main/resources/application-dev.yml
+src/main/resources/application-ec2.yml
