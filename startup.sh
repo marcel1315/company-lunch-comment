@@ -7,12 +7,12 @@ DEPLOY_PATH="/home/ec2-user"
 BUILD_PATH="/home/ec2-user/build"
 JAVA_OPTS=""
 
-echo "> build filename: $JAR_NAME" >> $LOG_FILE
+echo "> Build filename: $JAR_NAME" >> $LOG_FILE
 
-echo "> build file copy" >> $LOG_FILE
+echo "> Build file copy" >> $LOG_FILE
 cp $BUILD_PATH/*.jar $DEPLOY_PATH
 
-echo "> Application PID if there is one running" >> $LOG_FILE
+echo "> Get application PID if there is one running" >> $LOG_FILE
 CURRENT_PID=$(pgrep -f $JAR_NAME)
 
 if [ -z "$CURRENT_PID" ]; then
@@ -20,10 +20,12 @@ if [ -z "$CURRENT_PID" ]; then
 else
     echo "> kill -9 $CURRENT_PID" >> $LOG_FILE
     kill -9 $CURRENT_PID
-    JAVA_OPTS="-Dspring.jpa.hibernate.ddl-auto=none"
     sleep 5
 fi
 
+JAVA_OPTS="-Dspring.jpa.hibernate.ddl-auto=update -Dspring.profiles.active=ec2"
+
 BUILD_JAR=$DEPLOY_PATH/$JAR_NAME
-echo "> BUILD_JAR Deploy" >> $LOG_FILE
+echo "> BUILD_JAR $BUILD_JAR" >> $LOG_FILE
+echo "> JAVA_OPTS $JAVA_OPTS" >> $LOG_FILE
 nohup java $JAVA_OPTS -jar $BUILD_JAR >> $LOG_FILE 2>> $ERROR_LOG_FILE &
