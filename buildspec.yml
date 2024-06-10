@@ -4,6 +4,10 @@ phases:
   install:
     runtime-versions:
       java: corretto21
+  pre_build:
+    commands:
+      - echo Fetching application.yml from S3...
+      - aws s3 cp s3://our-company-lunch-deploy/application-dev.yml src/main/resources/application-dev.yml
   build:
     commands:
       - echo "Build start on `date`"
