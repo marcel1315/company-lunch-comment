@@ -16,4 +16,6 @@ phases:
 artifacts:
   files:
     - build/libs/company-lunch-comment-*.jar
+    - appspec.yml
+    - startup.sh
   discard-paths: yes
