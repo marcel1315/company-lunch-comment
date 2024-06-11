@@ -1,6 +1,7 @@
 package com.marceldev.companylunchcomment.dto.diner;
 
 import com.marceldev.companylunchcomment.type.DinerSort;
+import com.marceldev.companylunchcomment.type.SortDirection;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -14,13 +15,14 @@ public class GetDinerListDto {
   private String keyword;
 
   @NotNull
-  @Schema(example = "DINER_NAME_ASC", allowableValues = {
-      "DINER_NAME_ASC",
-      "DINER_NAME_DESC",
-      "COMMENTS_COUNT_ASC",
-      "COMMENTS_COUNT_DESC",
-      "DISTANCE_ASC",
-      "DISTANCE_DESC"
+  @Schema(example = "DINER_NAME", allowableValues = {
+      "DINER_NAME",
+      "COMMENTS_COUNT",
+      "DISTANCE"
   })
-  private DinerSort dinerSort;
+  private DinerSort sortBy;
+
+  @NotNull
+  @Schema(example = "ASC", allowableValues = {"ASC", "DESC"})
+  private SortDirection sortDirection;
 }

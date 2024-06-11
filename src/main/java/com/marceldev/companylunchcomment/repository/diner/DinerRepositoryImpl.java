@@ -6,6 +6,7 @@ import static com.marceldev.companylunchcomment.entity.QDiner.diner;
 import com.marceldev.companylunchcomment.dto.diner.DinerOutputDto;
 import com.marceldev.companylunchcomment.dto.diner.GetDinerListDto;
 import com.marceldev.companylunchcomment.type.DinerSort;
+import com.marceldev.companylunchcomment.type.SortDirection;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -54,7 +55,7 @@ public class DinerRepositoryImpl implements DinerRepositoryCustom {
             nameContains(dto)
         )
         .groupBy(diner.id)
-        .orderBy(getOrder(dto.getDinerSort()))
+        .orderBy(getOrder(dto.getSortBy(), dto.getSortDirection()))
         .offset(pageable.getOffset())
         .limit(pageable.getPageSize())
         .fetch();
@@ -70,14 +71,13 @@ public class DinerRepositoryImpl implements DinerRepositoryCustom {
     return dto.getKeyword() != null ? diner.name.contains(dto.getKeyword()) : null;
   }
 
-  private OrderSpecifier<?> getOrder(DinerSort sort) {
+  private OrderSpecifier<?> getOrder(DinerSort sort, SortDirection direction) {
+    final Order order = direction == SortDirection.ASC ? Order.ASC : Order.DESC;
+
     return switch (sort) {
-      case DINER_NAME_ASC -> new OrderSpecifier<>(Order.ASC, diner.name);
-      case DINER_NAME_DESC -> new OrderSpecifier<>(Order.DESC, diner.name);
-      case COMMENTS_COUNT_ASC -> new OrderSpecifier<>(Order.ASC, comments.count());
-      case COMMENTS_COUNT_DESC -> new OrderSpecifier<>(Order.DESC, comments.count());
-      case DISTANCE_ASC -> new OrderSpecifier<>(Order.ASC, diner.distance);
-      case DISTANCE_DESC -> new OrderSpecifier<>(Order.DESC, diner.distance);
+      case DINER_NAME -> new OrderSpecifier<>(order, diner.name);
+      case COMMENTS_COUNT -> new OrderSpecifier<>(order, comments.count());
+      case DISTANCE -> new OrderSpecifier<>(order, diner.distance);
     };
   }
 }

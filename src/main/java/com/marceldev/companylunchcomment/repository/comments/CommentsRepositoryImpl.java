@@ -5,6 +5,7 @@ import static com.marceldev.companylunchcomment.entity.QComments.comments;
 import com.marceldev.companylunchcomment.dto.comments.CommentsOutputDto;
 import com.marceldev.companylunchcomment.dto.comments.GetCommentsListDto;
 import com.marceldev.companylunchcomment.type.CommentsSort;
+import com.marceldev.companylunchcomment.type.SortDirection;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -48,7 +49,7 @@ public class CommentsRepositoryImpl implements CommentsRepositoryCustom {
             contentContains(dto),
             commentedByEq(dto)
         )
-        .orderBy(getOrder(dto.getCommentsSort()))
+        .orderBy(getOrder(dto.getSortBy(), dto.getSortDirection()))
         .offset(pageable.getOffset())
         .limit(pageable.getPageSize())
         .fetch();
@@ -64,10 +65,11 @@ public class CommentsRepositoryImpl implements CommentsRepositoryCustom {
     return dto.getCommentedBy() != null ? comments.member.name.eq(dto.getCommentedBy()) : null;
   }
 
-  private OrderSpecifier<?> getOrder(CommentsSort sort) {
+  private OrderSpecifier<?> getOrder(CommentsSort sort, SortDirection direction) {
+    Order order = direction == SortDirection.ASC ? Order.ASC : Order.DESC;
+
     return switch (sort) {
-      case CREATED_AT_ASC -> new OrderSpecifier<>(Order.ASC, comments.createdAt);
-      case CREATED_AT_DESC -> new OrderSpecifier<>(Order.DESC, comments.createdAt);
+      case CREATED_AT -> new OrderSpecifier<>(order, comments.createdAt);
     };
   }
 }

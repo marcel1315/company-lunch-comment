@@ -1,10 +1,8 @@
 package com.marceldev.companylunchcomment.dto.diner;
 
-import com.marceldev.companylunchcomment.dto.comments.CommentsOutputDto;
 import com.marceldev.companylunchcomment.entity.Diner;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Optional;
 import lombok.Builder;
 import lombok.Data;
 

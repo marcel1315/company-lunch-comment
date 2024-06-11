@@ -4,14 +4,11 @@ import lombok.Getter;
 
 @Getter
 public enum CommentsSort {
-  CREATED_AT_ASC("createdAt", "ASC"),
-  CREATED_AT_DESC("createdAt", "DESC");
+  CREATED_AT("createdAt");
 
   private final String field;
-  private final String direction;
 
-  CommentsSort(String field, String direction) {
+  CommentsSort(String field) {
     this.field = field;
-    this.direction = direction;
   }
 }
