@@ -4,14 +4,11 @@ import lombok.Getter;
 
 @Getter
 public enum CompanySort {
-  COMPANY_NAME_ASC("name", "ASC"),
-  COMPANY_NAME_DESC("name", "DESC");
+  COMPANY_NAME("name");
 
   private final String field;
-  private final String direction;
 
-  CompanySort(String field, String direction) {
+  CompanySort(String field) {
     this.field = field;
-    this.direction = direction;
   }
 }
