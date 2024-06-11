@@ -20,7 +20,7 @@ public class DinerDetailOutputDto {
   private LinkedHashSet<String> tags;
   private List<String> imageUrls;
   private long commentsCount;
-  private int distanceFromCompany;
+  private Integer distanceFromCompany;
 
   public static DinerDetailOutputDto of(Diner diner, List<String> imageUrls) {
     return DinerDetailOutputDto.builder()
@@ -32,7 +32,7 @@ public class DinerDetailOutputDto {
         .tags(diner.getTags())
         .imageUrls(imageUrls)
         .commentsCount(diner.getComments().size())
-        .distanceFromCompany(Optional.ofNullable(diner.getDistance()).orElse(-1))
+        .distanceFromCompany(diner.getDistance())
         .build();
   }
 }
