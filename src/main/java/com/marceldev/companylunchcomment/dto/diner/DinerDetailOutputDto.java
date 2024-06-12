@@ -19,7 +19,7 @@ public class DinerDetailOutputDto {
   private Double longitude;
   private LinkedHashSet<String> tags;
   private List<String> imageUrls;
-  private long commentsCount;
+  private long commentCount;
   private Integer distanceInMeter;
 
   public static DinerDetailOutputDto of(Diner diner, List<String> imageUrls, Integer distance) {
@@ -31,7 +31,7 @@ public class DinerDetailOutputDto {
         .longitude(Optional.ofNullable(diner.getLocation()).map(Point::getY).orElse(null))
         .tags(diner.getTags())
         .imageUrls(imageUrls)
-        .commentsCount(diner.getComments().size())
+        .commentCount(diner.getComments().size())
         .distanceInMeter(distance)
         .build();
   }

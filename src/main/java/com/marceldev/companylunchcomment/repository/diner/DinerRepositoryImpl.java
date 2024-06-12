@@ -1,6 +1,6 @@
 package com.marceldev.companylunchcomment.repository.diner;
 
-import static com.marceldev.companylunchcomment.entity.QComments.comments;
+import static com.marceldev.companylunchcomment.entity.QComment.comment;
 import static com.marceldev.companylunchcomment.entity.QCompany.company;
 import static com.marceldev.companylunchcomment.entity.QDiner.diner;
 
@@ -50,11 +50,11 @@ public class DinerRepositoryImpl implements DinerRepositoryCustom {
                 diner.link,
                 diner.location,
                 diner.tags,
-                comments.count().as("commentsCount"),
+                comment.count().as("commentsCount"),
                 distance(diner.location, company.location).as("distanceInMeter")
             ))
         .from(diner)
-        .leftJoin(diner.comments, comments)
+        .leftJoin(diner.comments, comment)
         .leftJoin(diner.company, company)
         .where(
             companyEq(companyId),
@@ -109,7 +109,7 @@ public class DinerRepositoryImpl implements DinerRepositoryCustom {
 
     return switch (sort) {
       case DINER_NAME -> new OrderSpecifier<>(order, diner.name);
-      case COMMENTS_COUNT -> new OrderSpecifier<>(order, comments.count());
+      case COMMENTS_COUNT -> new OrderSpecifier<>(order, comment.count());
       case DISTANCE -> new OrderSpecifier<>(order, distance(diner.location, company.location));
     };
   }

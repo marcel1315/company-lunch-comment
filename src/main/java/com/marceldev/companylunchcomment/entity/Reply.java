@@ -21,7 +21,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @AllArgsConstructor
 @Builder
 @Getter
-@ToString(exclude = {"member", "comments"})
+@ToString(exclude = {"member", "comment"})
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 public class Reply extends BaseEntity {
@@ -40,5 +40,5 @@ public class Reply extends BaseEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "comments_id", nullable = false)
-  private Comments comments;
+  private Comment comment;
 }

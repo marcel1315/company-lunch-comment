@@ -12,13 +12,13 @@ import static org.mockito.Mockito.when;
 import com.marceldev.companylunchcomment.dto.member.SecurityMember;
 import com.marceldev.companylunchcomment.dto.reply.CreateReplyDto;
 import com.marceldev.companylunchcomment.dto.reply.UpdateReplyDto;
-import com.marceldev.companylunchcomment.entity.Comments;
+import com.marceldev.companylunchcomment.entity.Comment;
 import com.marceldev.companylunchcomment.entity.Company;
 import com.marceldev.companylunchcomment.entity.Member;
 import com.marceldev.companylunchcomment.entity.Reply;
-import com.marceldev.companylunchcomment.exception.CommentsNotFoundException;
+import com.marceldev.companylunchcomment.exception.CommentNotFoundException;
 import com.marceldev.companylunchcomment.exception.ReplyNotFoundException;
-import com.marceldev.companylunchcomment.repository.comments.CommentsRepository;
+import com.marceldev.companylunchcomment.repository.comment.CommentRepository;
 import com.marceldev.companylunchcomment.repository.member.MemberRepository;
 import com.marceldev.companylunchcomment.repository.reply.ReplyRepository;
 import com.marceldev.companylunchcomment.type.Role;
@@ -55,7 +55,7 @@ class ReplyServiceTest {
   private MemberRepository memberRepository;
 
   @Mock
-  private CommentsRepository commentsRepository;
+  private CommentRepository commentRepository;
 
   @InjectMocks
   private ReplyService replyService;
@@ -115,9 +115,9 @@ class ReplyServiceTest {
         .thenReturn(Optional.of(
             Member.builder().id(1L).build()
         ));
-    when(commentsRepository.findById(any()))
+    when(commentRepository.findById(any()))
         .thenReturn(Optional.of(
-            Comments.builder().id(2L).build()
+            Comment.builder().id(2L).build()
         ));
 
     //when
@@ -127,7 +127,7 @@ class ReplyServiceTest {
     //then
     verify(replyRepository).save(captor.capture());
     assertEquals(1L, captor.getValue().getMember().getId());
-    assertEquals(2L, captor.getValue().getComments().getId());
+    assertEquals(2L, captor.getValue().getComment().getId());
     assertEquals("댓글입니다.", captor.getValue().getContent());
   }
 
@@ -142,12 +142,12 @@ class ReplyServiceTest {
         .thenReturn(Optional.of(
             Member.builder().id(1L).build()
         ));
-    when(commentsRepository.findById(any()))
+    when(commentRepository.findById(any()))
         .thenReturn(Optional.empty());
 
     //when
     //then
-    assertThrows(CommentsNotFoundException.class,
+    assertThrows(CommentNotFoundException.class,
         () -> replyService.createReply(1L, dto));
   }
 
@@ -249,7 +249,7 @@ class ReplyServiceTest {
             .build()
     ));
     PageRequest pageable = PageRequest.of(0, 10);
-    when(replyRepository.findByCommentsId(anyLong(), any()))
+    when(replyRepository.findByCommentId(anyLong(), any()))
         .thenReturn(page);
 
     //when

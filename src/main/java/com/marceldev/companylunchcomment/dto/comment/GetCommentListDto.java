@@ -1,6 +1,6 @@
-package com.marceldev.companylunchcomment.dto.comments;
+package com.marceldev.companylunchcomment.dto.comment;
 
-import com.marceldev.companylunchcomment.type.CommentsSort;
+import com.marceldev.companylunchcomment.type.CommentSort;
 import com.marceldev.companylunchcomment.type.SortDirection;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -9,13 +9,13 @@ import lombok.Data;
 
 @Data
 @Builder
-public class GetCommentsListDto {
+public class GetCommentListDto {
 
   @NotNull
   @Schema(example = "CREATED_AT", allowableValues = {
       "CREATED_AT"
   })
-  private CommentsSort sortBy;
+  private CommentSort sortBy;
 
   @NotNull
   @Schema(example = "ASC", allowableValues = {"ASC", "DESC"})

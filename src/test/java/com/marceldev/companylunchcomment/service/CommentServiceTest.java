@@ -9,22 +9,22 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.marceldev.companylunchcomment.dto.comments.CommentsOutputDto;
-import com.marceldev.companylunchcomment.dto.comments.CreateCommentDto;
-import com.marceldev.companylunchcomment.dto.comments.GetCommentsListDto;
-import com.marceldev.companylunchcomment.dto.comments.UpdateCommentsDto;
+import com.marceldev.companylunchcomment.dto.comment.CommentOutputDto;
+import com.marceldev.companylunchcomment.dto.comment.CreateCommentDto;
+import com.marceldev.companylunchcomment.dto.comment.GetCommentListDto;
+import com.marceldev.companylunchcomment.dto.comment.UpdateCommentDto;
 import com.marceldev.companylunchcomment.dto.member.SecurityMember;
-import com.marceldev.companylunchcomment.entity.Comments;
+import com.marceldev.companylunchcomment.entity.Comment;
 import com.marceldev.companylunchcomment.entity.Company;
 import com.marceldev.companylunchcomment.entity.Diner;
 import com.marceldev.companylunchcomment.entity.Member;
-import com.marceldev.companylunchcomment.exception.CommentsNotFoundException;
+import com.marceldev.companylunchcomment.exception.CommentNotFoundException;
 import com.marceldev.companylunchcomment.exception.DinerNotFoundException;
 import com.marceldev.companylunchcomment.exception.MemberNotExistException;
-import com.marceldev.companylunchcomment.repository.comments.CommentsRepository;
+import com.marceldev.companylunchcomment.repository.comment.CommentRepository;
 import com.marceldev.companylunchcomment.repository.diner.DinerRepository;
 import com.marceldev.companylunchcomment.repository.member.MemberRepository;
-import com.marceldev.companylunchcomment.type.CommentsSort;
+import com.marceldev.companylunchcomment.type.CommentSort;
 import com.marceldev.companylunchcomment.type.Role;
 import com.marceldev.companylunchcomment.type.ShareStatus;
 import com.marceldev.companylunchcomment.type.SortDirection;
@@ -53,10 +53,10 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @ExtendWith(MockitoExtension.class)
-class CommentsServiceTest {
+class CommentServiceTest {
 
   @Mock
-  private CommentsRepository commentsRepository;
+  private CommentRepository commentRepository;
 
   @Mock
   private MemberRepository memberRepository;
@@ -65,7 +65,7 @@ class CommentsServiceTest {
   private DinerRepository dinerRepository;
 
   @InjectMocks
-  private CommentsService commentsService;
+  private CommentService commentService;
 
   // 테스트에서 목으로 사용될 member. diner를 가져올 때, 적절한 member가 아니면 가져올 수 없음
   private final Member member1 = Member.builder()
@@ -122,7 +122,7 @@ class CommentsServiceTest {
 
   @Test
   @DisplayName("코멘트 작성 - 성공")
-  void create_comments() {
+  void create_comment() {
     //given
     CreateCommentDto dto = CreateCommentDto.builder()
         .content("맛있어요")
@@ -135,11 +135,11 @@ class CommentsServiceTest {
         .thenReturn(Optional.of(diner1));
 
     //when
-    commentsService.createComment(1L, dto);
-    ArgumentCaptor<Comments> captor = ArgumentCaptor.forClass(Comments.class);
+    commentService.createComment(1L, dto);
+    ArgumentCaptor<Comment> captor = ArgumentCaptor.forClass(Comment.class);
 
     //then
-    verify(commentsRepository).save(captor.capture());
+    verify(commentRepository).save(captor.capture());
     assertEquals("맛있어요", captor.getValue().getContent());
     assertEquals(ShareStatus.COMPANY, captor.getValue().getShareStatus());
     assertEquals(member1, captor.getValue().getMember());
@@ -148,7 +148,7 @@ class CommentsServiceTest {
 
   @Test
   @DisplayName("코멘트 작성 - 실패(사용자를 못찾음)")
-  void create_comments_fail_member_not_found() {
+  void create_comment_fail_member_not_found() {
     //given
     CreateCommentDto dto = CreateCommentDto.builder()
         .content("맛있어요")
@@ -161,12 +161,12 @@ class CommentsServiceTest {
     //when
     //then
     assertThrows(MemberNotExistException.class,
-        () -> commentsService.createComment(1L, dto));
+        () -> commentService.createComment(1L, dto));
   }
 
   @Test
   @DisplayName("코멘트 작성 - 실패(식당을 못찾음)")
-  void create_comments_fail_diner_not_found() {
+  void create_comment_fail_diner_not_found() {
     //given
     CreateCommentDto dto = CreateCommentDto.builder()
         .content("맛있어요")
@@ -181,27 +181,27 @@ class CommentsServiceTest {
     //when
     //then
     assertThrows(DinerNotFoundException.class,
-        () -> commentsService.createComment(1L, dto));
+        () -> commentService.createComment(1L, dto));
   }
 
   @Test
   @DisplayName("코멘트 목록 가져오기 - 성공")
-  void get_comments_list() {
+  void get_comment_list() {
     //given
-    GetCommentsListDto dto = GetCommentsListDto.builder()
-        .sortBy(CommentsSort.CREATED_AT)
+    GetCommentListDto dto = GetCommentListDto.builder()
+        .sortBy(CommentSort.CREATED_AT)
         .sortDirection(SortDirection.ASC)
         .commentedBy("김영수")
         .keyword("친절")
         .build();
 
-    Comments comments1 = Comments.builder()
+    Comment comment1 = Comment.builder()
         .id(1L)
         .member(member1)
         .diner(diner1)
         .shareStatus(ShareStatus.COMPANY)
         .build();
-    Comments comments2 = Comments.builder()
+    Comment comment2 = Comment.builder()
         .id(2L)
         .member(member1)
         .diner(diner1)
@@ -209,12 +209,12 @@ class CommentsServiceTest {
         .build();
 
     PageRequest pageable = PageRequest.of(0, 20);
-    Page<Comments> pages = new PageImpl<>(List.of(comments1, comments2), pageable, 20);
-    when(commentsRepository.getList(any(), anyLong(), anyLong(), any()))
+    Page<Comment> pages = new PageImpl<>(List.of(comment1, comment2), pageable, 20);
+    when(commentRepository.getList(any(), anyLong(), anyLong(), any()))
         .thenReturn(pages);
 
     //when
-    Page<CommentsOutputDto> commentsPage = commentsService.getCommentsList(1L, dto,
+    Page<CommentOutputDto> commentsPage = commentService.getCommentList(1L, dto,
         pageable);
 
     //then
@@ -224,62 +224,62 @@ class CommentsServiceTest {
 
   @Test
   @DisplayName("코멘트 삭제 - 성공")
-  void delete_comments() {
+  void delete_comment() {
     //given
-    when(commentsRepository.findByIdAndMember_Email(anyLong(), any()))
-        .thenReturn(Optional.of(Comments.builder().build()));
+    when(commentRepository.findByIdAndMember_Email(anyLong(), any()))
+        .thenReturn(Optional.of(Comment.builder().build()));
 
     //when
     //then
-    commentsService.deleteComments(1L);
-    verify(commentsRepository).delete(any());
+    commentService.deleteComment(1L);
+    verify(commentRepository).delete(any());
   }
 
   @Test
   @DisplayName("코멘트 삭제 - 실패(코멘트 아이디와 자신의 이메일로 검색했을 때, 삭제하려는 코멘트가 없음)")
-  void delete_comments_no_comments() {
+  void delete_comment_no_comment() {
     //given
-    when(commentsRepository.findByIdAndMember_Email(anyLong(), any()))
+    when(commentRepository.findByIdAndMember_Email(anyLong(), any()))
         .thenReturn(Optional.empty());
 
     //when
     //then
-    assertThrows(CommentsNotFoundException.class,
-        () -> commentsService.deleteComments(1L));
+    assertThrows(CommentNotFoundException.class,
+        () -> commentService.deleteComment(1L));
   }
 
   @Test
   @DisplayName("코멘트 수정 - 성공")
-  void update_comments() {
+  void update_comment() {
     //given
-    UpdateCommentsDto dto = UpdateCommentsDto.builder()
+    UpdateCommentDto dto = UpdateCommentDto.builder()
         .content("맛있어요")
         .shareStatus(ShareStatus.COMPANY)
         .build();
-    when(commentsRepository.findByIdAndMember_Email(anyLong(), any()))
-        .thenReturn(Optional.of(Comments.builder()
+    when(commentRepository.findByIdAndMember_Email(anyLong(), any()))
+        .thenReturn(Optional.of(Comment.builder()
             .content("친절해요")
             .shareStatus(ShareStatus.ME)
             .build()));
 
     //when
     //then
-    commentsService.updateComments(1L, dto);
+    commentService.updateComment(1L, dto);
   }
 
   @Test
   @DisplayName("코멘트 수정 - 실패(코멘트 아이디와 자신의 이메일로 검색했을 때, 삭제하려는 코멘트가 없음)")
-  void update_comments_fail() {
+  void update_comment_fail() {
     //given
-    UpdateCommentsDto dto = UpdateCommentsDto.builder()
+    UpdateCommentDto dto = UpdateCommentDto.builder()
         .content("맛있어요")
         .shareStatus(ShareStatus.COMPANY)
         .build();
-    when(commentsRepository.findByIdAndMember_Email(anyLong(), any()))
+    when(commentRepository.findByIdAndMember_Email(anyLong(), any()))
         .thenReturn(Optional.empty());
 
     //when
-    assertThrows(CommentsNotFoundException.class,
-        () -> commentsService.updateComments(1L, dto));
+    assertThrows(CommentNotFoundException.class,
+        () -> commentService.updateComment(1L, dto));
   }
 }

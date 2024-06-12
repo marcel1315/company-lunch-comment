@@ -3,13 +3,13 @@ package com.marceldev.companylunchcomment.service;
 import com.marceldev.companylunchcomment.dto.reply.CreateReplyDto;
 import com.marceldev.companylunchcomment.dto.reply.ReplyOutputDto;
 import com.marceldev.companylunchcomment.dto.reply.UpdateReplyDto;
-import com.marceldev.companylunchcomment.entity.Comments;
+import com.marceldev.companylunchcomment.entity.Comment;
 import com.marceldev.companylunchcomment.entity.Member;
 import com.marceldev.companylunchcomment.entity.Reply;
-import com.marceldev.companylunchcomment.exception.CommentsNotFoundException;
+import com.marceldev.companylunchcomment.exception.CommentNotFoundException;
 import com.marceldev.companylunchcomment.exception.MemberNotExistException;
 import com.marceldev.companylunchcomment.exception.ReplyNotFoundException;
-import com.marceldev.companylunchcomment.repository.comments.CommentsRepository;
+import com.marceldev.companylunchcomment.repository.comment.CommentRepository;
 import com.marceldev.companylunchcomment.repository.member.MemberRepository;
 import com.marceldev.companylunchcomment.repository.reply.ReplyRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ public class ReplyService {
 
   private final ReplyRepository replyRepository;
 
-  private final CommentsRepository commentsRepository;
+  private final CommentRepository commentRepository;
 
   private final MemberRepository memberRepository;
 
@@ -38,12 +38,12 @@ public class ReplyService {
   public void createReply(long commentId, CreateReplyDto dto) {
     Member member = getMember();
 
-    Comments comments = commentsRepository.findById(commentId)
-        .orElseThrow(CommentsNotFoundException::new);
+    Comment comment = commentRepository.findById(commentId)
+        .orElseThrow(CommentNotFoundException::new);
 
     Reply reply = Reply.builder()
         .content(dto.getContent())
-        .comments(comments)
+        .comment(comment)
         .member(member)
         .build();
 
@@ -54,9 +54,9 @@ public class ReplyService {
    * 댓글 조회
    */
   // TODO: Sort by createdAt desc
-  public Page<ReplyOutputDto> getReplyList(long commentsId, Pageable pageable) {
+  public Page<ReplyOutputDto> getReplyList(long commentId, Pageable pageable) {
     // TODO: Filter out if member can't see the comments
-    return replyRepository.findByCommentsId(commentsId, pageable)
+    return replyRepository.findByCommentId(commentId, pageable)
         .map(ReplyOutputDto::of);
   }
 
