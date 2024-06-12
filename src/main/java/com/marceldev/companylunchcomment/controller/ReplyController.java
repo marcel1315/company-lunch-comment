@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,10 +30,9 @@ public class ReplyController {
   @PostMapping("/diners/{dinerId}/comments/{commentsId}/replies")
   public CustomResponse<?> createReply(
       @PathVariable long commentsId,
-      @Validated @RequestBody CreateReplyDto createReplyDto,
-      Authentication auth
+      @Validated @RequestBody CreateReplyDto createReplyDto
   ) {
-    replyService.createReply(commentsId, createReplyDto, auth.getName());
+    replyService.createReply(commentsId, createReplyDto);
     return CustomResponse.success();
   }
 
@@ -45,10 +43,9 @@ public class ReplyController {
   @GetMapping("/diners/{dinerId}/comments/{commentsId}/replies")
   public CustomResponse<?> getReplyList(
       @PathVariable long commentsId,
-      Pageable pageable,
-      Authentication auth
+      Pageable pageable
   ) {
-    Page<ReplyOutputDto> replies = replyService.getReplyList(commentsId, auth.getName(), pageable);
+    Page<ReplyOutputDto> replies = replyService.getReplyList(commentsId, pageable);
     return CustomResponse.success(replies);
   }
 
@@ -60,10 +57,9 @@ public class ReplyController {
   @PostMapping("/diners/{dinerId}/comments/{commentsId}/replies/{replyId}")
   public CustomResponse<?> updateReply(
       @PathVariable long replyId,
-      @Validated @RequestBody UpdateReplyDto updateReplyDto,
-      Authentication auth
+      @Validated @RequestBody UpdateReplyDto updateReplyDto
   ) {
-    replyService.updateReply(replyId, updateReplyDto, auth.getName());
+    replyService.updateReply(replyId, updateReplyDto);
     return CustomResponse.success();
   }
 
@@ -74,10 +70,9 @@ public class ReplyController {
   )
   @DeleteMapping("/diners/{dinerId}/comments/{commentsId}/replies/{replyId}")
   public CustomResponse<?> deleteReply(
-      @PathVariable long replyId,
-      Authentication auth
+      @PathVariable long replyId
   ) {
-    replyService.deleteReply(replyId, auth.getName());
+    replyService.deleteReply(replyId);
     return CustomResponse.success();
   }
 }

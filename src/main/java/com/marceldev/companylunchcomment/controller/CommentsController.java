@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,10 +32,9 @@ public class CommentsController {
   @PostMapping("/diners/{dinerId}/comments")
   public CustomResponse<?> createComments(
       @PathVariable long dinerId,
-      @Validated @RequestBody CreateCommentDto createCommentDto,
-      Authentication auth
+      @Validated @RequestBody CreateCommentDto createCommentDto
   ) {
-    commentsService.createComment(dinerId, createCommentDto, auth.getName());
+    commentsService.createComment(dinerId, createCommentDto);
     return CustomResponse.success();
   }
 
@@ -49,11 +47,10 @@ public class CommentsController {
   public CustomResponse<?> getCommentsList(
       @PathVariable long dinerId,
       @Validated GetCommentsListDto getCommentsListDto,
-      Pageable pageable,
-      Authentication auth
+      Pageable pageable
   ) {
     Page<CommentsOutputDto> comments = commentsService.getCommentsList(
-        dinerId, auth.getName(), getCommentsListDto, pageable
+        dinerId, getCommentsListDto, pageable
     );
     return CustomResponse.success(comments);
   }
@@ -65,10 +62,9 @@ public class CommentsController {
   @PostMapping("/diners/{dinerId}/comments/{commentsId}")
   public CustomResponse<?> updateComments(
       @PathVariable long commentsId,
-      @RequestBody UpdateCommentsDto updateCommentsDto,
-      Authentication auth
+      @RequestBody UpdateCommentsDto updateCommentsDto
   ) {
-    commentsService.updateComments(commentsId, auth.getName(), updateCommentsDto);
+    commentsService.updateComments(commentsId, updateCommentsDto);
     return CustomResponse.success();
   }
 
@@ -78,10 +74,9 @@ public class CommentsController {
   )
   @DeleteMapping("/diners/{dinerId}/comments/{commentsId}")
   public CustomResponse<?> deleteComments(
-      @PathVariable long commentsId,
-      Authentication auth
+      @PathVariable long commentsId
   ) {
-    commentsService.deleteComments(commentsId, auth.getName());
+    commentsService.deleteComments(commentsId);
     return CustomResponse.success();
   }
 }

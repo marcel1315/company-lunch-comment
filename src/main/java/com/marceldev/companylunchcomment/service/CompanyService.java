@@ -23,6 +23,8 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,8 +49,9 @@ public class CompanyService {
    * 회사 생성. 등록하는 사용자의 이메일 도메인을 활용한다. 같은 도메인 이름으로 동일한 회사명은 있을 수 없다.
    */
   @Transactional
-  public void createCompany(CreateCompanyDto dto, String memberEmail) {
-    String domain = ExtractDomain.from(memberEmail);
+  public void createCompany(CreateCompanyDto dto) {
+    String email = getMemberEmail();
+    String domain = ExtractDomain.from(email);
 
     if (companyRepository.existsByDomainAndName(domain, dto.getName())) {
       throw new SameCompanyNameExist();
@@ -73,7 +76,9 @@ public class CompanyService {
    * 회사 정보 수정. 인증번호가 맞아야 수정 가능
    */
   @Transactional
-  public void updateCompany(long id, UpdateCompanyDto updateCompanyDto, String email) {
+  public void updateCompany(long id, UpdateCompanyDto updateCompanyDto) {
+    String email = getMemberEmail();
+
     // 회사가 존재하는지 확인
     Company company = memberRepository.findByEmailAndCompanyId(email, id)
         .map(Member::getCompany)
@@ -96,8 +101,8 @@ public class CompanyService {
   /**
    * 회사 목록 보기. 로그인한 사용자의 이메일 도메인에 해당하는 회사들 목록만 볼 수 있음
    */
-  public Page<CompanyOutputDto> getCompanyList(GetCompanyListDto dto, String email,
-      Pageable pageable) {
+  public Page<CompanyOutputDto> getCompanyList(GetCompanyListDto dto, Pageable pageable) {
+    String email = getMemberEmail();
     return companyRepository.findByDomain(ExtractDomain.from(email), pageable)
         .map(CompanyOutputDto::of);
   }
@@ -106,7 +111,8 @@ public class CompanyService {
    * 회사 선택하기
    */
   @Transactional
-  public void chooseCompany(long companyId, String email) {
+  public void chooseCompany(long companyId) {
+    String email = getMemberEmail();
     Member member = memberRepository.findByEmail(email)
         .orElseThrow(MemberNotExistException::new);
     Company company = companyRepository.findById(companyId)
@@ -134,5 +140,15 @@ public class CompanyService {
         .build();
 
     verificationRepository.save(verification);
+  }
+
+  /**
+   * member email을 반환함. DB 호출을 하지 않고, SecurityContextHolder에 저장된 것을 사용
+   */
+  private String getMemberEmail() {
+    UserDetails user = (UserDetails) SecurityContextHolder.getContext()
+        .getAuthentication()
+        .getPrincipal();
+    return user.getUsername();
   }
 }

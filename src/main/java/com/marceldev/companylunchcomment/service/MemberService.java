@@ -211,7 +211,7 @@ public class MemberService implements UserDetailsService {
   }
 
   /**
-   * member를 찾아 반환함. 토큰에 들어있던 사용자가 접근할 수 있는 member id인지 체크해고 반환함
+   * member를 찾아 반환함. 토큰에 들어있던 사용자가 접근할 수 있는 member id인지 체크하고 반환함
    */
   private Member getMember(long id) {
     UserDetails user = (UserDetails) SecurityContextHolder.getContext()

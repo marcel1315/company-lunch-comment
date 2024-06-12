@@ -15,6 +15,8 @@ import com.marceldev.companylunchcomment.repository.reply.ReplyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,9 +35,8 @@ public class ReplyService {
    * 댓글 작성
    */
   @Transactional
-  public void createReply(long commentId, CreateReplyDto dto, String email) {
-    Member member = memberRepository.findByEmail(email)
-        .orElseThrow(MemberNotExistException::new);
+  public void createReply(long commentId, CreateReplyDto dto) {
+    Member member = getMember();
 
     Comments comments = commentsRepository.findById(commentId)
         .orElseThrow(CommentsNotFoundException::new);
@@ -53,7 +54,7 @@ public class ReplyService {
    * 댓글 조회
    */
   // TODO: Sort by createdAt desc
-  public Page<ReplyOutputDto> getReplyList(long commentsId, String email, Pageable pageable) {
+  public Page<ReplyOutputDto> getReplyList(long commentsId, Pageable pageable) {
     // TODO: Filter out if member can't see the comments
     return replyRepository.findByCommentsId(commentsId, pageable)
         .map(ReplyOutputDto::of);
@@ -63,9 +64,8 @@ public class ReplyService {
    * 댓글 수정
    */
   @Transactional
-  public void updateReply(long replyId, UpdateReplyDto dto, String email) {
-    Member member = memberRepository.findByEmail(email)
-        .orElseThrow(MemberNotExistException::new);
+  public void updateReply(long replyId, UpdateReplyDto dto) {
+    Member member = getMember();
 
     Reply reply = replyRepository.findById(replyId)
         .filter((r) -> r.getMember().getId().equals(member.getId()))
@@ -78,14 +78,25 @@ public class ReplyService {
    * 댓글 삭제
    */
   @Transactional
-  public void deleteReply(long replyId, String name) {
-    Member member = memberRepository.findByEmail(name)
-        .orElseThrow(MemberNotExistException::new);
+  public void deleteReply(long replyId) {
+    Member member = getMember();
 
     Reply reply = replyRepository.findById(replyId)
         .filter((r) -> r.getMember().getId().equals(member.getId()))
         .orElseThrow(ReplyNotFoundException::new);
 
     replyRepository.delete(reply);
+  }
+
+  /**
+   * member를 찾아 반환함
+   */
+  private Member getMember() {
+    UserDetails user = (UserDetails) SecurityContextHolder.getContext()
+        .getAuthentication()
+        .getPrincipal();
+    String email = user.getUsername();
+    return memberRepository.findByEmail(email)
+        .orElseThrow(MemberNotExistException::new);
   }
 }

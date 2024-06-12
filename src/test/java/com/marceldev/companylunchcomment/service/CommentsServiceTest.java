@@ -135,7 +135,7 @@ class CommentsServiceTest {
         .thenReturn(Optional.of(diner1));
 
     //when
-    commentsService.createComment(1L, dto, email);
+    commentsService.createComment(1L, dto);
     ArgumentCaptor<Comments> captor = ArgumentCaptor.forClass(Comments.class);
 
     //then
@@ -161,7 +161,7 @@ class CommentsServiceTest {
     //when
     //then
     assertThrows(MemberNotExistException.class,
-        () -> commentsService.createComment(1L, dto, email));
+        () -> commentsService.createComment(1L, dto));
   }
 
   @Test
@@ -181,7 +181,7 @@ class CommentsServiceTest {
     //when
     //then
     assertThrows(DinerNotFoundException.class,
-        () -> commentsService.createComment(1L, dto, email));
+        () -> commentsService.createComment(1L, dto));
   }
 
   @Test
@@ -205,7 +205,7 @@ class CommentsServiceTest {
         .thenReturn(pages);
 
     //when
-    Page<CommentsOutputDto> commentsPage = commentsService.getCommentsList(1L, auth.getName(), dto,
+    Page<CommentsOutputDto> commentsPage = commentsService.getCommentsList(1L, dto,
         pageable);
 
     //then
@@ -222,7 +222,7 @@ class CommentsServiceTest {
 
     //when
     //then
-    commentsService.deleteComments(1L, "hello@example.com");
+    commentsService.deleteComments(1L);
     verify(commentsRepository).delete(any());
   }
 
@@ -236,7 +236,7 @@ class CommentsServiceTest {
     //when
     //then
     assertThrows(CommentsNotFoundException.class,
-        () -> commentsService.deleteComments(1L, "hello@example.com"));
+        () -> commentsService.deleteComments(1L));
   }
 
   @Test
@@ -255,7 +255,7 @@ class CommentsServiceTest {
 
     //when
     //then
-    commentsService.updateComments(1L, "hello@example.com", dto);
+    commentsService.updateComments(1L, dto);
   }
 
   @Test
@@ -271,6 +271,6 @@ class CommentsServiceTest {
 
     //when
     assertThrows(CommentsNotFoundException.class,
-        () -> commentsService.updateComments(1L, "hello@example.com", dto));
+        () -> commentsService.updateComments(1L, dto));
   }
 }

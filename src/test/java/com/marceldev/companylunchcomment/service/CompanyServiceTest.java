@@ -3,6 +3,9 @@ package com.marceldev.companylunchcomment.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -10,11 +13,11 @@ import com.marceldev.companylunchcomment.dto.company.CompanyOutputDto;
 import com.marceldev.companylunchcomment.dto.company.CreateCompanyDto;
 import com.marceldev.companylunchcomment.dto.company.GetCompanyListDto;
 import com.marceldev.companylunchcomment.dto.company.UpdateCompanyDto;
+import com.marceldev.companylunchcomment.dto.member.SecurityMember;
 import com.marceldev.companylunchcomment.entity.Company;
 import com.marceldev.companylunchcomment.entity.Member;
 import com.marceldev.companylunchcomment.entity.Verification;
 import com.marceldev.companylunchcomment.exception.CompanyNotExistException;
-import com.marceldev.companylunchcomment.exception.InvalidEmailFormatException;
 import com.marceldev.companylunchcomment.exception.SameCompanyNameExist;
 import com.marceldev.companylunchcomment.exception.VerificationCodeNotFound;
 import com.marceldev.companylunchcomment.repository.company.CompanyRepository;
@@ -25,8 +28,12 @@ import com.marceldev.companylunchcomment.type.Role;
 import com.marceldev.companylunchcomment.type.SortDirection;
 import com.marceldev.companylunchcomment.util.LocationUtil;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,6 +44,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @ExtendWith(MockitoExtension.class)
 class CompanyServiceTest {
@@ -53,6 +65,50 @@ class CompanyServiceTest {
   @InjectMocks
   private CompanyService companyService;
 
+  // 테스트에서 목으로 사용될 company. diner를 가져올 때, member가 속한 company의 diner가 아니면 가져올 수 없음
+  private final Company company1 = Company.builder()
+      .id(1L)
+      .name("좋은회사")
+      .address("서울특별시 강남구 강남대로 200")
+      .location(LocationUtil.createPoint(127.123123, 37.123123))
+      .domain("example.com")
+      .build();
+
+  // 테스트에서 목으로 사용될 member. diner를 가져올 때, 적절한 member가 아니면 가져올 수 없음
+  private final Member member1 = Member.builder()
+      .id(1L)
+      .email("kys@example.com")
+      .name("김영수")
+      .role(Role.USER)
+      .password("somehashedvalue")
+      .company(company1)
+      .build();
+
+  @BeforeEach
+  public void setupMember() {
+    GrantedAuthority authority = new SimpleGrantedAuthority("USER");
+    Collection authorities = Collections.singleton(authority); // Use raw type here
+
+    Authentication authentication = mock(Authentication.class);
+    lenient().when(authentication.getAuthorities()).thenReturn(authorities);
+
+    SecurityMember securityMember = SecurityMember.builder().member(member1).build();
+    lenient().when(authentication.getPrincipal()).thenReturn(securityMember);
+
+    SecurityContext securityContext = mock(SecurityContext.class);
+    lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
+
+    SecurityContextHolder.setContext(securityContext);
+
+    lenient().when(memberRepository.findByEmail(any()))
+        .thenReturn(Optional.of(member1));
+  }
+
+  @AfterEach
+  public void clearSecurityContext() {
+    SecurityContextHolder.clearContext();
+  }
+
   @Test
   @DisplayName("회사 생성 - 성공")
   void create_company() {
@@ -67,7 +123,7 @@ class CompanyServiceTest {
         .thenReturn(false);
 
     //when
-    companyService.createCompany(dto, "hello@example.com");
+    companyService.createCompany(dto);
     ArgumentCaptor<Company> captor = ArgumentCaptor.forClass(Company.class);
 
     //then
@@ -94,24 +150,7 @@ class CompanyServiceTest {
     //when
     //then
     assertThrows(SameCompanyNameExist.class,
-        () -> companyService.createCompany(dto, "hello@example.com"));
-  }
-
-  @Test
-  @DisplayName("회사 생성 - 실패(잘못된 이메일 주소)")
-  void create_company_fail_invalid_email() {
-    //given
-    CreateCompanyDto dto = CreateCompanyDto.builder()
-        .name("좋은회사")
-        .address("서울시 강남구 역삼동 123-456")
-        .latitude(37.123456)
-        .longitude(127.123456)
-        .build();
-
-    //when
-    //then
-    assertThrows(InvalidEmailFormatException.class,
-        () -> companyService.createCompany(dto, "hello")); // hello@example.com 이 들어가야 함
+        () -> companyService.createCompany(dto));
   }
 
   @Test
@@ -124,13 +163,12 @@ class CompanyServiceTest {
         .longitude(127.123456)
         .verificationCode("123456")
         .build();
-    String email = "hello@example.com";
-    when(memberRepository.findByEmailAndCompanyId(email, 1L))
+    when(memberRepository.findByEmailAndCompanyId(any(), anyLong()))
         .thenReturn(Optional.of(Member.builder()
             .company(Company.builder().id(1L).build())
             .build()
         ));
-    when(verificationRepository.findByEmail(email))
+    when(verificationRepository.findByEmail(any()))
         .thenReturn(Optional.of(Verification.builder()
             .code("123456")
             .expirationAt(LocalDateTime.now().plusMinutes(2))
@@ -138,10 +176,8 @@ class CompanyServiceTest {
         ));
 
     //when
-    companyService.updateCompany(1L, dto, email);
-
     //then
-    verify(verificationRepository).delete(any());
+    companyService.updateCompany(1L, dto);
   }
 
   @Test
@@ -154,14 +190,13 @@ class CompanyServiceTest {
         .longitude(127.123456)
         .verificationCode("123456")
         .build();
-    String email = "hello@example.com";
-    when(memberRepository.findByEmailAndCompanyId(email, 1L))
+    when(memberRepository.findByEmailAndCompanyId(any(), anyLong()))
         .thenReturn(Optional.empty());
 
     //when
     //then
     assertThrows(CompanyNotExistException.class,
-        () -> companyService.updateCompany(1L, dto, email));
+        () -> companyService.updateCompany(1L, dto));
   }
 
   @Test
@@ -174,13 +209,12 @@ class CompanyServiceTest {
         .longitude(127.123456)
         .verificationCode("123456")
         .build();
-    String email = "hello@example.com";
-    when(memberRepository.findByEmailAndCompanyId(email, 1L))
+    when(memberRepository.findByEmailAndCompanyId(any(), anyLong()))
         .thenReturn(Optional.of(Member.builder()
             .company(Company.builder().id(1L).build())
             .build()
         ));
-    when(verificationRepository.findByEmail(email))
+    when(verificationRepository.findByEmail(any()))
         .thenReturn(Optional.of(Verification.builder()
             .code("111111")
             .expirationAt(LocalDateTime.now().plusMinutes(2))
@@ -190,7 +224,7 @@ class CompanyServiceTest {
     //when
     //then
     assertThrows(VerificationCodeNotFound.class,
-        () -> companyService.updateCompany(1L, dto, email));
+        () -> companyService.updateCompany(1L, dto));
   }
 
   @Test
@@ -203,13 +237,12 @@ class CompanyServiceTest {
         .longitude(127.123456)
         .verificationCode("123456")
         .build();
-    String email = "hello@example.com";
-    when(memberRepository.findByEmailAndCompanyId(email, 1L))
+    when(memberRepository.findByEmailAndCompanyId(any(), anyLong()))
         .thenReturn(Optional.of(Member.builder()
             .company(Company.builder().id(1L).build())
             .build()
         ));
-    when(verificationRepository.findByEmail(email))
+    when(verificationRepository.findByEmail(any()))
         .thenReturn(Optional.of(Verification.builder()
             .code("123456")
             .expirationAt(LocalDateTime.now().minusMinutes(2))
@@ -219,7 +252,7 @@ class CompanyServiceTest {
     //when
     //then
     assertThrows(VerificationCodeNotFound.class,
-        () -> companyService.updateCompany(1L, dto, email));
+        () -> companyService.updateCompany(1L, dto));
   }
 
   @Test
@@ -250,7 +283,7 @@ class CompanyServiceTest {
         .thenReturn(pages);
 
     //when
-    Page<CompanyOutputDto> companies = companyService.getCompanyList(dto, email, pageable);
+    Page<CompanyOutputDto> companies = companyService.getCompanyList(dto, pageable);
 
     //then
     assertEquals(2, companies.getSize());
@@ -272,7 +305,7 @@ class CompanyServiceTest {
         .thenReturn(pages);
 
     //when
-    Page<CompanyOutputDto> companies = companyService.getCompanyList(dto, email, pageable);
+    Page<CompanyOutputDto> companies = companyService.getCompanyList(dto, pageable);
 
     //then
     assertEquals(0, companies.getSize());
@@ -283,11 +316,6 @@ class CompanyServiceTest {
   @DisplayName("회사 선택하기 - 성공")
   void choose_company() {
     //given
-    Member member = Member.builder()
-        .id(1L)
-        .email("hello@example.com")
-        .role(Role.USER)
-        .build();
     Company company = Company.builder()
         .id(1L)
         .name("감정타코 강남점")
@@ -295,20 +323,16 @@ class CompanyServiceTest {
         .location(LocationUtil.createPoint(127.123456, 37.123456))
         .domain("example.com")
         .build();
-    when(companyRepository.findById(1L))
+    when(companyRepository.findById(anyLong()))
         .thenReturn(Optional.of(company));
-    when(memberRepository.findByEmail("hello@example.com"))
-        .thenReturn(Optional.of(member));
 
     //when
-    companyService.chooseCompany(1L, "hello@example.com");
-
     //then
-    assertEquals("감정타코 강남점", member.getCompany().getName());
+    companyService.chooseCompany(1L);
   }
 
   @Test
-  @DisplayName("회사 선택하기 - 실패(회사가 없음")
+  @DisplayName("회사 선택하기 - 실패(회사가 없음)")
   void choose_company_fail_no_company() {
     //given
     Member member = Member.builder()
@@ -318,13 +342,11 @@ class CompanyServiceTest {
         .build();
     when(companyRepository.findById(1L))
         .thenReturn(Optional.empty());
-    when(memberRepository.findByEmail("hello@example.com"))
-        .thenReturn(Optional.of(member));
 
     //when
     //then
     assertThrows(CompanyNotExistException.class,
-        () -> companyService.chooseCompany(1L, "hello@example.com"));
+        () -> companyService.chooseCompany(1L));
   }
 
   @Test
@@ -346,12 +368,10 @@ class CompanyServiceTest {
         .build();
     when(companyRepository.findById(1L))
         .thenReturn(Optional.of(company));
-    when(memberRepository.findByEmail(email))
-        .thenReturn(Optional.of(member));
 
     //when
     //then
     assertThrows(CompanyNotExistException.class,
-        () -> companyService.chooseCompany(1L, email));
+        () -> companyService.chooseCompany(1L));
   }
 }

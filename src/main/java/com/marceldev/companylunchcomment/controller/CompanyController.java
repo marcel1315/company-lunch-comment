@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -37,10 +36,9 @@ public class CompanyController {
   )
   @PostMapping("/companies")
   public CustomResponse<?> createCompany(
-      @Validated @RequestBody CreateCompanyDto createCompanyDto,
-      Authentication auth
+      @Validated @RequestBody CreateCompanyDto createCompanyDto
   ) {
-    companyService.createCompany(createCompanyDto, auth.getName());
+    companyService.createCompany(createCompanyDto);
     return CustomResponse.success();
   }
 
@@ -63,10 +61,9 @@ public class CompanyController {
   @PostMapping("/companies/{id}")
   public CustomResponse<?> updateCompany(
       @PathVariable long id,
-      @Validated @RequestBody UpdateCompanyDto updateCompanyDto,
-      Authentication auth
+      @Validated @RequestBody UpdateCompanyDto updateCompanyDto
   ) {
-    companyService.updateCompany(id, updateCompanyDto, auth.getName());
+    companyService.updateCompany(id, updateCompanyDto);
     return CustomResponse.success();
   }
 
@@ -77,11 +74,9 @@ public class CompanyController {
   @GetMapping("/companies")
   public CustomResponse<?> getCompanyList(
       @Validated @ModelAttribute GetCompanyListDto getCompanyListDto,
-      Pageable pageable,
-      Authentication auth
+      Pageable pageable
   ) {
-    Page<CompanyOutputDto> companies = companyService.getCompanyList(getCompanyListDto,
-        auth.getName(), pageable);
+    Page<CompanyOutputDto> companies = companyService.getCompanyList(getCompanyListDto, pageable);
     return CustomResponse.success(companies);
   }
 
@@ -92,10 +87,9 @@ public class CompanyController {
   )
   @PostMapping("/companies/{id}/choose")
   public CustomResponse<?> chooseCompany(
-      @PathVariable long id,
-      Authentication auth
+      @PathVariable long id
   ) {
-    companyService.chooseCompany(id, auth.getName());
+    companyService.chooseCompany(id);
     return CustomResponse.success();
   }
 }
