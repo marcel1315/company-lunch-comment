@@ -26,7 +26,9 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -35,6 +37,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -147,6 +150,12 @@ public class MemberService implements UserDetailsService {
         .orElseThrow(
             () -> new UsernameNotFoundException(String.format("Member email not found: %s", email))
         );
+  }
+
+  @Scheduled(cron = "${scheduler.clear-verification-code.cron}")
+  public void clearUnusedVerificationCodes() {
+    int rows = verificationRepository.deleteAllExpiredVerificationCode(LocalDateTime.now());
+    log.info("MemberService.clearUnusedVerificationCodes executed: {} rows deleted", rows);
   }
 
   private void checkCompanyDomainNotEmailProvider(String email) {
