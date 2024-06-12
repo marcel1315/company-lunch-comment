@@ -30,7 +30,7 @@ public class CommentsController {
       description = "사용자는 등록된 식당에 대해 코멘트를 작성할 수 있다.<br>"
           + "식당, 코멘트 내용, 사내 공유 여부를 입력한다."
   )
-  @PostMapping("/diner/{dinerId}/comments")
+  @PostMapping("/diners/{dinerId}/comments")
   public CustomResponse<?> createComments(
       @PathVariable long dinerId,
       @Validated @RequestBody CreateCommentDto createCommentDto,
@@ -45,7 +45,7 @@ public class CommentsController {
       description = "사용자는 사내 공유된 식당의 코멘트 목록을 조회할 수 있다.<br>"
           + "작성자 이름, 코멘트 내용으로 목록을 조회할 수 있다. 작성시간순으로 정렬할 수 있다."
   )
-  @GetMapping("/diner/{dinerId}/comments")
+  @GetMapping("/diners/{dinerId}/comments")
   public CustomResponse<?> getCommentsList(
       @PathVariable long dinerId,
       @Validated GetCommentsListDto getCommentsListDto,
@@ -62,7 +62,7 @@ public class CommentsController {
       summary = "코멘트 수정",
       description = "사용자는 자신이 작성한 코멘트를 수정할 수 있다."
   )
-  @PostMapping("/diner/{dinerId}/comments/{commentsId}")
+  @PostMapping("/diners/{dinerId}/comments/{commentsId}")
   public CustomResponse<?> updateComments(
       @PathVariable long commentsId,
       @RequestBody UpdateCommentsDto updateCommentsDto,
@@ -76,7 +76,7 @@ public class CommentsController {
       summary = "코멘트 삭제",
       description = "사용자는 자신이 작성한 코멘트를 삭제할 수 있다."
   )
-  @DeleteMapping("/diner/{dinerId}/comments/{commentsId}")
+  @DeleteMapping("/diners/{dinerId}/comments/{commentsId}")
   public CustomResponse<?> deleteComments(
       @PathVariable long commentsId,
       Authentication auth

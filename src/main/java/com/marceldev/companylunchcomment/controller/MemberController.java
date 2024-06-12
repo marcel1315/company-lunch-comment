@@ -36,7 +36,7 @@ public class MemberController {
       summary = "이메일 인증번호 발송",
       description = "해당 이메일로 인증번호를 발송한다."
   )
-  @PostMapping("/signup/send-verification-code")
+  @PostMapping("/members/signup/send-verification-code")
   public ResponseEntity<?> sendVerificationCode(
       @Validated @RequestBody SendVerificationCodeDto dto) {
     memberService.sendVerificationCode(dto);
@@ -50,7 +50,7 @@ public class MemberController {
           + "구글, 네이버, 카카오, 다음, 한메일, 야후 등 이메일 공급자로부터 받은 이메일은 가입할 수 없다. 회사 도메인을 사용해야 한다.<br>"
           + "회원가입 중 이메일을 통한 번호인증을 한다."
   )
-  @PostMapping("/signup")
+  @PostMapping("/members/signup")
   public ResponseEntity<?> signUp(@Validated @RequestBody SignUpDto signUpDto) {
     memberService.signUp(signUpDto);
     return CustomResponse.success();
@@ -60,7 +60,7 @@ public class MemberController {
       summary = "로그인",
       description = "사용자는 로그인을 할 수 있다. 로그인시 회원가입에 사용한 아이디(이메일)와 패스워드가 일치해야 한다.\n"
   )
-  @PostMapping("/signin")
+  @PostMapping("/members/signin")
   public ResponseEntity<?> signIn(@Validated @RequestBody SignInDto signInDto) {
     SignInResult result = memberService.signIn(signInDto);
     String token = tokenProvider.generateToken(result.getEmail(), result.getRoleString());
@@ -71,7 +71,7 @@ public class MemberController {
       summary = "회원정보 수정",
       description = "사용자는 자신의 이름을 수정할 수 있다."
   )
-  @PutMapping("/member/{id}")
+  @PutMapping("/members/{id}")
   public ResponseEntity<?> updateMember(
       @PathVariable long id,
       @Validated @RequestBody UpdateMemberDto updateMemberDto
@@ -84,7 +84,7 @@ public class MemberController {
       summary = "회원 비밀번호 수정",
       description = "사용자는 자신의 비밀번호를 수정할 수 있다."
   )
-  @PutMapping("/member/{id}/password")
+  @PutMapping("/members/{id}/password")
   public ResponseEntity<?> changePassword(
       @PathVariable long id,
       @Validated @RequestBody ChangePasswordDto changePasswordDto
@@ -97,7 +97,7 @@ public class MemberController {
       summary = "회원 탈퇴",
       description = "사용자는 아이디(이메일)와 비밀번호로 탈퇴할 수 있다."
   )
-  @DeleteMapping("/member/{id}")
+  @DeleteMapping("/members/{id}")
   public ResponseEntity<?> withdrawMember(
       @PathVariable long id,
       @Validated @RequestBody WithdrawMemberDto withdrawMemberDto

@@ -28,10 +28,10 @@ public class SecurityConfiguration {
         .authorizeHttpRequests(authorization -> authorization
             .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
                 "/swagger-resources/**", "/webjars/**").permitAll() // Swagger UI
-            .requestMatchers("/signup", "/signin", "/signup/send-verification-code").permitAll()
-            .requestMatchers("/member/**").authenticated()
-            .requestMatchers("/diner/**").authenticated()
-            .requestMatchers("/company/**").authenticated()
+            .requestMatchers("/members/signup", "/members/signin", "/members/signup/send-verification-code").permitAll()
+            .requestMatchers("/members/**").authenticated()
+            .requestMatchers("/diners/**").authenticated()
+            .requestMatchers("/companies/**").authenticated()
             .anyRequest().authenticated()
         )
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
