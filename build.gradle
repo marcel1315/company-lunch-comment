@@ -32,6 +32,7 @@ dependencies {
     implementation platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.1.1")
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
     implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.12.5'
+    implementation 'org.hibernate.orm:hibernate-spatial'
 
     // Querydsl 관련
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'

@@ -1,9 +1,11 @@
 package com.marceldev.companylunchcomment.dto.diner;
 
+import com.marceldev.companylunchcomment.util.LocationUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
+import org.locationtech.jts.geom.Point;
 
 @Data
 @Builder
@@ -15,9 +17,13 @@ public class UpdateDinerDto {
 
   @NotNull
   @Schema(example = "37.4989021")
-  private String latitude;
+  private double latitude;
 
   @NotNull
   @Schema(example = "127.0276099")
-  private String longitude;
+  private double longitude;
+
+  public Point getLocation() {
+    return LocationUtil.createPoint(longitude, latitude);
+  }
 }

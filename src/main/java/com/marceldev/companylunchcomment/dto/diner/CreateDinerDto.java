@@ -1,6 +1,7 @@
 package com.marceldev.companylunchcomment.dto.diner;
 
 import com.marceldev.companylunchcomment.entity.Diner;
+import com.marceldev.companylunchcomment.util.LocationUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.constraints.NotNull;
@@ -22,11 +23,11 @@ public class CreateDinerDto {
 
   @NotNull
   @Schema(example = "37.4989021")
-  private String latitude;
+  private double latitude;
 
   @NotNull
   @Schema(example = "127.0276099")
-  private String longitude;
+  private double longitude;
 
   @NotNull
   @Schema(example = "[\"멕시코\", \"감성\"]")
@@ -36,8 +37,7 @@ public class CreateDinerDto {
     return Diner.builder()
         .name(name)
         .link(link)
-        .latitude(latitude)
-        .longitude(longitude)
+        .location(LocationUtil.createPoint(longitude, latitude))
         .tags(tags)
         .build();
   }

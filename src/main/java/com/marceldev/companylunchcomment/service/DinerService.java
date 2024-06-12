@@ -43,7 +43,6 @@ public class DinerService extends AbstractDinerService {
   void createDinerAfterCheck(CreateDinerDto createDinerDto, Company company) {
     Diner diner = createDinerDto.toEntity();
     diner.setCompany(company);
-    diner.calculateDistance(company);
     dinerRepository.save(diner);
   }
 
@@ -62,7 +61,8 @@ public class DinerService extends AbstractDinerService {
   @Override
   DinerDetailOutputDto getDinerDetailAfterCheck(long id, Diner diner) {
     List<String> imageUrls = getImageUrls(diner);
-    return DinerDetailOutputDto.of(diner, imageUrls);
+    Integer distance = dinerRepository.getDistance(diner.getCompany().getId(), diner.getId());
+    return DinerDetailOutputDto.of(diner, imageUrls, distance);
   }
 
   /**
@@ -71,9 +71,7 @@ public class DinerService extends AbstractDinerService {
   @Override
   void updateDinerAfterCheck(long id, UpdateDinerDto dto, Diner diner, Company company) {
     diner.setLink(dto.getLink());
-    diner.setLatitude(dto.getLatitude());
-    diner.setLongitude(dto.getLongitude());
-    diner.calculateDistance(company);
+    diner.setLocation(dto.getLocation());
   }
 
   /**

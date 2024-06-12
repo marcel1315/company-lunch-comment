@@ -1,10 +1,12 @@
 package com.marceldev.companylunchcomment.dto.company;
 
+import com.marceldev.companylunchcomment.util.LocationUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
+import org.locationtech.jts.geom.Point;
 
 @Data
 @Builder
@@ -14,12 +16,19 @@ public class UpdateCompanyDto {
   @Schema(example = "123123")
   private String verificationCode;
 
+  @NotNull
   @Schema(example = "서울특별시 강남구 역삼동 123-1", requiredMode = RequiredMode.NOT_REQUIRED)
   private String address;
 
+  @NotNull
   @Schema(example = "37.281811322", requiredMode = RequiredMode.NOT_REQUIRED)
-  private String latitude;
+  private double latitude;
 
+  @NotNull
   @Schema(example = "127.202021111", requiredMode = RequiredMode.NOT_REQUIRED)
-  private String longitude;
+  private double longitude;
+
+  public Point getLocation() {
+    return LocationUtil.createPoint(longitude, latitude);
+  }
 }
