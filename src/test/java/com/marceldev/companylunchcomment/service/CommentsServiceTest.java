@@ -195,13 +195,22 @@ class CommentsServiceTest {
         .keyword("친절")
         .build();
 
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    CommentsOutputDto comments1 = new CommentsOutputDto();
-    CommentsOutputDto comments2 = new CommentsOutputDto();
+    Comments comments1 = Comments.builder()
+        .id(1L)
+        .member(member1)
+        .diner(diner1)
+        .shareStatus(ShareStatus.COMPANY)
+        .build();
+    Comments comments2 = Comments.builder()
+        .id(2L)
+        .member(member1)
+        .diner(diner1)
+        .shareStatus(ShareStatus.COMPANY)
+        .build();
 
     PageRequest pageable = PageRequest.of(0, 20);
-    Page<CommentsOutputDto> pages = new PageImpl<>(List.of(comments1, comments2), pageable, 20);
-    when(commentsRepository.getList(any(), any()))
+    Page<Comments> pages = new PageImpl<>(List.of(comments1, comments2), pageable, 20);
+    when(commentsRepository.getList(any(), anyLong(), anyLong(), any()))
         .thenReturn(pages);
 
     //when
