@@ -6,6 +6,7 @@ import com.marceldev.companylunchcomment.dto.member.SignInDto;
 import com.marceldev.companylunchcomment.dto.member.SignInResult;
 import com.marceldev.companylunchcomment.dto.member.SignUpDto;
 import com.marceldev.companylunchcomment.dto.member.TokenDto;
+import com.marceldev.companylunchcomment.dto.member.UpdateMemberDto;
 import com.marceldev.companylunchcomment.response.CustomResponse;
 import com.marceldev.companylunchcomment.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -59,5 +61,18 @@ public class MemberController {
     SignInResult result = memberService.signIn(signInDto);
     String token = tokenProvider.generateToken(result.getEmail(), result.getRoleString());
     return CustomResponse.success(new TokenDto(token));
+  }
+
+  @Operation(
+      summary = "회원정보 수정",
+      description = "사용자는 자신의 이름을 수정할 수 있다."
+  )
+  @PutMapping("/member/{id}")
+  public ResponseEntity<?> updateMember(
+      @PathVariable long id,
+      @Validated @RequestBody UpdateMemberDto updateMemberDto
+  ) {
+    memberService.updateMember(id, updateMemberDto);
+    return CustomResponse.success();
   }
 }
