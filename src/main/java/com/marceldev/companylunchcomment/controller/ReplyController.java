@@ -28,7 +28,7 @@ public class ReplyController {
       summary = "댓글 작성",
       description = "사용자는 코멘트에 댓글을 작성할 수 있다."
   )
-  @PostMapping("/diner/{dinerId}/comments/{commentsId}/reply")
+  @PostMapping("/diners/{dinerId}/comments/{commentsId}/replies")
   public CustomResponse<?> createReply(
       @PathVariable long commentsId,
       @Validated @RequestBody CreateReplyDto createReplyDto,
@@ -42,7 +42,7 @@ public class ReplyController {
       summary = "댓글 조회",
       description = "사용자는 코멘트에 작성된 댓글을 조회할 수 있다."
   )
-  @GetMapping("/diner/{dinerId}/comments/{commentsId}/reply")
+  @GetMapping("/diners/{dinerId}/comments/{commentsId}/replies")
   public CustomResponse<?> getReplyList(
       @PathVariable long commentsId,
       Pageable pageable,
@@ -57,7 +57,7 @@ public class ReplyController {
       description = "사용자는 코멘트에 댓글 수정이 가능하다.<br>"
           + "수정은 자신이 작성한 댓글만 가능하다."
   )
-  @PostMapping("/diner/{dinerId}/comments/{commentsId}/reply/{replyId}")
+  @PostMapping("/diners/{dinerId}/comments/{commentsId}/replies/{replyId}")
   public CustomResponse<?> updateReply(
       @PathVariable long replyId,
       @Validated @RequestBody UpdateReplyDto updateReplyDto,
@@ -72,7 +72,7 @@ public class ReplyController {
       description = "사용자는 댓글 삭제가 가능하다.<br>"
           + "삭제는 자신이 작성한 댓글만 가능하다."
   )
-  @DeleteMapping("/diner/{dinerId}/comments/{commentsId}/reply/{replyId}")
+  @DeleteMapping("/diners/{dinerId}/comments/{commentsId}/replies/{replyId}")
   public CustomResponse<?> deleteReply(
       @PathVariable long replyId,
       Authentication auth

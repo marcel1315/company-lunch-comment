@@ -41,7 +41,7 @@ public class DinerController {
       description = "식당 이름, 식당 웹사이트 링크, 위도, 경도를 입력한다.<br>"
           + "식당 태그도 입력 가능하다. (#한식, #양식, #깔끔, #간단, #매움, #양많음 등 사용자가 임의 등록 가능)"
   )
-  @PostMapping("/diner")
+  @PostMapping("/diners")
   public CustomResponse<?> createDiner(
       @Validated @RequestBody CreateDinerDto createDinerDto
   ) {
@@ -56,7 +56,7 @@ public class DinerController {
           + "회사의 위도와 경도, 식당의 위도와 경도를 사용해 회사로부터 식당의 거리를 표시한다.<br>"
           + "식당 이름, 거리, 코멘트 갯수로 정렬할 수 있다."
   )
-  @GetMapping("/diner")
+  @GetMapping("/diners")
   public CustomResponse<?> getDinerList(
       @Validated @ModelAttribute GetDinerListDto getDinerListDto,
       Pageable pageable
@@ -72,7 +72,7 @@ public class DinerController {
           + "필요한 경우 원본 사진을 가져올 수 있다."
   )
   // TODO: 사진 썸네일 목록(현재는 원본 사진 목록을 가져옴)
-  @GetMapping("/diner/{id}")
+  @GetMapping("/diners/{id}")
   public CustomResponse<?> getDinerDetail(@PathVariable long id) {
     DinerDetailOutputDto diner = dinerService.getDinerDetail(id);
     return CustomResponse.success(diner);
@@ -83,7 +83,7 @@ public class DinerController {
       description = "사용자는 식당 웹사이트 링크, 위도, 경도 정보를 수정할 수 있다.<br>"
           + "자신이 작성하지 않은 식당도 수정할 수 있다."
   )
-  @PostMapping("/diner/{id}")
+  @PostMapping("/diners/{id}")
   public CustomResponse<?> updateDiner(
       @PathVariable long id,
       @Validated @RequestBody UpdateDinerDto updateDinerDto
@@ -96,7 +96,7 @@ public class DinerController {
       summary = "식당 제거",
       description = "사용자는 식당을 제거할 수 있다."
   )
-  @DeleteMapping("/diner/{id}")
+  @DeleteMapping("/diners/{id}")
   public CustomResponse<?> removeDiner(@PathVariable long id) {
     dinerService.removeDiner(id);
     return CustomResponse.success();
@@ -105,7 +105,7 @@ public class DinerController {
   @Operation(
       summary = "식당 태그 추가"
   )
-  @PutMapping("/diner/{id}/tags")
+  @PutMapping("/diners/{id}/tags")
   public CustomResponse<?> addDinerTags(
       @PathVariable long id,
       @Validated @RequestBody AddDinerTagsDto addDinerTagsDto
@@ -117,7 +117,7 @@ public class DinerController {
   @Operation(
       summary = "식당 태그 제거"
   )
-  @DeleteMapping("/diner/{id}/tags")
+  @DeleteMapping("/diners/{id}/tags")
   public CustomResponse<?> removeDinerTags(
       @PathVariable long id,
       @Validated @RequestBody RemoveDinerTagsDto removeDinerTagsDto
@@ -129,7 +129,7 @@ public class DinerController {
   @Operation(
       summary = "식당 이미지 추가"
   )
-  @PostMapping("/diner/{id}/images")
+  @PostMapping("/diners/{id}/images")
   public CustomResponse<?> addDinerImage(
       @PathVariable long id,
       @RequestParam("file") MultipartFile file
@@ -141,7 +141,7 @@ public class DinerController {
   @Operation(
       summary = "식당 이미지 제거"
   )
-  @DeleteMapping("/diner/{dinerId}/images/{imageId}")
+  @DeleteMapping("/diners/{dinerId}/images/{imageId}")
   public CustomResponse<?> removeDinerImage(
       @PathVariable long dinerId,
       @PathVariable long imageId
