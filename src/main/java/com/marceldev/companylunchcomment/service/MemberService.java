@@ -1,18 +1,21 @@
 package com.marceldev.companylunchcomment.service;
 
 import com.marceldev.companylunchcomment.component.EmailSender;
+import com.marceldev.companylunchcomment.dto.member.ChangePasswordDto;
 import com.marceldev.companylunchcomment.dto.member.SecurityMember;
 import com.marceldev.companylunchcomment.dto.member.SendVerificationCodeDto;
 import com.marceldev.companylunchcomment.dto.member.SignInDto;
 import com.marceldev.companylunchcomment.dto.member.SignInResult;
 import com.marceldev.companylunchcomment.dto.member.SignUpDto;
 import com.marceldev.companylunchcomment.dto.member.UpdateMemberDto;
+import com.marceldev.companylunchcomment.dto.member.WithdrawMemberDto;
 import com.marceldev.companylunchcomment.entity.Member;
 import com.marceldev.companylunchcomment.entity.Verification;
 import com.marceldev.companylunchcomment.exception.AlreadyExistMemberException;
 import com.marceldev.companylunchcomment.exception.EmailIsNotCompanyDomain;
 import com.marceldev.companylunchcomment.exception.IncorrectPasswordException;
 import com.marceldev.companylunchcomment.exception.MemberNotExistException;
+import com.marceldev.companylunchcomment.exception.MemberUnauthorizedException;
 import com.marceldev.companylunchcomment.exception.VerificationCodeNotFound;
 import com.marceldev.companylunchcomment.repository.member.MemberRepository;
 import com.marceldev.companylunchcomment.repository.verification.VerificationRepository;
@@ -106,11 +109,32 @@ public class MemberService implements UserDetailsService {
    */
   @Transactional
   public void updateMember(long id, UpdateMemberDto dto) {
-    String email = getMemberEmail();
-    Member member = memberRepository.findById(id)
-        .filter(m -> m.getEmail().equals(email))
-        .orElseThrow(MemberNotExistException::new);
+    Member member = getMember(id);
     member.setName(dto.getName());
+  }
+
+  /**
+   * 회원 비밀번호 수정
+   */
+  @Transactional
+  public void changePassword(long id, ChangePasswordDto dto) {
+    Member member = getMember(id);
+    if (!passwordEncoder.matches(dto.getOldPassword(), member.getPassword())) {
+      throw new IncorrectPasswordException();
+    }
+    member.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+  }
+
+  /**
+   * 회원 탈퇴
+   */
+  @Transactional
+  public void withdrawMember(long id, WithdrawMemberDto dto) {
+    Member member = getMember(id);
+    if (!passwordEncoder.matches(dto.getPassword(), member.getPassword())) {
+      throw new IncorrectPasswordException();
+    }
+    memberRepository.delete(member);
   }
 
   /**
@@ -186,10 +210,15 @@ public class MemberService implements UserDetailsService {
     memberRepository.save(member);
   }
 
-  private String getMemberEmail() {
+  /**
+   * member를 찾아 반환함. 토큰에 들어있던 사용자가 접근할 수 있는 member id인지 체크해고 반환함
+   */
+  private Member getMember(long id) {
     UserDetails user = (UserDetails) SecurityContextHolder.getContext()
         .getAuthentication()
         .getPrincipal();
-    return user.getUsername();
+    String email = user.getUsername();
+    return memberRepository.findByIdAndEmail(id, email)
+        .orElseThrow(MemberUnauthorizedException::new);
   }
 }
