@@ -28,7 +28,8 @@ public class SecurityConfiguration {
         .authorizeHttpRequests(authorization -> authorization
             .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
                 "/swagger-resources/**", "/webjars/**").permitAll() // Swagger UI
-            .requestMatchers("/members/signup", "/members/signin", "/members/signup/send-verification-code").permitAll()
+            .requestMatchers("/members/signup", "/members/signin",
+                "/members/signup/send-verification-code").permitAll()
             .requestMatchers("/members/**").authenticated()
             .requestMatchers("/diners/**").authenticated()
             .requestMatchers("/companies/**").authenticated()

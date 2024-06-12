@@ -4,12 +4,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.marceldev.companylunchcomment.dto.member.SecurityMember;
 import com.marceldev.companylunchcomment.dto.reply.CreateReplyDto;
 import com.marceldev.companylunchcomment.dto.reply.UpdateReplyDto;
 import com.marceldev.companylunchcomment.entity.Comments;
+import com.marceldev.companylunchcomment.entity.Company;
 import com.marceldev.companylunchcomment.entity.Member;
 import com.marceldev.companylunchcomment.entity.Reply;
 import com.marceldev.companylunchcomment.exception.CommentsNotFoundException;
@@ -17,8 +21,14 @@ import com.marceldev.companylunchcomment.exception.ReplyNotFoundException;
 import com.marceldev.companylunchcomment.repository.comments.CommentsRepository;
 import com.marceldev.companylunchcomment.repository.member.MemberRepository;
 import com.marceldev.companylunchcomment.repository.reply.ReplyRepository;
+import com.marceldev.companylunchcomment.type.Role;
+import com.marceldev.companylunchcomment.util.LocationUtil;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +39,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @ExtendWith(MockitoExtension.class)
 class ReplyServiceTest {
@@ -44,6 +59,50 @@ class ReplyServiceTest {
 
   @InjectMocks
   private ReplyService replyService;
+
+  // 테스트에서 목으로 사용될 company. diner를 가져올 때, member가 속한 company의 diner가 아니면 가져올 수 없음
+  private final Company company1 = Company.builder()
+      .id(1L)
+      .name("좋은회사")
+      .address("서울특별시 강남구 강남대로 200")
+      .location(LocationUtil.createPoint(127.123123, 37.123123))
+      .domain("example.com")
+      .build();
+
+  // 테스트에서 목으로 사용될 member. diner를 가져올 때, 적절한 member가 아니면 가져올 수 없음
+  private final Member member1 = Member.builder()
+      .id(1L)
+      .email("kys@example.com")
+      .name("김영수")
+      .role(Role.USER)
+      .password("somehashedvalue")
+      .company(company1)
+      .build();
+
+  @BeforeEach
+  public void setupMember() {
+    GrantedAuthority authority = new SimpleGrantedAuthority("USER");
+    Collection authorities = Collections.singleton(authority); // Use raw type here
+
+    Authentication authentication = mock(Authentication.class);
+    lenient().when(authentication.getAuthorities()).thenReturn(authorities);
+
+    SecurityMember securityMember = SecurityMember.builder().member(member1).build();
+    lenient().when(authentication.getPrincipal()).thenReturn(securityMember);
+
+    SecurityContext securityContext = mock(SecurityContext.class);
+    lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
+
+    SecurityContextHolder.setContext(securityContext);
+
+    lenient().when(memberRepository.findByEmail(any()))
+        .thenReturn(Optional.of(member1));
+  }
+
+  @AfterEach
+  public void clearSecurityContext() {
+    SecurityContextHolder.clearContext();
+  }
 
   @Test
   @DisplayName("댓글 작성 - 성공")
@@ -62,7 +121,7 @@ class ReplyServiceTest {
         ));
 
     //when
-    replyService.createReply(1L, dto, "hello@example.com");
+    replyService.createReply(1L, dto);
     ArgumentCaptor<Reply> captor = ArgumentCaptor.forClass(Reply.class);
 
     //then
@@ -89,7 +148,7 @@ class ReplyServiceTest {
     //when
     //then
     assertThrows(CommentsNotFoundException.class,
-        () -> replyService.createReply(1L, dto, "hello@example.com"));
+        () -> replyService.createReply(1L, dto));
   }
 
   @Test
@@ -112,7 +171,7 @@ class ReplyServiceTest {
         ));
 
     //when
-    replyService.updateReply(2L, dto, "hello@example.com");
+    replyService.updateReply(2L, dto);
 
     //then
     verify(replyRepository).findById(2L);
@@ -135,7 +194,7 @@ class ReplyServiceTest {
     //when
     //then
     assertThrows(ReplyNotFoundException.class,
-        () -> replyService.updateReply(2L, dto, "hello@example.com"));
+        () -> replyService.updateReply(2L, dto));
   }
 
   @Test
@@ -155,7 +214,7 @@ class ReplyServiceTest {
         ));
 
     //when
-    replyService.deleteReply(1L, "hello@example.com");
+    replyService.deleteReply(1L);
 
     //then
     verify(replyRepository).delete(any());
@@ -175,7 +234,7 @@ class ReplyServiceTest {
     //when
     //then
     assertThrows(ReplyNotFoundException.class,
-        () -> replyService.deleteReply(2L, "hello@example.com"));
+        () -> replyService.deleteReply(2L));
   }
 
   @Test
@@ -195,6 +254,6 @@ class ReplyServiceTest {
 
     //when
     //then
-    replyService.getReplyList(1L, "hello@example.com", pageable);
+    replyService.getReplyList(1L, pageable);
   }
 }
