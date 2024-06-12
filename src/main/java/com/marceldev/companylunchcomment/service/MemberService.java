@@ -6,6 +6,7 @@ import com.marceldev.companylunchcomment.dto.member.SendVerificationCodeDto;
 import com.marceldev.companylunchcomment.dto.member.SignInDto;
 import com.marceldev.companylunchcomment.dto.member.SignInResult;
 import com.marceldev.companylunchcomment.dto.member.SignUpDto;
+import com.marceldev.companylunchcomment.dto.member.UpdateMemberDto;
 import com.marceldev.companylunchcomment.entity.Member;
 import com.marceldev.companylunchcomment.entity.Verification;
 import com.marceldev.companylunchcomment.exception.AlreadyExistMemberException;
@@ -23,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -100,6 +102,18 @@ public class MemberService implements UserDetailsService {
   }
 
   /**
+   * 회원정보 수정
+   */
+  @Transactional
+  public void updateMember(long id, UpdateMemberDto dto) {
+    String email = getMemberEmail();
+    Member member = memberRepository.findById(id)
+        .filter(m -> m.getEmail().equals(email))
+        .orElseThrow(MemberNotExistException::new);
+    member.setName(dto.getName());
+  }
+
+  /**
    * Spring Security의 UserDetailsService의 메서드 구현 Spring Security의 username으로 해당 서비스의 email이 사용됨
    */
   @Override
@@ -170,5 +184,12 @@ public class MemberService implements UserDetailsService {
         .build();
 
     memberRepository.save(member);
+  }
+
+  private String getMemberEmail() {
+    UserDetails user = (UserDetails) SecurityContextHolder.getContext()
+        .getAuthentication()
+        .getPrincipal();
+    return user.getUsername();
   }
 }
