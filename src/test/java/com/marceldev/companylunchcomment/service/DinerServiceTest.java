@@ -74,16 +74,6 @@ class DinerServiceTest {
   @InjectMocks
   private DinerService dinerService;
 
-  // 테스트에서 목으로 사용될 member. diner를 가져올 때, 적절한 member가 아니면 가져올 수 없음
-  Member member1 = Member.builder()
-      .id(1L)
-      .email("kys@example.com")
-      .name("김영수")
-      .role(Role.USER)
-      .password("somehashedvalue")
-      .company(Company.builder().id(1L).build())
-      .build();
-
   // 테스트에서 목으로 사용될 company. diner를 가져올 때, member가 속한 company의 diner가 아니면 가져올 수 없음
   Company company1 = Company.builder()
       .id(1L)
@@ -91,6 +81,16 @@ class DinerServiceTest {
       .address("서울특별시 강남구 강남대로 200")
       .location(LocationUtil.createPoint(127.123123, 37.123123))
       .domain("example.com")
+      .build();
+
+  // 테스트에서 목으로 사용될 member. diner를 가져올 때, 적절한 member가 아니면 가져올 수 없음
+  Member member1 = Member.builder()
+      .id(1L)
+      .email("kys@example.com")
+      .name("김영수")
+      .role(Role.USER)
+      .password("somehashedvalue")
+      .company(company1)
       .build();
 
   @BeforeEach

@@ -11,36 +11,45 @@ import com.marceldev.companylunchcomment.dto.diner.UpdateDinerDto;
 import com.marceldev.companylunchcomment.entity.Company;
 import com.marceldev.companylunchcomment.entity.Diner;
 import com.marceldev.companylunchcomment.entity.DinerImage;
+import com.marceldev.companylunchcomment.entity.Member;
+import com.marceldev.companylunchcomment.exception.CompanyNotExistException;
+import com.marceldev.companylunchcomment.exception.DinerNotFoundException;
+import com.marceldev.companylunchcomment.exception.MemberNotExistException;
+import com.marceldev.companylunchcomment.exception.MemberUnauthorizedException;
 import com.marceldev.companylunchcomment.repository.diner.DinerImageRepository;
 import com.marceldev.companylunchcomment.repository.diner.DinerRepository;
 import com.marceldev.companylunchcomment.repository.member.MemberRepository;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-public class DinerService extends AbstractDinerService {
+@AllArgsConstructor
+@Transactional(readOnly = true)
+public class DinerService {
 
   private final S3Manager s3Manager;
 
   private final DinerImageRepository dinerImageRepository;
 
-  public DinerService(MemberRepository memberRepository, DinerRepository dinerRepository,
-      S3Manager s3Manager, DinerImageRepository dinerImageRepository) {
-    super(memberRepository, dinerRepository);
-    this.s3Manager = s3Manager;
-    this.dinerImageRepository = dinerImageRepository;
-  }
+  private final MemberRepository memberRepository;
+
+  private final DinerRepository dinerRepository;
 
   /**
    * 식당 생성
    */
-  @Override
-  void createDinerAfterCheck(CreateDinerDto createDinerDto, Company company) {
+  @Transactional
+  public void createDiner(CreateDinerDto createDinerDto) {
+    Company company = getCompany();
     Diner diner = createDinerDto.toEntity();
     diner.setCompany(company);
     dinerRepository.save(diner);
@@ -49,17 +58,16 @@ public class DinerService extends AbstractDinerService {
   /**
    * 식당 목록 조회
    */
-  @Override
-  Page<DinerOutputDto> getDinerListAfterCheck(GetDinerListDto dto, Company company,
-      Pageable pageable) {
+  public Page<DinerOutputDto> getDinerList(GetDinerListDto dto, Pageable pageable) {
+    Company company = getCompany();
     return dinerRepository.getList(company.getId(), dto, pageable);
   }
 
   /**
    * 식당 상세 조회
    */
-  @Override
-  DinerDetailOutputDto getDinerDetailAfterCheck(long id, Diner diner) {
+  public DinerDetailOutputDto getDinerDetail(long id) {
+    Diner diner = getDiner(id);
     List<String> imageUrls = getImageUrls(diner);
     Integer distance = dinerRepository.getDistance(diner.getCompany().getId(), diner.getId());
     return DinerDetailOutputDto.of(diner, imageUrls, distance);
@@ -68,8 +76,9 @@ public class DinerService extends AbstractDinerService {
   /**
    * 식당 수정
    */
-  @Override
-  void updateDinerAfterCheck(long id, UpdateDinerDto dto, Diner diner, Company company) {
+  @Transactional
+  public void updateDiner(long id, UpdateDinerDto dto) {
+    Diner diner = getDiner(id);
     diner.setLink(dto.getLink());
     diner.setLocation(dto.getLocation());
   }
@@ -77,8 +86,9 @@ public class DinerService extends AbstractDinerService {
   /**
    * 식당 제거
    */
-  @Override
-  void removeDinerAfterCheck(long id, Diner diner) {
+  @Transactional
+  public void removeDiner(long id) {
+    Diner diner = getDiner(id);
     List<String> dinerImageKeys = diner.getDinerImages().stream()
         .map(DinerImage::getS3Key)
         .toList();
@@ -96,13 +106,15 @@ public class DinerService extends AbstractDinerService {
     }
   }
 
-  @Override
-  void addDinerTagAfterCheck(long id, AddDinerTagsDto dto, Diner diner) {
+  @Transactional
+  public void addDinerTag(long id, AddDinerTagsDto dto) {
+    Diner diner = getDiner(id);
     dto.getTags().forEach(diner::addTag);
   }
 
-  @Override
-  void removeDinerTagAfterCheck(long id, RemoveDinerTagsDto dto, Diner diner) {
+  @Transactional
+  public void removeDinerTag(long id, RemoveDinerTagsDto dto) {
+    Diner diner = getDiner(id);
     dto.getTags().forEach(diner::removeTag);
   }
 
@@ -117,5 +129,40 @@ public class DinerService extends AbstractDinerService {
       log.error(e.getMessage());
     }
     return imageUrls;
+  }
+
+  /**
+   * diner를 반환함. 회원이 식당에 접근 가능한지 확인
+   */
+  private Diner getDiner(long dinerId) {
+    Company company = getCompany();
+    return dinerRepository.findById(dinerId)
+        .filter((diner) -> diner.getCompany().equals(company))
+        .orElseThrow(() -> new DinerNotFoundException(dinerId));
+  }
+
+  /**
+   * company를 반환함. 로그인한 회원이 회사를 선택했는지 확인.
+   */
+  private Company getCompany() {
+    Member member = getMember();
+    if (member.getCompany() == null) {
+      throw new CompanyNotExistException();
+    }
+    return member.getCompany();
+  }
+
+  /**
+   * member를 반환함
+   */
+  private Member getMember() {
+    UserDetails user = (UserDetails) SecurityContextHolder.getContext()
+        .getAuthentication()
+        .getPrincipal();
+    if (user == null) {
+      throw new MemberUnauthorizedException();
+    }
+    return memberRepository.findByEmail(user.getUsername())
+        .orElseThrow(MemberNotExistException::new);
   }
 }
