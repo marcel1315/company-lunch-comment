@@ -1,11 +1,11 @@
 package com.marceldev.companylunchcomment.controller;
 
-import com.marceldev.companylunchcomment.dto.comments.CommentsOutputDto;
-import com.marceldev.companylunchcomment.dto.comments.CreateCommentDto;
-import com.marceldev.companylunchcomment.dto.comments.GetCommentsListDto;
-import com.marceldev.companylunchcomment.dto.comments.UpdateCommentsDto;
+import com.marceldev.companylunchcomment.dto.comment.CommentOutputDto;
+import com.marceldev.companylunchcomment.dto.comment.CreateCommentDto;
+import com.marceldev.companylunchcomment.dto.comment.GetCommentListDto;
+import com.marceldev.companylunchcomment.dto.comment.UpdateCommentDto;
 import com.marceldev.companylunchcomment.response.CustomResponse;
-import com.marceldev.companylunchcomment.service.CommentsService;
+import com.marceldev.companylunchcomment.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -23,9 +23,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "Comment", description = "코멘트 관련")
-public class CommentsController {
+public class CommentController {
 
-  private final CommentsService commentsService;
+  private final CommentService commentService;
 
   @Operation(
       summary = "식당에 코멘트 작성",
@@ -33,11 +33,11 @@ public class CommentsController {
           + "식당, 코멘트 내용, 사내 공유 여부를 입력한다."
   )
   @PostMapping("/diners/{dinerId}/comments")
-  public CustomResponse<?> createComments(
+  public CustomResponse<?> createComment(
       @PathVariable long dinerId,
       @Validated @RequestBody CreateCommentDto createCommentDto
   ) {
-    commentsService.createComment(dinerId, createCommentDto);
+    commentService.createComment(dinerId, createCommentDto);
     return CustomResponse.success();
   }
 
@@ -47,13 +47,13 @@ public class CommentsController {
           + "작성자 이름, 코멘트 내용으로 목록을 조회할 수 있다. 작성시간순으로 정렬할 수 있다."
   )
   @GetMapping("/diners/{dinerId}/comments")
-  public CustomResponse<?> getCommentsList(
+  public CustomResponse<?> getCommentList(
       @PathVariable long dinerId,
-      @Validated GetCommentsListDto getCommentsListDto,
+      @Validated GetCommentListDto getCommentListDto,
       Pageable pageable
   ) {
-    Page<CommentsOutputDto> comments = commentsService.getCommentsList(
-        dinerId, getCommentsListDto, pageable
+    Page<CommentOutputDto> comments = commentService.getCommentList(
+        dinerId, getCommentListDto, pageable
     );
     return CustomResponse.success(comments);
   }
@@ -62,12 +62,12 @@ public class CommentsController {
       summary = "코멘트 수정",
       description = "사용자는 자신이 작성한 코멘트를 수정할 수 있다."
   )
-  @PutMapping("/diners/{dinerId}/comments/{commentsId}")
-  public CustomResponse<?> updateComments(
-      @PathVariable long commentsId,
-      @RequestBody UpdateCommentsDto updateCommentsDto
+  @PutMapping("/diners/{dinerId}/comments/{commentId}")
+  public CustomResponse<?> updateComment(
+      @PathVariable long commentId,
+      @RequestBody UpdateCommentDto updateCommentDto
   ) {
-    commentsService.updateComments(commentsId, updateCommentsDto);
+    commentService.updateComment(commentId, updateCommentDto);
     return CustomResponse.success();
   }
 
@@ -75,11 +75,11 @@ public class CommentsController {
       summary = "코멘트 삭제",
       description = "사용자는 자신이 작성한 코멘트를 삭제할 수 있다."
   )
-  @DeleteMapping("/diners/{dinerId}/comments/{commentsId}")
-  public CustomResponse<?> deleteComments(
-      @PathVariable long commentsId
+  @DeleteMapping("/diners/{dinerId}/comments/{commentId}")
+  public CustomResponse<?> deleteComment(
+      @PathVariable long commentId
   ) {
-    commentsService.deleteComments(commentsId);
+    commentService.deleteComment(commentId);
     return CustomResponse.success();
   }
 }

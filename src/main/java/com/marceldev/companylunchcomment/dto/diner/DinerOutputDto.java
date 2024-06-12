@@ -21,18 +21,18 @@ public class DinerOutputDto {
   private Double latitude;
   private Double longitude;
   private LinkedHashSet<String> tags;
-  private long commentsCount;
+  private long commentCount;
   private int distanceInMeter;
 
   public DinerOutputDto(Long id, String name, String link, Point location,
-      Set<String> tags, long commentsCount, double distanceInMeter) {
+      Set<String> tags, long commentCount, double distanceInMeter) {
     this.id = id;
     this.name = name;
     this.link = link;
     this.latitude = Optional.ofNullable(location).map(Point::getX).orElse(null);
     this.longitude = Optional.ofNullable(location).map(Point::getY).orElse(null);
     this.tags = new LinkedHashSet<>(tags);
-    this.commentsCount = commentsCount;
+    this.commentCount = commentCount;
     this.distanceInMeter = (int) (distanceInMeter);
   }
 }

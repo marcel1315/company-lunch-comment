@@ -30,12 +30,12 @@ public class ReplyController {
       summary = "댓글 작성",
       description = "사용자는 코멘트에 댓글을 작성할 수 있다."
   )
-  @PostMapping("/diners/{dinerId}/comments/{commentsId}/replies")
+  @PostMapping("/diners/{dinerId}/comments/{commentId}/replies")
   public CustomResponse<?> createReply(
-      @PathVariable long commentsId,
+      @PathVariable long commentId,
       @Validated @RequestBody CreateReplyDto createReplyDto
   ) {
-    replyService.createReply(commentsId, createReplyDto);
+    replyService.createReply(commentId, createReplyDto);
     return CustomResponse.success();
   }
 
@@ -43,12 +43,12 @@ public class ReplyController {
       summary = "댓글 조회",
       description = "사용자는 코멘트에 작성된 댓글을 조회할 수 있다."
   )
-  @GetMapping("/diners/{dinerId}/comments/{commentsId}/replies")
+  @GetMapping("/diners/{dinerId}/comments/{commentId}/replies")
   public CustomResponse<?> getReplyList(
-      @PathVariable long commentsId,
+      @PathVariable long commentId,
       Pageable pageable
   ) {
-    Page<ReplyOutputDto> replies = replyService.getReplyList(commentsId, pageable);
+    Page<ReplyOutputDto> replies = replyService.getReplyList(commentId, pageable);
     return CustomResponse.success(replies);
   }
 
@@ -57,7 +57,7 @@ public class ReplyController {
       description = "사용자는 코멘트에 댓글 수정이 가능하다.<br>"
           + "수정은 자신이 작성한 댓글만 가능하다."
   )
-  @PutMapping("/diners/{dinerId}/comments/{commentsId}/replies/{replyId}")
+  @PutMapping("/diners/{dinerId}/comments/{commentId}/replies/{replyId}")
   public CustomResponse<?> updateReply(
       @PathVariable long replyId,
       @Validated @RequestBody UpdateReplyDto updateReplyDto
@@ -71,7 +71,7 @@ public class ReplyController {
       description = "사용자는 댓글 삭제가 가능하다.<br>"
           + "삭제는 자신이 작성한 댓글만 가능하다."
   )
-  @DeleteMapping("/diners/{dinerId}/comments/{commentsId}/replies/{replyId}")
+  @DeleteMapping("/diners/{dinerId}/comments/{commentId}/replies/{replyId}")
   public CustomResponse<?> deleteReply(
       @PathVariable long replyId
   ) {

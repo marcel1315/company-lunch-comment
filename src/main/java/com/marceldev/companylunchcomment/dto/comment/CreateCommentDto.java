@@ -1,4 +1,4 @@
-package com.marceldev.companylunchcomment.dto.comments;
+package com.marceldev.companylunchcomment.dto.comment;
 
 import com.marceldev.companylunchcomment.type.ShareStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -8,10 +8,10 @@ import lombok.Data;
 
 @Data
 @Builder
-public class UpdateCommentsDto {
+public class CreateCommentDto {
 
   @NotNull
-  @Schema(example = "친절함")
+  @Schema(example = "맛있어요")
   private String content;
 
   @NotNull

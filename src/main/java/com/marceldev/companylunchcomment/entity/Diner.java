@@ -60,7 +60,7 @@ public class Diner extends BaseEntity {
   private Company company;
 
   @OneToMany(mappedBy = "diner", fetch = FetchType.LAZY)
-  private final List<Comments> comments = new ArrayList<>();
+  private final List<Comment> comments = new ArrayList<>();
 
   public void addTag(String tag) {
     tags.add(tag);

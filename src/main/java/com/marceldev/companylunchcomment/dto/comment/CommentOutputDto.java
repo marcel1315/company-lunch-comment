@@ -1,6 +1,6 @@
-package com.marceldev.companylunchcomment.dto.comments;
+package com.marceldev.companylunchcomment.dto.comment;
 
-import com.marceldev.companylunchcomment.entity.Comments;
+import com.marceldev.companylunchcomment.entity.Comment;
 import com.marceldev.companylunchcomment.type.ShareStatus;
 import java.time.LocalDateTime;
 import lombok.Builder;
@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 @NoArgsConstructor
-public class CommentsOutputDto {
+public class CommentOutputDto {
 
   private long id;
   private String content;
@@ -20,7 +20,7 @@ public class CommentsOutputDto {
   private String commentedByName;
   private long dinerId;
 
-  public CommentsOutputDto(Long id, String content, ShareStatus shareStatus,
+  public CommentOutputDto(Long id, String content, ShareStatus shareStatus,
       LocalDateTime createdAt,
       long commentedById, String commentedByName, long dinerId) {
     this.id = id;
@@ -32,15 +32,15 @@ public class CommentsOutputDto {
     this.dinerId = dinerId;
   }
 
-  public static CommentsOutputDto of(Comments comments, String name) {
-    return CommentsOutputDto.builder()
-        .id(comments.getId())
-        .content(comments.getContent())
-        .shareStatus(comments.getShareStatus())
-        .createdAt(comments.getCreatedAt())
-        .commentedById(comments.getMember().getId())
+  public static CommentOutputDto of(Comment comment, String name) {
+    return CommentOutputDto.builder()
+        .id(comment.getId())
+        .content(comment.getContent())
+        .shareStatus(comment.getShareStatus())
+        .createdAt(comment.getCreatedAt())
+        .commentedById(comment.getMember().getId())
         .commentedByName(name)
-        .dinerId(comments.getDiner().getId())
+        .dinerId(comment.getDiner().getId())
         .build();
   }
 }
