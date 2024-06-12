@@ -1,6 +1,5 @@
 package com.marceldev.companylunchcomment.dto.diner;
 
-import com.marceldev.companylunchcomment.entity.Diner;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -35,18 +34,5 @@ public class DinerOutputDto {
     this.tags = new LinkedHashSet<>(tags);
     this.commentsCount = commentsCount;
     this.distanceInMeter = (int) (distanceInMeter);
-  }
-
-  public static DinerOutputDto of(Diner diner) {
-    return DinerOutputDto.builder()
-        .id(diner.getId())
-        .name(diner.getName())
-        .link(diner.getLink())
-        .latitude(Optional.ofNullable(diner.getLocation()).map(Point::getX).orElse(null))
-        .longitude(Optional.ofNullable(diner.getLocation()).map(Point::getY).orElse(null))
-        .tags(diner.getTags())
-        .commentsCount(diner.getComments().size())
-        .distanceInMeter(Optional.ofNullable(diner.getDistance()).orElse(-1))
-        .build();
   }
 }

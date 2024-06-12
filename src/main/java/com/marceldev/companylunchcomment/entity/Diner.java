@@ -54,8 +54,6 @@ public class Diner extends BaseEntity {
   @OneToMany(mappedBy = "diner", fetch = FetchType.LAZY)
   private List<DinerImage> dinerImages;
 
-  private Integer distance;
-
   @Setter
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "company_id", nullable = false)

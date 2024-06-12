@@ -110,7 +110,7 @@ public class DinerRepositoryImpl implements DinerRepositoryCustom {
     return switch (sort) {
       case DINER_NAME -> new OrderSpecifier<>(order, diner.name);
       case COMMENTS_COUNT -> new OrderSpecifier<>(order, comments.count());
-      case DISTANCE -> new OrderSpecifier<>(order, diner.distance);
+      case DISTANCE -> new OrderSpecifier<>(order, distance(diner.location, company.location));
     };
   }
 }
