@@ -47,7 +47,7 @@ public class Member extends BaseEntity {
   private Role role;
 
   @Setter
-  @ManyToOne(fetch = FetchType.EAGER)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "company_id")
   private Company company;
 }
