@@ -22,6 +22,8 @@ import com.marceldev.companylunchcomment.repository.member.MemberRepository;
 import com.marceldev.companylunchcomment.repository.verification.VerificationRepository;
 import com.marceldev.companylunchcomment.type.CompanySort;
 import com.marceldev.companylunchcomment.type.Role;
+import com.marceldev.companylunchcomment.type.SortDirection;
+import com.marceldev.companylunchcomment.util.LocationUtil;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -58,8 +60,8 @@ class CompanyServiceTest {
     CreateCompanyDto dto = CreateCompanyDto.builder()
         .name("좋은회사")
         .address("서울시 강남구 역삼동 123-456")
-        .latitude("37.123456")
-        .longitude("127.123456")
+        .latitude(37.123456)
+        .longitude(127.123456)
         .build();
     when(companyRepository.existsByDomainAndName(any(), any()))
         .thenReturn(false);
@@ -72,8 +74,7 @@ class CompanyServiceTest {
     verify(companyRepository).save(captor.capture());
     assertEquals("좋은회사", captor.getValue().getName());
     assertEquals("서울시 강남구 역삼동 123-456", captor.getValue().getAddress());
-    assertEquals("37.123456", captor.getValue().getLatitude());
-    assertEquals("127.123456", captor.getValue().getLongitude());
+    assertEquals(LocationUtil.createPoint(127.123456, 37.123456), captor.getValue().getLocation());
     assertEquals("example.com", captor.getValue().getDomain());
   }
 
@@ -84,8 +85,8 @@ class CompanyServiceTest {
     CreateCompanyDto dto = CreateCompanyDto.builder()
         .name("좋은회사")
         .address("서울시 강남구 역삼동 123-456")
-        .latitude("37.123456")
-        .longitude("127.123456")
+        .latitude(37.123456)
+        .longitude(127.123456)
         .build();
     when(companyRepository.existsByDomainAndName(any(), any()))
         .thenReturn(true);
@@ -103,8 +104,8 @@ class CompanyServiceTest {
     CreateCompanyDto dto = CreateCompanyDto.builder()
         .name("좋은회사")
         .address("서울시 강남구 역삼동 123-456")
-        .latitude("37.123456")
-        .longitude("127.123456")
+        .latitude(37.123456)
+        .longitude(127.123456)
         .build();
 
     //when
@@ -119,8 +120,8 @@ class CompanyServiceTest {
     //given
     UpdateCompanyDto dto = UpdateCompanyDto.builder()
         .address("서울시 강남구 역삼동 123-456")
-        .latitude("37.123456")
-        .longitude("127.123456")
+        .latitude(37.123456)
+        .longitude(127.123456)
         .verificationCode("123456")
         .build();
     String email = "hello@example.com";
@@ -149,8 +150,8 @@ class CompanyServiceTest {
     //given
     UpdateCompanyDto dto = UpdateCompanyDto.builder()
         .address("서울시 강남구 역삼동 123-456")
-        .latitude("37.123456")
-        .longitude("127.123456")
+        .latitude(37.123456)
+        .longitude(127.123456)
         .verificationCode("123456")
         .build();
     String email = "hello@example.com";
@@ -169,8 +170,8 @@ class CompanyServiceTest {
     //given
     UpdateCompanyDto dto = UpdateCompanyDto.builder()
         .address("서울시 강남구 역삼동 123-456")
-        .latitude("37.123456")
-        .longitude("127.123456")
+        .latitude(37.123456)
+        .longitude(127.123456)
         .verificationCode("123456")
         .build();
     String email = "hello@example.com";
@@ -198,8 +199,8 @@ class CompanyServiceTest {
     //given
     UpdateCompanyDto dto = UpdateCompanyDto.builder()
         .address("서울시 강남구 역삼동 123-456")
-        .latitude("37.123456")
-        .longitude("127.123456")
+        .latitude(37.123456)
+        .longitude(127.123456)
         .verificationCode("123456")
         .build();
     String email = "hello@example.com";
@@ -226,22 +227,21 @@ class CompanyServiceTest {
   void get_company_list() {
     //given
     GetCompanyListDto dto = GetCompanyListDto.builder()
-        .companySort(CompanySort.COMPANY_NAME_ASC)
+        .sortBy(CompanySort.COMPANY_NAME)
+        .sortDirection(SortDirection.ASC)
         .build();
     String email = "hello@example.com";
     Company company1 = Company.builder()
         .id(1L)
         .name("감정타코 강남점")
         .address("서울시 강남구 역삼동 123-456")
-        .latitude("37.123456")
-        .longitude("127.123456")
+        .location(LocationUtil.createPoint(127.123456, 37.123456))
         .build();
     Company company2 = Company.builder()
         .id(2L)
         .name("감정타코 신사점")
         .address("서울시 강남구 신사동 123-456")
-        .latitude("37.123457")
-        .longitude("127.123457")
+        .location(LocationUtil.createPoint(127.123457, 37.123457))
         .build();
 
     Page<Company> pages = new PageImpl<>(List.of(company1, company2));
@@ -261,7 +261,8 @@ class CompanyServiceTest {
   void get_company_list_empty_page() {
     //given
     GetCompanyListDto dto = GetCompanyListDto.builder()
-        .companySort(CompanySort.COMPANY_NAME_ASC)
+        .sortBy(CompanySort.COMPANY_NAME)
+        .sortDirection(SortDirection.ASC)
         .build();
     String email = "hello@example.com";
 
@@ -291,8 +292,7 @@ class CompanyServiceTest {
         .id(1L)
         .name("감정타코 강남점")
         .address("서울시 강남구 역삼동 123-456")
-        .latitude("37.123456")
-        .longitude("127.123456")
+        .location(LocationUtil.createPoint(127.123456, 37.123456))
         .domain("example.com")
         .build();
     when(companyRepository.findById(1L))
@@ -341,8 +341,7 @@ class CompanyServiceTest {
         .id(1L)
         .name("감정타코 강남점")
         .address("서울시 강남구 역삼동 123-456")
-        .latitude("37.123456")
-        .longitude("127.123456")
+        .location(LocationUtil.createPoint(127.123456, 37.123456))
         .domain("example.net") // example.com 이 아닌 도메인
         .build();
     when(companyRepository.findById(1L))

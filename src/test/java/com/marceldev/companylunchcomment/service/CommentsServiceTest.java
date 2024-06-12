@@ -1,6 +1,5 @@
 package com.marceldev.companylunchcomment.service;
 
-import static com.marceldev.companylunchcomment.type.CommentsSort.CREATED_AT_ASC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -25,8 +24,11 @@ import com.marceldev.companylunchcomment.exception.MemberNotExistException;
 import com.marceldev.companylunchcomment.repository.comments.CommentsRepository;
 import com.marceldev.companylunchcomment.repository.diner.DinerRepository;
 import com.marceldev.companylunchcomment.repository.member.MemberRepository;
+import com.marceldev.companylunchcomment.type.CommentsSort;
 import com.marceldev.companylunchcomment.type.Role;
 import com.marceldev.companylunchcomment.type.ShareStatus;
+import com.marceldev.companylunchcomment.type.SortDirection;
+import com.marceldev.companylunchcomment.util.LocationUtil;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -80,8 +82,7 @@ class CommentsServiceTest {
       .id(1L)
       .name("좋은회사")
       .address("서울특별시 강남구 강남대로 200")
-      .latitude("37.123123")
-      .longitude("127.123123")
+      .location(LocationUtil.createPoint(127.123123, 37.123123))
       .domain("example.com")
       .build();
 
@@ -89,8 +90,7 @@ class CommentsServiceTest {
   private final Diner diner1 = Diner.builder()
       .id(1L)
       .name("피자학원")
-      .latitude("37.123123")
-      .longitude("127.123123")
+      .location(LocationUtil.createPoint(127.123123, 37.123123))
       .tags(new LinkedHashSet<>(List.of("피자", "맛집")))
       .company(company1)
       .build();
@@ -189,7 +189,8 @@ class CommentsServiceTest {
   void get_comments_list() {
     //given
     GetCommentsListDto dto = GetCommentsListDto.builder()
-        .commentsSort(CREATED_AT_ASC)
+        .sortBy(CommentsSort.CREATED_AT)
+        .sortDirection(SortDirection.ASC)
         .commentedBy("김영수")
         .keyword("친절")
         .build();

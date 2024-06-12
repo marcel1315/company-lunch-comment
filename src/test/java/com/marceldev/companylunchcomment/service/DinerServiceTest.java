@@ -20,7 +20,6 @@ import com.marceldev.companylunchcomment.dto.diner.GetDinerListDto;
 import com.marceldev.companylunchcomment.dto.diner.RemoveDinerTagsDto;
 import com.marceldev.companylunchcomment.dto.diner.UpdateDinerDto;
 import com.marceldev.companylunchcomment.dto.member.SecurityMember;
-import com.marceldev.companylunchcomment.entity.Comments;
 import com.marceldev.companylunchcomment.entity.Company;
 import com.marceldev.companylunchcomment.entity.Diner;
 import com.marceldev.companylunchcomment.entity.DinerImage;
@@ -32,6 +31,8 @@ import com.marceldev.companylunchcomment.repository.diner.DinerRepository;
 import com.marceldev.companylunchcomment.repository.member.MemberRepository;
 import com.marceldev.companylunchcomment.type.DinerSort;
 import com.marceldev.companylunchcomment.type.Role;
+import com.marceldev.companylunchcomment.type.SortDirection;
+import com.marceldev.companylunchcomment.util.LocationUtil;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -88,8 +89,7 @@ class DinerServiceTest {
       .id(1L)
       .name("좋은회사")
       .address("서울특별시 강남구 강남대로 200")
-      .latitude("37.123123")
-      .longitude("127.123123")
+      .location(LocationUtil.createPoint(127.123123, 37.123123))
       .domain("example.com")
       .build();
 
@@ -129,8 +129,8 @@ class DinerServiceTest {
     CreateDinerDto dto = CreateDinerDto.builder()
         .name("감성타코")
         .link("diner.com")
-        .latitude("37.29283882")
-        .longitude("127.39232323")
+        .latitude(37.29283882)
+        .longitude(127.39232323)
         .tags(tags)
         .build();
 
@@ -155,8 +155,7 @@ class DinerServiceTest {
     Diner diner = captor.getValue();
     assertEquals(diner.getName(), "감성타코");
     assertEquals(diner.getLink(), "diner.com");
-    assertEquals(diner.getLatitude(), "37.29283882");
-    assertEquals(diner.getLongitude(), "127.39232323");
+    assertEquals(diner.getLocation(), LocationUtil.createPoint(127.39232323, 37.29283882));
     assertEquals(diner.getTags().getLast(), "분위기좋은");
   }
 
@@ -189,8 +188,8 @@ class DinerServiceTest {
     //given
     UpdateDinerDto dto = UpdateDinerDto.builder()
         .link("diner1.com")
-        .latitude("37.11111111")
-        .longitude("127.11111111")
+        .latitude(37.11111111)
+        .longitude(127.11111111)
         .build();
     when(dinerRepository.findById(anyLong()))
         .thenReturn(Optional.ofNullable(
@@ -198,8 +197,7 @@ class DinerServiceTest {
                 .builder()
                 .id(1L)
                 .link("diner.com")
-                .latitude("37.11111111")
-                .longitude("127.11111111")
+                .location(LocationUtil.createPoint(127.11111111, 37.11111111))
                 .company(company1)
                 .build()
         ));
@@ -318,23 +316,24 @@ class DinerServiceTest {
   void test_get_diner_list() {
     //given
     GetDinerListDto dto = GetDinerListDto.builder()
-        .dinerSort(DinerSort.DINER_NAME_ASC)
+        .sortBy(DinerSort.DINER_NAME)
+        .sortDirection(SortDirection.ASC)
         .build();
 
     DinerOutputDto diner1 = DinerOutputDto.builder()
         .id(1L)
         .name("감성타코")
         .link("diner.com")
-        .latitude("37.123123")
-        .longitude("127.123123")
+        .latitude(37.123123)
+        .longitude(127.123123)
         .tags(new LinkedHashSet<>(List.of("태그1", "태그2")))
         .build();
     DinerOutputDto diner2 = DinerOutputDto.builder()
         .id(2L)
         .name("감성타코2")
         .link("diner2.com")
-        .latitude("37.123123")
-        .longitude("127.123123")
+        .latitude(37.123123)
+        .longitude(127.123123)
         .tags(new LinkedHashSet<>(List.of("태그1", "태그2")))
         .build();
 
@@ -361,7 +360,6 @@ class DinerServiceTest {
         .link("diner.com")
         .dinerImages(List.of())
         .company(company1)
-        .comments(List.of(Comments.builder().build()))
         .build();
     when(dinerRepository.findById(anyLong()))
         .thenReturn(Optional.of(diner));
@@ -386,7 +384,6 @@ class DinerServiceTest {
         .link("diner.com")
         .company(company1)
         .dinerImages(List.of())
-        .comments(List.of(Comments.builder().build()))
         .build();
 
     when(dinerRepository.findById(anyLong()))
