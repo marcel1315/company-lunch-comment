@@ -58,9 +58,9 @@ public class CommentsService {
    */
   public Page<CommentsOutputDto> getCommentsList(long dinerId,
       GetCommentsListDto dto, Pageable pageable) {
-    // TODO: Check diner exist
-
-    return commentsRepository.getList(dto, pageable);
+    Member member = getMember();
+    return commentsRepository.getList(dto, member.getId(), dinerId, pageable)
+        .map(c -> CommentsOutputDto.of(c, c.getMember().getName()));
   }
 
   /**
