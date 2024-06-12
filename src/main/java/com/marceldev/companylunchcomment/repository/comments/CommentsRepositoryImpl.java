@@ -1,14 +1,15 @@
 package com.marceldev.companylunchcomment.repository.comments;
 
 import static com.marceldev.companylunchcomment.entity.QComments.comments;
+import static com.marceldev.companylunchcomment.entity.QMember.member;
 
-import com.marceldev.companylunchcomment.dto.comments.CommentsOutputDto;
 import com.marceldev.companylunchcomment.dto.comments.GetCommentsListDto;
+import com.marceldev.companylunchcomment.entity.Comments;
 import com.marceldev.companylunchcomment.type.CommentsSort;
+import com.marceldev.companylunchcomment.type.ShareStatus;
 import com.marceldev.companylunchcomment.type.SortDirection;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
@@ -24,28 +25,28 @@ public class CommentsRepositoryImpl implements CommentsRepositoryCustom {
   private final JPAQueryFactory queryFactory;
 
   @Override
-  public Page<CommentsOutputDto> getList(GetCommentsListDto dto, Pageable pageable) {
+  public Page<Comments> getList(GetCommentsListDto dto, long myMemberId, long dinerId,
+      Pageable pageable) {
     long total = Optional.ofNullable(
-            queryFactory.select(comments.count())
+            queryFactory
+                .select(comments.count())
                 .from(comments)
                 .where(
+                    dinerEq(dinerId),
+                    myComments(myMemberId).or(companyShared()),
                     contentContains(dto),
                     commentedByEq(dto)
                 )
                 .fetchOne())
         .orElse(0L);
 
-    List<CommentsOutputDto> content = queryFactory.select(
-            Projections.constructor(CommentsOutputDto.class,
-                comments.id,
-                comments.content,
-                comments.shareStatus.stringValue(),
-                comments.createdAt,
-                comments.member.id.as("commentedBy"),
-                comments.diner.id.as("dinerId")
-            ))
+    List<Comments> content = queryFactory
+        .select(comments)
         .from(comments)
+        .leftJoin(comments.member, member).fetchJoin()
         .where(
+            dinerEq(dinerId),
+            myComments(myMemberId).or(companyShared()),
             contentContains(dto),
             commentedByEq(dto)
         )
@@ -55,6 +56,18 @@ public class CommentsRepositoryImpl implements CommentsRepositoryCustom {
         .fetch();
 
     return new PageImpl<>(content, pageable, total);
+  }
+
+  private BooleanExpression dinerEq(long dinerId) {
+    return comments.diner.id.eq(dinerId);
+  }
+
+  private BooleanExpression myComments(long myMemberId) {
+    return comments.member.id.eq(myMemberId);
+  }
+
+  private BooleanExpression companyShared() {
+    return comments.shareStatus.eq(ShareStatus.COMPANY);
   }
 
   private BooleanExpression contentContains(GetCommentsListDto dto) {
