@@ -83,7 +83,7 @@ public class DinerController {
       description = "사용자는 식당 웹사이트 링크, 위도, 경도 정보를 수정할 수 있다.<br>"
           + "자신이 작성하지 않은 식당도 수정할 수 있다."
   )
-  @PostMapping("/diners/{id}")
+  @PutMapping("/diners/{id}")
   public CustomResponse<?> updateDiner(
       @PathVariable long id,
       @Validated @RequestBody UpdateDinerDto updateDinerDto

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -58,7 +59,7 @@ public class CompanyController {
       description = "사용자는 회사 정보를 수정할 수 있다. 주소, 위도, 경도를 수정할 수 있다.<br>"
           + "회사 정보 수정을 위해 이메일을 통한 번호 인증을 해야한다."
   )
-  @PostMapping("/companies/{id}")
+  @PutMapping("/companies/{id}")
   public CustomResponse<?> updateCompany(
       @PathVariable long id,
       @Validated @RequestBody UpdateCompanyDto updateCompanyDto
@@ -85,7 +86,7 @@ public class CompanyController {
       description = "사용자는 회사를 선택할 수 있다.<br>"
           + "같은 회사라도 여러 지점이 있을 수 있다. 자신이 점심 먹는 회사를 선택한다."
   )
-  @PostMapping("/companies/{id}/choose")
+  @PutMapping("/companies/{id}/choose")
   public CustomResponse<?> chooseCompany(
       @PathVariable long id
   ) {
