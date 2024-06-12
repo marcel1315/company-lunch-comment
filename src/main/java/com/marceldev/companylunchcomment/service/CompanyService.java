@@ -88,10 +88,7 @@ public class CompanyService {
     // 회사정보 업데이트
     Optional.ofNullable(updateCompanyDto.getAddress())
         .ifPresent(company::setAddress);
-    Optional.ofNullable(updateCompanyDto.getLatitude())
-        .ifPresent(company::setLatitude);
-    Optional.ofNullable(updateCompanyDto.getLongitude())
-        .ifPresent(company::setLongitude);
+    company.setLocation(updateCompanyDto.getLocation());
 
     verificationRepository.delete(verification);
   }

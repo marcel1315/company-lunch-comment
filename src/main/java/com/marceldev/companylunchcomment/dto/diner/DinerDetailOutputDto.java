@@ -3,8 +3,10 @@ package com.marceldev.companylunchcomment.dto.diner;
 import com.marceldev.companylunchcomment.entity.Diner;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import lombok.Builder;
 import lombok.Data;
+import org.locationtech.jts.geom.Point;
 
 @Data
 @Builder
@@ -13,24 +15,24 @@ public class DinerDetailOutputDto {
   private Long id;
   private String name;
   private String link;
-  private String latitude;
-  private String longitude;
+  private Double latitude;
+  private Double longitude;
   private LinkedHashSet<String> tags;
   private List<String> imageUrls;
   private long commentsCount;
-  private Integer distanceFromCompany;
+  private Integer distanceInMeter;
 
-  public static DinerDetailOutputDto of(Diner diner, List<String> imageUrls) {
+  public static DinerDetailOutputDto of(Diner diner, List<String> imageUrls, Integer distance) {
     return DinerDetailOutputDto.builder()
         .id(diner.getId())
         .name(diner.getName())
         .link(diner.getLink())
-        .latitude(diner.getLatitude())
-        .longitude(diner.getLongitude())
+        .latitude(Optional.ofNullable(diner.getLocation()).map(Point::getX).orElse(null))
+        .longitude(Optional.ofNullable(diner.getLocation()).map(Point::getY).orElse(null))
         .tags(diner.getTags())
         .imageUrls(imageUrls)
         .commentsCount(diner.getComments().size())
-        .distanceFromCompany(diner.getDistance())
+        .distanceInMeter(distance)
         .build();
   }
 }

@@ -1,6 +1,5 @@
 package com.marceldev.companylunchcomment.entity;
 
-import com.marceldev.companylunchcomment.util.CalculateDistance;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -22,6 +21,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import org.locationtech.jts.geom.Point;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @NoArgsConstructor
@@ -44,13 +44,8 @@ public class Diner extends BaseEntity {
   @Setter
   private String link;
 
-  @Column(length = 20)
   @Setter
-  private String latitude;
-
-  @Column(length = 20)
-  @Setter
-  private String longitude;
+  private Point location;
 
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "JSON DEFAULT '[]'", nullable = false)
@@ -67,7 +62,7 @@ public class Diner extends BaseEntity {
   private Company company;
 
   @OneToMany(mappedBy = "diner", fetch = FetchType.LAZY)
-  private List<Comments> comments = new ArrayList<>();
+  private final List<Comments> comments = new ArrayList<>();
 
   public void addTag(String tag) {
     tags.add(tag);
@@ -75,18 +70,5 @@ public class Diner extends BaseEntity {
 
   public void removeTag(String tag) {
     tags.remove(tag);
-  }
-
-  public void calculateDistance(Company company) {
-    if (company.getLatitude() != null
-        && company.getLongitude() != null
-        && latitude != null
-        && longitude != null) {
-      double lat1 = Double.parseDouble(company.getLatitude());
-      double lon1 = Double.parseDouble(company.getLongitude());
-      double lat2 = Double.parseDouble(this.latitude);
-      double lon2 = Double.parseDouble(this.longitude);
-      distance = CalculateDistance.calculate(lat1, lon1, lat2, lon2);
-    }
   }
 }
