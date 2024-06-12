@@ -21,7 +21,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @AllArgsConstructor
 @Builder
 @Getter
-@ToString
+@ToString(exclude = "diner")
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 public class DinerImage extends BaseEntity {
