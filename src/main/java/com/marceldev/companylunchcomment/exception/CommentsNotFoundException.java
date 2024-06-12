@@ -5,6 +5,6 @@ import org.springframework.http.HttpStatus;
 public class CommentsNotFoundException extends CustomException {
 
   public CommentsNotFoundException() {
-    super(HttpStatus.BAD_REQUEST, "The comments doesn't exist");
+    super(HttpStatus.NOT_FOUND, "The comments doesn't exist");
   }
 }

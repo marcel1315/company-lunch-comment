@@ -5,6 +5,6 @@ import org.springframework.http.HttpStatus;
 public class CompanyNotExistException extends CustomException {
 
   public CompanyNotExistException() {
-    super(HttpStatus.BAD_REQUEST, "Company dosen't exist");
+    super(HttpStatus.NOT_FOUND, "Company dosen't exist");
   }
 }
