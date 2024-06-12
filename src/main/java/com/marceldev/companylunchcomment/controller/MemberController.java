@@ -1,12 +1,14 @@
 package com.marceldev.companylunchcomment.controller;
 
 import com.marceldev.companylunchcomment.component.TokenProvider;
+import com.marceldev.companylunchcomment.dto.member.ChangePasswordDto;
 import com.marceldev.companylunchcomment.dto.member.SendVerificationCodeDto;
 import com.marceldev.companylunchcomment.dto.member.SignInDto;
 import com.marceldev.companylunchcomment.dto.member.SignInResult;
 import com.marceldev.companylunchcomment.dto.member.SignUpDto;
 import com.marceldev.companylunchcomment.dto.member.TokenDto;
 import com.marceldev.companylunchcomment.dto.member.UpdateMemberDto;
+import com.marceldev.companylunchcomment.dto.member.WithdrawMemberDto;
 import com.marceldev.companylunchcomment.response.CustomResponse;
 import com.marceldev.companylunchcomment.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,8 +16,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -73,6 +77,32 @@ public class MemberController {
       @Validated @RequestBody UpdateMemberDto updateMemberDto
   ) {
     memberService.updateMember(id, updateMemberDto);
+    return CustomResponse.success();
+  }
+
+  @Operation(
+      summary = "회원 비밀번호 수정",
+      description = "사용자는 자신의 비밀번호를 수정할 수 있다."
+  )
+  @PutMapping("/member/{id}/password")
+  public ResponseEntity<?> changePassword(
+      @PathVariable long id,
+      @Validated @RequestBody ChangePasswordDto changePasswordDto
+  ) {
+    memberService.changePassword(id, changePasswordDto);
+    return CustomResponse.success();
+  }
+
+  @Operation(
+      summary = "회원 탈퇴",
+      description = "사용자는 아이디(이메일)와 비밀번호로 탈퇴할 수 있다."
+  )
+  @DeleteMapping("/member/{id}")
+  public ResponseEntity<?> withdrawMember(
+      @PathVariable long id,
+      @Validated @RequestBody WithdrawMemberDto withdrawMemberDto
+  ) {
+    memberService.withdrawMember(id, withdrawMemberDto);
     return CustomResponse.success();
   }
 }
