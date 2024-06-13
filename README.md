@@ -114,6 +114,44 @@
 
 - AWS S3
 
+# 배포
+
+## Prerequisite
+
+- AWS account에서 필요한 리소스에 접근할 수 있는 권한이 있어야 합니다. 
+ 
+- CodeBuild가 실행되려면 Private subnet과 NAT Gateway가 필요합니다. CloudFormation을 사용해 NAT, EIP를 띄웁니다. NAT가 준비되는데 약 5분이 소요됩니다.
+
+```bash
+aws cloudformation create-stack --stack-name nat-for-codebuild --template-body file://$(pwd)/cloudformation-for-codebuild.yml
+```
+
+- 약 5분 후 CloudFormation의 상태를 확인해봅니다.
+
+```bash
+aws cloudformation describe-stacks --stack-name nat-for-codebuild --query "Stacks[0].StackStatus"
+```
+
+- 상시로 띄워놓으면 불필요한 요금이 나오므로, 배포가 완료되면 다시 CloudFormation으로 NAT Gateway를 제거합니다.
+
+```bash
+aws cloudformation delete-stack --stack-name nat-for-codebuild
+```
+
+## How-to
+
+![Deployment Process](doc/img/deployment-process.png)
+
+- github 저장소의 main 브랜치에 배포할 내용을 푸시합니다.
+
+- application-ec2.yml 파일을 작성해 S3에 업로드합니다.
+
+- CodePipeline의 배포를 시작합니다.
+
+```bash
+aws codepipeline start-pipeline-execution --name our-company-lunch-pipeline
+```
+
 # Glossary
 
 - 코멘트 : 짧은 글인 것을 강조하기 위해 “글” 또는 “리뷰”보다 “코멘트”라는 용어를 사용합니다. "글"은 제목과 본문을 가지고 길게 써야할 것 같습니다. "리뷰"는 평점이
