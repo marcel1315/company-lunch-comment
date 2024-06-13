@@ -9,6 +9,9 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
   jwt:
     secret:
     expired-in-hour: 24
@@ -27,3 +30,7 @@ s3:
   diner-max-image-count: 10
 
 bypass-email-domain-check-for-dev: true # If true, you can receive email with gmail.com, naver.com, ...
+
+scheduler:
+  clear-verification-code:
+    cron: "0 0 3 * * *" # Run everyday 03:00 AM
