@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Create NAT Gateway and associate it with existing private subnet
+
+Resources:
+  ElasticIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+
+  NATGateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt ElasticIP.AllocationId
+      SubnetId: !Ref PublicSubnetId
+      Tags:
+        - Key: Name
+          Value: NATGatewayForCodeBuild
+
+  RouteOutToInternet:
+    Type: AWS::EC2::Route
+    DependsOn: NATGateway
+    Properties:
+      RouteTableId: !Ref PrivateRouteTableId
+      DestinationCidrBlock: '0.0.0.0/0'
+      NatGatewayId: !Ref NATGateway
+
+Parameters:
+  PublicSubnetId:
+    Type: String
+    Description: The ID of the public subnet where the NAT Gateway will be placed
+    Default: subnet-098d38db3d6940975
+
+  PrivateRouteTableId:
+    Type: String
+    Description: The ID of the route table associated with the private subnet
+    Default: rtb-00f09c6d2a45a188c
+
+Outputs:
+  NatElasticIp:
+    Description: The Elastic IP associated with the NAT Gateway
+    Value: !Ref ElasticIP
+  NatGatewayId:
+    Description: The ID of the NAT Gateway
+    Value: !Ref NATGateway
+
