@@ -1,5 +1,6 @@
 package com.marceldev.companylunchcomment.dto.company;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.marceldev.companylunchcomment.util.LocationUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
@@ -28,6 +29,7 @@ public class UpdateCompanyDto {
   @Schema(example = "127.202021111", requiredMode = RequiredMode.NOT_REQUIRED)
   private double longitude;
 
+  @JsonIgnore
   public Point getLocation() {
     return LocationUtil.createPoint(longitude, latitude);
   }
