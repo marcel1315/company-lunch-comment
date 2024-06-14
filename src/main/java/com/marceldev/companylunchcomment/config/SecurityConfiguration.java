@@ -30,6 +30,7 @@ public class SecurityConfiguration {
                 "/swagger-resources/**", "/webjars/**").permitAll() // Swagger UI
             .requestMatchers("/members/signup", "/members/signin",
                 "/members/signup/send-verification-code").permitAll()
+            .requestMatchers("/notification/sse").authenticated()
             .requestMatchers("/members/**").authenticated()
             .requestMatchers("/diners/**").authenticated()
             .requestMatchers("/companies/**").authenticated()
