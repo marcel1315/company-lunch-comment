@@ -1,5 +1,6 @@
 package com.marceldev.companylunchcomment.controller;
 
+import com.marceldev.companylunchcomment.component.NotificationProvider;
 import com.marceldev.companylunchcomment.dto.comment.CommentOutputDto;
 import com.marceldev.companylunchcomment.dto.comment.CreateCommentDto;
 import com.marceldev.companylunchcomment.dto.comment.GetCommentListDto;
@@ -27,6 +28,8 @@ public class CommentController {
 
   private final CommentService commentService;
 
+  private final NotificationProvider notificationProvider;
+
   @Operation(
       summary = "식당에 코멘트 작성",
       description = "사용자는 등록된 식당에 대해 코멘트를 작성할 수 있다.<br>"
@@ -38,6 +41,7 @@ public class CommentController {
       @Validated @RequestBody CreateCommentDto createCommentDto
   ) {
     commentService.createComment(dinerId, createCommentDto);
+    notificationProvider.enqueueMessage(createCommentDto.getContent());
     return CustomResponse.success();
   }
 

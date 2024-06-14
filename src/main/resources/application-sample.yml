@@ -5,6 +5,7 @@ spring:
     username:
     password:
   jpa:
+    open-in-view: true
     generate-ddl: true
     hibernate:
       ddl-auto: update
@@ -25,6 +26,11 @@ spring:
         smtp:
           starttls:
             enable: true
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
 s3:
   bucket-name:
   diner-max-image-count: 10

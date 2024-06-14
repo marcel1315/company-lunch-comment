@@ -1,0 +1,151 @@
+package com.marceldev.companylunchcomment.service;
+
+import com.marceldev.companylunchcomment.config.RabbitMQConfig;
+import com.marceldev.companylunchcomment.entity.Member;
+import com.marceldev.companylunchcomment.exception.MemberNotExistException;
+import com.marceldev.companylunchcomment.exception.NotificationMessageParseError;
+import com.marceldev.companylunchcomment.repository.member.MemberRepository;
+import java.io.IOException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class NotificationService {
+
+  private final MemberRepository memberRepository;
+
+  private final ConcurrentHashMap<Long, SseEmitter> memberEmitters = new ConcurrentHashMap<>();
+
+  private final ConcurrentHashMap<Long, Boolean> memberOnline = new ConcurrentHashMap<>();
+
+  private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
+  /**
+   * 클라이언트가 연결을 시작할 때 호출하는 부분
+   */
+  public SseEmitter createEmitter() {
+    long memberId = getMember().getId();
+
+    SseEmitter emitter = new SseEmitter(1800_000L); // 30 * 60 * 1000 ms = 30 minutes
+    memberEmitters.put(memberId, emitter);
+    memberOnline.put(memberId, true);
+
+    emitter.onCompletion(() -> {
+      removeMemberFromSseConnection(memberId);
+      log.debug("MemberId: {}. Connection completed.", memberId);
+    });
+    emitter.onTimeout(() -> {
+      removeMemberFromSseConnection(memberId);
+      log.debug("MemberId: {}. Connection timeout.", memberId);
+    });
+    emitter.onError((e) -> {
+      removeMemberFromSseConnection(memberId);
+    });
+
+    // Send keep-alive message every 15 seconds to check whether client is disconnected.
+    scheduler.scheduleAtFixedRate(() -> {
+      try {
+        emitter.send(SseEmitter.event().name("keep-alive").data("keep-alive"));
+        log.debug("MemberId: {}. Sent keep-alive", memberId);
+      } catch (IOException e) {
+        emitter.completeWithError(e);
+      }
+    }, 0, 15, TimeUnit.SECONDS);
+
+    return emitter;
+  }
+
+  /**
+   * 클라이언트가 SSE 연결을 끊을 때 호출하는 부분
+   */
+  public void removeEmitter() {
+    long memberId = getMember().getId();
+
+    SseEmitter emitter = memberEmitters.get(memberId);
+    if (emitter != null) {
+      emitter.complete();
+      memberEmitters.remove(memberId);
+    }
+
+    if (memberOnline.get(memberId) != null) {
+      memberOnline.remove(memberId);
+    }
+  }
+
+  /**
+   * Queue에 들어온 메시지를 처리함. 사용자가 SSE 연결이 되어 있으면 SSE 응답으로 보내기. SSE 연결이 없으면, Push Notification으로 보내기
+   */
+  @RabbitListener(queues = RabbitMQConfig.QUEUE_NAME)
+  private void receiveMessage(String message) {
+    log.debug("receiveMessage: " + message);
+
+    String[] parts = message.split(":", 2);
+    long memberId;
+    try {
+      memberId = Long.parseLong(parts[0]);
+      if (parts.length != 2) {
+        throw new NotificationMessageParseError();
+      }
+      String messageContent = parts[1];
+
+      if (memberOnline.getOrDefault(memberId, false)) {
+        sendSseNotification(memberId, messageContent);
+      } else {
+        sendPushNotification(memberId, messageContent);
+      }
+    } catch (Exception e) {
+      log.error(e.getMessage());
+    }
+  }
+
+  /**
+   * SSE로 클라이언트에게 응답 보내기
+   */
+  public void sendSseNotification(long memberId, String message) {
+    SseEmitter emitter = memberEmitters.get(memberId);
+    if (emitter != null) {
+      try {
+        emitter.send(SseEmitter.event().name("message").data(message));
+      } catch (IOException e) {
+        removeMemberFromSseConnection(memberId);
+      }
+    }
+  }
+
+  /**
+   * Push Notification 보내기
+   */
+  // TODO: FCM
+  public void sendPushNotification(long memberId, String message) {
+
+  }
+
+  private void removeMemberFromSseConnection(long memberId) {
+    memberEmitters.remove(memberId);
+    memberOnline.remove(memberId);
+  }
+
+  private Member getMember() {
+    String email = getMemberEmail();
+    return memberRepository.findByEmail(email)
+        .orElseThrow(MemberNotExistException::new);
+  }
+
+  private String getMemberEmail() {
+    UserDetails user = (UserDetails) SecurityContextHolder.getContext()
+        .getAuthentication()
+        .getPrincipal();
+    return user.getUsername();
+  }
+}
