@@ -3,8 +3,10 @@ package com.marceldev.companylunchcomment.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -67,6 +69,13 @@ class DinerImageServiceTest {
       "test".getBytes()
   );
 
+  MultipartFile mockThumbnailFile = new MockMultipartFile(
+      "file",
+      "test_thumbnail.png",
+      "image/png",
+      "test".getBytes()
+  );
+
   @Test
   @DisplayName("식당 이미지 추가 - 성공")
   void test_update_diner_add_image() throws Exception {
@@ -84,11 +93,11 @@ class DinerImageServiceTest {
         .thenReturn(key);
 
     //when
-    dinerImageService.addDinerImage(1, mockImageFile);
+    dinerImageService.addDinerImage(1, mockImageFile, mockThumbnailFile);
     ArgumentCaptor<DinerImage> captor = ArgumentCaptor.forClass(DinerImage.class);
 
     //then
-    verify(dinerImageRepository).save(captor.capture());
+    verify(dinerImageRepository, times(2)).save(captor.capture());
     assertEquals(captor.getValue().getS3Key(), key);
     assertEquals(captor.getValue().getOrders(), 200);
   }
@@ -104,7 +113,7 @@ class DinerImageServiceTest {
 
     //then
     assertThrows(DinerNotFoundException.class,
-        () -> dinerImageService.addDinerImage(1L, mockImageFile));
+        () -> dinerImageService.addDinerImage(1L, mockImageFile, mockThumbnailFile));
   }
 
   @Test
@@ -115,13 +124,13 @@ class DinerImageServiceTest {
         .thenReturn(Optional.of(
             Diner.builder().build()
         ));
-    when(dinerImageRepository.countByDiner(any()))
+    when(dinerImageRepository.countByDinerAndThumbnail(any(), anyBoolean()))
         .thenReturn(10);
 
     //when
     //then
     assertThrows(DinerMaxImageCountExceedException.class,
-        () -> dinerImageService.addDinerImage(1L, mockImageFile));
+        () -> dinerImageService.addDinerImage(1L, mockImageFile, mockThumbnailFile));
   }
 
   @Test
@@ -132,7 +141,7 @@ class DinerImageServiceTest {
         .thenReturn(Optional.of(
             Diner.builder().build()
         ));
-    when(dinerImageRepository.countByDiner(any()))
+    when(dinerImageRepository.countByDinerAndThumbnail(any(), anyBoolean()))
         .thenReturn(0);
     when(s3Manager.uploadFile(any(), any()))
         .thenThrow(new IOException());
@@ -140,7 +149,7 @@ class DinerImageServiceTest {
     //when
     //then
     assertThrows(ImageUploadFail.class,
-        () -> dinerImageService.addDinerImage(1L, mockImageFile));
+        () -> dinerImageService.addDinerImage(1L, mockImageFile, mockThumbnailFile));
   }
 
   @Test
@@ -151,7 +160,7 @@ class DinerImageServiceTest {
         .thenReturn(Optional.of(
             Diner.builder().build()
         ));
-    when(dinerImageRepository.countByDiner(any()))
+    when(dinerImageRepository.countByDinerAndThumbnail(any(), anyBoolean()))
         .thenReturn(0);
     when(s3Manager.uploadFile(any(), any()))
         .thenReturn("diner/1/images/" + UUID.randomUUID());
@@ -161,7 +170,7 @@ class DinerImageServiceTest {
     //when
     //then
     assertThrows(InternalServerError.class,
-        () -> dinerImageService.addDinerImage(1L, mockImageFile));
+        () -> dinerImageService.addDinerImage(1L, mockImageFile, mockThumbnailFile));
   }
 
   @Test

@@ -18,11 +18,13 @@ public class DinerDetailOutputDto {
   private Double latitude;
   private Double longitude;
   private LinkedHashSet<String> tags;
+  private List<String> thumbnailUrls;
   private List<String> imageUrls;
   private long commentCount;
   private Integer distanceInMeter;
 
-  public static DinerDetailOutputDto of(Diner diner, List<String> imageUrls, Integer distance) {
+  public static DinerDetailOutputDto of(Diner diner, List<String> thumbnailUrls,
+      List<String> imageUrls, Integer distance) {
     return DinerDetailOutputDto.builder()
         .id(diner.getId())
         .name(diner.getName())
@@ -30,6 +32,7 @@ public class DinerDetailOutputDto {
         .latitude(Optional.ofNullable(diner.getLocation()).map(Point::getX).orElse(null))
         .longitude(Optional.ofNullable(diner.getLocation()).map(Point::getY).orElse(null))
         .tags(diner.getTags())
+        .thumbnailUrls(thumbnailUrls)
         .imageUrls(imageUrls)
         .commentCount(diner.getComments().size())
         .distanceInMeter(distance)

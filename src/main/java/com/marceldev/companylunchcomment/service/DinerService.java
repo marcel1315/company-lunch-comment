@@ -68,9 +68,19 @@ public class DinerService {
    */
   public DinerDetailOutputDto getDinerDetail(long id) {
     Diner diner = getDiner(id);
-    List<String> imageUrls = getImageUrls(diner);
+    List<String> dinerImageKeys = diner.getDinerImages().stream()
+        .filter(dinerImage -> !dinerImage.isThumbnail())
+        .map(DinerImage::getS3Key)
+        .toList();
+    List<String> dinerThumbnailKeys = diner.getDinerImages().stream()
+        .filter(DinerImage::isThumbnail)
+        .map(DinerImage::getS3Key)
+        .toList();
+    List<String> imageUrls = getImageUrls(dinerImageKeys);
+    List<String> thumbnailUrls = getImageUrls(dinerThumbnailKeys);
+
     Integer distance = dinerRepository.getDistance(diner.getCompany().getId(), diner.getId());
-    return DinerDetailOutputDto.of(diner, imageUrls, distance);
+    return DinerDetailOutputDto.of(diner, thumbnailUrls, imageUrls, distance);
   }
 
   /**
@@ -118,13 +128,10 @@ public class DinerService {
     dto.getTags().forEach(diner::removeTag);
   }
 
-  private List<String> getImageUrls(Diner diner) {
+  private List<String> getImageUrls(List<String> s3Keys) {
     List<String> imageUrls = new ArrayList<>();
-    List<String> dinerImageKeys = diner.getDinerImages().stream()
-        .map(DinerImage::getS3Key)
-        .toList();
     try {
-      imageUrls = s3Manager.getPresignedUrls(dinerImageKeys);
+      imageUrls = s3Manager.getPresignedUrls(s3Keys);
     } catch (RuntimeException e) {
       log.error(e.getMessage());
     }
