@@ -149,4 +149,26 @@ public class DinerController {
     dinerImageService.removeDinerImage(dinerId, imageId);
     return CustomResponse.success();
   }
+
+  @Operation(
+      summary = "식당 구독"
+  )
+  @PostMapping("/diners/{dinerId}/subscribe")
+  public CustomResponse<?> subscribeDiner(
+      @PathVariable long dinerId
+  ) {
+    dinerService.subscribeDiner(dinerId);
+    return CustomResponse.success();
+  }
+
+  @Operation(
+      summary = "식당 구독 취소"
+  )
+  @PostMapping("/diners/{dinerId}/unsubscribe")
+  public CustomResponse<?> unsubscribeDiner(
+      @PathVariable long dinerId
+  ) {
+    dinerService.unsubscribeDiner(dinerId);
+    return CustomResponse.success();
+  }
 }

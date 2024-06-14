@@ -11,13 +11,17 @@ import com.marceldev.companylunchcomment.dto.diner.UpdateDinerDto;
 import com.marceldev.companylunchcomment.entity.Company;
 import com.marceldev.companylunchcomment.entity.Diner;
 import com.marceldev.companylunchcomment.entity.DinerImage;
+import com.marceldev.companylunchcomment.entity.DinerSubscription;
 import com.marceldev.companylunchcomment.entity.Member;
+import com.marceldev.companylunchcomment.exception.AlreadySubscribedException;
 import com.marceldev.companylunchcomment.exception.CompanyNotExistException;
 import com.marceldev.companylunchcomment.exception.DinerNotFoundException;
+import com.marceldev.companylunchcomment.exception.DinerSubscriptionNotFound;
 import com.marceldev.companylunchcomment.exception.MemberNotExistException;
 import com.marceldev.companylunchcomment.exception.MemberUnauthorizedException;
 import com.marceldev.companylunchcomment.repository.diner.DinerImageRepository;
 import com.marceldev.companylunchcomment.repository.diner.DinerRepository;
+import com.marceldev.companylunchcomment.repository.diner.DinerSubscriptionRepository;
 import com.marceldev.companylunchcomment.repository.member.MemberRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +47,7 @@ public class DinerService {
   private final MemberRepository memberRepository;
 
   private final DinerRepository dinerRepository;
+  private final DinerSubscriptionRepository dinerSubscriptionRepository;
 
   /**
    * 식당 생성
@@ -116,16 +121,55 @@ public class DinerService {
     }
   }
 
+  /**
+   * 태그 추가
+   */
   @Transactional
   public void addDinerTag(long id, AddDinerTagsDto dto) {
     Diner diner = getDiner(id);
     dto.getTags().forEach(diner::addTag);
   }
 
+  /**
+   * 태그 제거
+   */
   @Transactional
   public void removeDinerTag(long id, RemoveDinerTagsDto dto) {
     Diner diner = getDiner(id);
     dto.getTags().forEach(diner::removeTag);
+  }
+
+  /**
+   * 식당 구독
+   */
+  @Transactional
+  public void subscribeDiner(long id) {
+    Diner diner = getDiner(id);
+    Member member = getMember();
+
+    if (dinerSubscriptionRepository.existsByDinerAndMember(diner, member)) {
+      throw new AlreadySubscribedException();
+    }
+
+    dinerSubscriptionRepository.save(DinerSubscription.builder()
+        .diner(diner)
+        .member(member)
+        .build());
+  }
+
+  /**
+   * 식당 구독 취소
+   */
+  @Transactional
+  public void unsubscribeDiner(long id) {
+    Diner diner = getDiner(id);
+    Member member = getMember();
+
+    DinerSubscription dinerSubscription = dinerSubscriptionRepository.findByDinerAndMember(diner,
+            member)
+        .orElseThrow(DinerSubscriptionNotFound::new);
+
+    dinerSubscriptionRepository.delete(dinerSubscription);
   }
 
   private List<String> getImageUrls(List<String> s3Keys) {
