@@ -39,12 +39,14 @@ public class DinerImageService {
    * 식당 이미지 추가 이미지의 순서값은 이미 있는 이미지의 가장 큰 값에 +100씩 함
    */
   @Transactional
-  public void addDinerImage(long id, MultipartFile file) {
+  public void addDinerImage(long id, MultipartFile image, MultipartFile thumbnail) {
     Diner diner = getDiner(id);
     checkMaxImageCount(diner);
 
-    String key = uploadDinerImageToStorage(id, file);
-    saveDinerImage(diner, key);
+    String keyImage = uploadDinerImageToStorage(id, image, false);
+    String keyThumbnail = uploadDinerImageToStorage(id, thumbnail, true);
+    saveDinerImage(diner, keyImage, false);
+    saveDinerImage(diner, keyThumbnail, true);
   }
 
   /**
@@ -68,9 +70,9 @@ public class DinerImageService {
     }
   }
 
-  private String uploadDinerImageToStorage(long dinerId, MultipartFile file) {
+  private String uploadDinerImageToStorage(long dinerId, MultipartFile file, boolean thumbnail) {
     try {
-      String key = genDinerImageKey(dinerId);
+      String key = genDinerImageKey(dinerId, thumbnail);
       return s3Manager.uploadFile(key, file);
     } catch (IOException e) {
       log.error(e.getMessage());
@@ -87,12 +89,13 @@ public class DinerImageService {
     }
   }
 
-  private void saveDinerImage(Diner diner, String key) {
+  private void saveDinerImage(Diner diner, String key, boolean thumbnail) {
     try {
       DinerImage dinerImage = DinerImage.builder()
           .s3Key(key)
           .orders(getNextImageOrder(diner))
           .diner(diner)
+          .thumbnail(thumbnail)
           .build();
       dinerImageRepository.save(dinerImage);
     } catch (RuntimeException e) {
@@ -111,14 +114,18 @@ public class DinerImageService {
   }
 
   private void checkMaxImageCount(Diner diner) {
-    int count = dinerImageRepository.countByDiner(diner);
+    int count = dinerImageRepository.countByDinerAndThumbnail(diner, false);
     if (count >= dinerMaxImageCount) {
       throw new DinerMaxImageCountExceedException();
     }
   }
 
-  private String genDinerImageKey(long dinerId) {
-    return "diner/" + dinerId + "/images/" + UUID.randomUUID();
+  private String genDinerImageKey(long dinerId, boolean thumbnail) {
+    if (thumbnail) {
+      return "diner/" + dinerId + "/thumbnails/" + UUID.randomUUID();
+    } else {
+      return "diner/" + dinerId + "/images/" + UUID.randomUUID();
+    }
   }
 
   private Diner getDiner(long id) {

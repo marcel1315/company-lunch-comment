@@ -71,7 +71,6 @@ public class DinerController {
           + "이름, 태그, 거리, 코멘트 갯수, 코멘트 목록, 사진 썸네일 목록을 볼 수 있다.<br>"
           + "필요한 경우 원본 사진을 가져올 수 있다."
   )
-  // TODO: 사진 썸네일 목록(현재는 원본 사진 목록을 가져옴)
   @GetMapping("/diners/{id}")
   public CustomResponse<?> getDinerDetail(@PathVariable long id) {
     DinerDetailOutputDto diner = dinerService.getDinerDetail(id);
@@ -132,9 +131,10 @@ public class DinerController {
   @PostMapping("/diners/{id}/images")
   public CustomResponse<?> addDinerImage(
       @PathVariable long id,
-      @RequestParam("file") MultipartFile file
+      @RequestParam("image") MultipartFile image,
+      @RequestParam("thumbnail") MultipartFile thumbnail
   ) {
-    dinerImageService.addDinerImage(id, file);
+    dinerImageService.addDinerImage(id, image, thumbnail);
     return CustomResponse.success();
   }
 

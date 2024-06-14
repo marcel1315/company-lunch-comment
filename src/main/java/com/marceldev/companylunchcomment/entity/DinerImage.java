@@ -37,6 +37,9 @@ public class DinerImage extends BaseEntity {
   @Setter
   private int orders;
 
+  @Column(nullable = false)
+  private boolean thumbnail;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "diner_id")
   private Diner diner;
