@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ReplyRepository extends JpaRepository<Reply, Long> {
 
-  Page<Reply> findByCommentId(long commentId, Pageable pageable);
+  Page<Reply> findByCommentIdOrderByCreatedAtDesc(long commentId, Pageable pageable);
 }

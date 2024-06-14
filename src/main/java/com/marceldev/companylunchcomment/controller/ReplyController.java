@@ -32,10 +32,11 @@ public class ReplyController {
   )
   @PostMapping("/diners/{dinerId}/comments/{commentId}/replies")
   public CustomResponse<?> createReply(
+      @PathVariable long dinerId,
       @PathVariable long commentId,
       @Validated @RequestBody CreateReplyDto createReplyDto
   ) {
-    replyService.createReply(commentId, createReplyDto);
+    replyService.createReply(dinerId, commentId, createReplyDto);
     return CustomResponse.success();
   }
 
@@ -45,10 +46,11 @@ public class ReplyController {
   )
   @GetMapping("/diners/{dinerId}/comments/{commentId}/replies")
   public CustomResponse<?> getReplyList(
+      @PathVariable long dinerId,
       @PathVariable long commentId,
       Pageable pageable
   ) {
-    Page<ReplyOutputDto> replies = replyService.getReplyList(commentId, pageable);
+    Page<ReplyOutputDto> replies = replyService.getReplyList(dinerId, commentId, pageable);
     return CustomResponse.success(replies);
   }
 
@@ -59,10 +61,11 @@ public class ReplyController {
   )
   @PutMapping("/diners/{dinerId}/comments/{commentId}/replies/{replyId}")
   public CustomResponse<?> updateReply(
+      @PathVariable long dinerId,
       @PathVariable long replyId,
       @Validated @RequestBody UpdateReplyDto updateReplyDto
   ) {
-    replyService.updateReply(replyId, updateReplyDto);
+    replyService.updateReply(dinerId, replyId, updateReplyDto);
     return CustomResponse.success();
   }
 
@@ -73,9 +76,10 @@ public class ReplyController {
   )
   @DeleteMapping("/diners/{dinerId}/comments/{commentId}/replies/{replyId}")
   public CustomResponse<?> deleteReply(
+      @PathVariable long dinerId,
       @PathVariable long replyId
   ) {
-    replyService.deleteReply(replyId);
+    replyService.deleteReply(dinerId, replyId);
     return CustomResponse.success();
   }
 }
