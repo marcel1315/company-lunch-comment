@@ -94,7 +94,6 @@ public class MemberService implements UserDetailsService {
   /**
    * 이메일 전송
    */
-  // TODO: Batch delete unused expired verification code in verification table
   @Transactional
   public void sendVerificationCode(SendVerificationCodeDto dto) {
     String email = dto.getEmail();
