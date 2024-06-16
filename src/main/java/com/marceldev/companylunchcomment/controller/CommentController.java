@@ -35,12 +35,12 @@ public class CommentController {
       description = "사용자는 등록된 식당에 대해 코멘트를 작성할 수 있다.<br>"
           + "식당, 코멘트 내용, 사내 공유 여부를 입력한다."
   )
-  @PostMapping("/diners/{dinerId}/comments")
+  @PostMapping("/diners/{id}/comments")
   public CustomResponse<?> createComment(
-      @PathVariable long dinerId,
+      @PathVariable long id,
       @Validated @RequestBody CreateCommentDto createCommentDto
   ) {
-    commentService.createComment(dinerId, createCommentDto);
+    commentService.createComment(id, createCommentDto);
     notificationProvider.enqueueMessage(createCommentDto.getContent());
     return CustomResponse.success();
   }
@@ -50,14 +50,14 @@ public class CommentController {
       description = "사용자는 사내 공유된 식당의 코멘트 목록을 조회할 수 있다.<br>"
           + "작성자 이름, 코멘트 내용으로 목록을 조회할 수 있다. 작성시간순으로 정렬할 수 있다."
   )
-  @GetMapping("/diners/{dinerId}/comments")
+  @GetMapping("/diners/{id}/comments")
   public CustomResponse<?> getCommentList(
-      @PathVariable long dinerId,
+      @PathVariable long id,
       @Validated GetCommentListDto getCommentListDto,
       Pageable pageable
   ) {
     Page<CommentOutputDto> comments = commentService.getCommentList(
-        dinerId, getCommentListDto, pageable
+        id, getCommentListDto, pageable
     );
     return CustomResponse.success(comments);
   }

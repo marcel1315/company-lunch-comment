@@ -153,22 +153,22 @@ public class DinerController {
   @Operation(
       summary = "식당 구독"
   )
-  @PostMapping("/diners/{dinerId}/subscribe")
+  @PostMapping("/diners/{id}/subscribe")
   public CustomResponse<?> subscribeDiner(
-      @PathVariable long dinerId
+      @PathVariable long id
   ) {
-    dinerService.subscribeDiner(dinerId);
+    dinerService.subscribeDiner(id);
     return CustomResponse.success();
   }
 
   @Operation(
       summary = "식당 구독 취소"
   )
-  @PostMapping("/diners/{dinerId}/unsubscribe")
+  @PostMapping("/diners/{id}/unsubscribe")
   public CustomResponse<?> unsubscribeDiner(
-      @PathVariable long dinerId
+      @PathVariable long id
   ) {
-    dinerService.unsubscribeDiner(dinerId);
+    dinerService.unsubscribeDiner(id);
     return CustomResponse.success();
   }
 }
