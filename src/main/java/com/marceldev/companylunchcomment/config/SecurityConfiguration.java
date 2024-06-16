@@ -30,7 +30,11 @@ public class SecurityConfiguration {
                 "/swagger-resources/**", "/webjars/**").permitAll() // Swagger UI
             .requestMatchers("/members/signup", "/members/signin",
                 "/members/signup/send-verification-code").permitAll()
-            .requestMatchers("/notification/sse").authenticated()
+            // sse 부분을 authenticated로 연결해놓으면, sse가 terminate되는 시점에 SecurityContextHolder가 비워지며 access denied 에러를 냄
+            // permitAll이지만 헤더에 Authorization 부분이 없으면 SecurityContextHolder가 채워지지 않아 sse 연결중 에러를 내긴 함
+            // TODO: 다르게 처리할 방법이 있는지 확인
+            .requestMatchers("/notifications/sse").permitAll()
+            .requestMatchers("/notifications/**").authenticated()
             .requestMatchers("/members/**").authenticated()
             .requestMatchers("/diners/**").authenticated()
             .requestMatchers("/companies/**").authenticated()

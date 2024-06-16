@@ -82,11 +82,7 @@ public class NotificationService {
     SseEmitter emitter = memberEmitters.get(memberId);
     if (emitter != null) {
       emitter.complete();
-      memberEmitters.remove(memberId);
-    }
-
-    if (memberOnline.get(memberId) != null) {
-      memberOnline.remove(memberId);
+      // memberEmitters와 memberOnline 배열의 값은 complete에 넣어준 함수로 제거될 것임
     }
   }
 
