@@ -39,4 +39,4 @@ bypass-email-domain-check-for-dev: true # If true, you can receive email with gm
 
 scheduler:
   clear-verification-code:
-    cron: "0 0 3 * * *" # Run everyday 03:00 AM
+    cron: "0 0 3 * * *" # Run every day 03:00 AM

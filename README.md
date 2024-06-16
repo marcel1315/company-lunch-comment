@@ -102,7 +102,7 @@
 
 - Spring Data JPA
 
-- QueryDSL
+- QueryDSL 5.0.0
 
 - MariaDB
 
@@ -113,6 +113,28 @@
 - Lombok
 
 - AWS S3
+
+- SSE(Server Side Event)
+
+- RabbitMQ
+
+- Firebase Cloud Messaging
+
+# 개발 환경 설정
+
+- MariaDB에 접속할 수 있어야 합니다. 접속 정보는 application-dev.yml에서 설정합니다.
+
+- Mail Server로 Gmail을 사용합니다. Gmail에서 앱 비밀번호를 발급받아 application-dev.yml에 추가해야 합니다.
+
+- 개발하는 환경에서 AWS 계정에 접속할 수 있어야 하고, S3에 버킷을 만들어 프로젝트에 연결합니다. 버킷의 이름은 applicatoin-dev.yml에서 설정합니다.
+
+- RabbitMQ가 설치되고 기본포트(5692)를 사용해서 연결합니다. 포트 및 연결 설정을 변경하려면 application-dev.yml을 수정합니다.
+
+- Firebase 프로젝트가 있어야 하며, 서비스 계정 json 파일을 환경변수로 설정해야 합니다.
+  
+  ```bash
+  export GOOGLE_APPLICATION_CREDENTIALS="/home/user/Downloads/service-account-file.json"
+  ```
 
 # 배포
 

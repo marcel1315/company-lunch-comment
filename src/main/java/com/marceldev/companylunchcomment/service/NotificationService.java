@@ -1,10 +1,13 @@
 package com.marceldev.companylunchcomment.service;
 
+import com.marceldev.companylunchcomment.component.FCMPushNotification;
 import com.marceldev.companylunchcomment.config.RabbitMQConfig;
+import com.marceldev.companylunchcomment.dto.comment.NotificationMessage;
 import com.marceldev.companylunchcomment.entity.Member;
+import com.marceldev.companylunchcomment.entity.PushNotificationToken;
 import com.marceldev.companylunchcomment.exception.MemberNotExistException;
-import com.marceldev.companylunchcomment.exception.NotificationMessageParseError;
 import com.marceldev.companylunchcomment.repository.member.MemberRepository;
+import com.marceldev.companylunchcomment.repository.pushnotificatontoken.PushNotificationTokenRepository;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -23,6 +26,8 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @RequiredArgsConstructor
 public class NotificationService {
 
+  private final PushNotificationTokenRepository pushNotificationTokenRepository;
+
   private final MemberRepository memberRepository;
 
   private final ConcurrentHashMap<Long, SseEmitter> memberEmitters = new ConcurrentHashMap<>();
@@ -31,8 +36,10 @@ public class NotificationService {
 
   private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
+  private final FCMPushNotification fcmPushNotification;
+
   /**
-   * 클라이언트가 연결을 시작할 때 호출하는 부분
+   * 클라이언트가 SSE 연결을 시작할 때 호출하는 부분
    */
   public SseEmitter createEmitter() {
     long memberId = getMember().getId();
@@ -84,39 +91,52 @@ public class NotificationService {
   }
 
   /**
-   * Queue에 들어온 메시지를 처리함. 사용자가 SSE 연결이 되어 있으면 SSE 응답으로 보내기. SSE 연결이 없으면, Push Notification으로 보내기
+   * 회원별 FCM Token을 저장해놓기
    */
-  @RabbitListener(queues = RabbitMQConfig.QUEUE_NAME)
-  private void receiveMessage(String message) {
+  public void registerToken(String token) {
+    pushNotificationTokenRepository.findByMember(getMember())
+        .ifPresent(pushNotificationTokenRepository::delete);
+
+    PushNotificationToken tokenEntity = PushNotificationToken.builder()
+        .token(token)
+        .member(getMember())
+        .build();
+    pushNotificationTokenRepository.save(tokenEntity);
+  }
+
+  /**
+   * 회원의 FCM Token을 제거
+   */
+  public void unregisterToken() {
+    pushNotificationTokenRepository.findByMember(getMember())
+        .ifPresent(pushNotificationTokenRepository::delete);
+  }
+
+  /**
+   * Queue에 들어온 메시지를 처리함. 사용자가 SSE 연결이 되어 있으면 SSE 응답으로 보내기. SSE 연결이 없으면, Push Notification으로 보내기
+   * listener를 실행하는 시점에 SecurityContextHolder는 유지되지 않음.
+   */
+  @RabbitListener(queues = RabbitMQConfig.QUEUE_NAME, containerFactory = "rabbitListenerContainerFactory")
+  private void receiveMessage(NotificationMessage message) {
     log.debug("receiveMessage: " + message);
 
-    String[] parts = message.split(":", 2);
-    long memberId;
-    try {
-      memberId = Long.parseLong(parts[0]);
-      if (parts.length != 2) {
-        throw new NotificationMessageParseError();
-      }
-      String messageContent = parts[1];
+    long memberId = message.getMemberId();
 
-      if (memberOnline.getOrDefault(memberId, false)) {
-        sendSseNotification(memberId, messageContent);
-      } else {
-        sendPushNotification(memberId, messageContent);
-      }
-    } catch (Exception e) {
-      log.error(e.getMessage());
+    if (memberOnline.getOrDefault(memberId, false)) {
+      sendSseNotification(memberId, message.getContent());
+    } else {
+      sendPushNotification(message.getFcmToken(), message.getContent());
     }
   }
 
   /**
    * SSE로 클라이언트에게 응답 보내기
    */
-  public void sendSseNotification(long memberId, String message) {
+  private void sendSseNotification(long memberId, String messageContent) {
     SseEmitter emitter = memberEmitters.get(memberId);
     if (emitter != null) {
       try {
-        emitter.send(SseEmitter.event().name("message").data(message));
+        emitter.send(SseEmitter.event().name("message").data(messageContent));
       } catch (IOException e) {
         removeMemberFromSseConnection(memberId);
       }
@@ -124,11 +144,12 @@ public class NotificationService {
   }
 
   /**
-   * Push Notification 보내기
+   * FCM Push Notification 보내기
    */
-  // TODO: FCM
-  public void sendPushNotification(long memberId, String message) {
-
+  private void sendPushNotification(String token, String messageContent) {
+    if (token != null) {
+      fcmPushNotification.sendPushNotification(token, messageContent);
+    }
   }
 
   private void removeMemberFromSseConnection(long memberId) {
