@@ -3,6 +3,7 @@ package com.marceldev.companylunchcomment.controller;
 import com.marceldev.companylunchcomment.response.CustomResponse;
 import com.marceldev.companylunchcomment.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "Notification", description = "알림 관련")
 public class NotificationController {
 
   private final NotificationService notificationService;
