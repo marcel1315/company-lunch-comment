@@ -5,8 +5,10 @@ import com.marceldev.companylunchcomment.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -34,6 +36,26 @@ public class NotificationController {
   @PostMapping("/notification/sse/terminate")
   public CustomResponse<?> notificationSseTerminate() {
     notificationService.removeEmitter();
+    return CustomResponse.success();
+  }
+
+  @Operation(
+      summary = "FCM Push Notification Token 전달",
+      description = "클라이언트가 발급받은 FCM Push Notificaton Token을 서버로 전달한다."
+  )
+  @PostMapping("/notification/fcm/token")
+  public CustomResponse<?> notificationFcmToken(@RequestBody String token) {
+    notificationService.registerToken(token);
+    return CustomResponse.success();
+  }
+
+  @Operation(
+      summary = "FCM Push Notification Token 삭제",
+      description = "클라이언트가 발급받은 FCM Push Notification Token을 서버에서 삭제한다."
+  )
+  @DeleteMapping("/notification/fcm/token")
+  public CustomResponse<?> notificationFcmTokenDelete() {
+    notificationService.unregisterToken();
     return CustomResponse.success();
   }
 }
