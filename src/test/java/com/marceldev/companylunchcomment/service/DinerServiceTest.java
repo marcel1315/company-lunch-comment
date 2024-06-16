@@ -23,11 +23,15 @@ import com.marceldev.companylunchcomment.dto.member.SecurityMember;
 import com.marceldev.companylunchcomment.entity.Company;
 import com.marceldev.companylunchcomment.entity.Diner;
 import com.marceldev.companylunchcomment.entity.DinerImage;
+import com.marceldev.companylunchcomment.entity.DinerSubscription;
 import com.marceldev.companylunchcomment.entity.Member;
+import com.marceldev.companylunchcomment.exception.AlreadySubscribedException;
 import com.marceldev.companylunchcomment.exception.CompanyNotExistException;
 import com.marceldev.companylunchcomment.exception.DinerNotFoundException;
+import com.marceldev.companylunchcomment.exception.DinerSubscriptionNotFound;
 import com.marceldev.companylunchcomment.repository.diner.DinerImageRepository;
 import com.marceldev.companylunchcomment.repository.diner.DinerRepository;
+import com.marceldev.companylunchcomment.repository.diner.DinerSubscriptionRepository;
 import com.marceldev.companylunchcomment.repository.member.MemberRepository;
 import com.marceldev.companylunchcomment.type.DinerSort;
 import com.marceldev.companylunchcomment.type.Role;
@@ -69,6 +73,9 @@ class DinerServiceTest {
   private MemberRepository memberRepository;
 
   @Mock
+  private DinerSubscriptionRepository dinerSubscriptionRepository;
+
+  @Mock
   private S3Manager s3Manager;
 
   @InjectMocks
@@ -93,6 +100,16 @@ class DinerServiceTest {
       .company(company1)
       .build();
 
+  // 테스트에서 목으로 사용될 diner.
+  Diner diner1 = Diner.builder()
+      .id(1L)
+      .name("감성타코")
+      .link("taco.com")
+      .location(LocationUtil.createPoint(127.123123, 37.123123))
+      .company(company1)
+      .tags(new LinkedHashSet<>(List.of("태그1", "태그2")))
+      .build();
+
   @BeforeEach
   public void setupMember() {
     GrantedAuthority authority = new SimpleGrantedAuthority("USER");
@@ -111,6 +128,9 @@ class DinerServiceTest {
 
     lenient().when(memberRepository.findByEmail(any()))
         .thenReturn(Optional.of(member1));
+
+    lenient().when(dinerRepository.findById(any()))
+        .thenReturn(Optional.of(diner1));
   }
 
   @AfterEach
@@ -455,5 +475,63 @@ class DinerServiceTest {
     //then
     verify(dinerImageRepository).deleteByDinerId(any());
     verify(dinerRepository).delete(any());
+  }
+
+  @Test
+  @DisplayName("식당 구독 - 성공")
+  void subscribe_diner() {
+    //given
+    when(dinerSubscriptionRepository.existsByDinerAndMember(any(), any()))
+        .thenReturn(false);
+
+    //when
+    dinerService.subscribeDiner(1L);
+    ArgumentCaptor<DinerSubscription> captor = ArgumentCaptor.forClass(DinerSubscription.class);
+
+    //then
+    verify(dinerSubscriptionRepository).save(captor.capture());
+    assertEquals(1L, captor.getValue().getDiner().getId());
+  }
+
+  @Test
+  @DisplayName("식당 구독 - 실패(이미 구독 중)")
+  void subscribe_diner_fail_already_subscribed() {
+    //given
+    when(dinerSubscriptionRepository.existsByDinerAndMember(any(), any()))
+        .thenReturn(true);
+
+    //when
+    //then
+    assertThrows(AlreadySubscribedException.class,
+        () -> dinerService.subscribeDiner(1L));
+  }
+
+  @Test
+  @DisplayName("식당 구독 취소 - 성공")
+  void unsubscribe_diner() {
+    //given
+    when(dinerSubscriptionRepository.findByDinerAndMember(any(), any()))
+        .thenReturn(Optional.of(DinerSubscription.builder()
+            .id(1L)
+            .build()));
+
+    //when
+    dinerService.unsubscribeDiner(1L);
+
+    //then
+    verify(dinerSubscriptionRepository).delete(any());
+  }
+
+  @Test
+  @DisplayName("식당 구독 취소 - 실패(구독이 없음)")
+  void unsubscribe_diner_fail_no_subscription() {
+    //given
+    when(dinerSubscriptionRepository.findByDinerAndMember(any(), any()))
+        .thenReturn(Optional.empty());
+
+    //when
+    //then
+    assertThrows(DinerSubscriptionNotFound.class,
+        () -> dinerService.unsubscribeDiner(1L));
   }
 }

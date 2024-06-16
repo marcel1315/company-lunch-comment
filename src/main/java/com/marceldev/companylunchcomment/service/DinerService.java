@@ -47,6 +47,7 @@ public class DinerService {
   private final MemberRepository memberRepository;
 
   private final DinerRepository dinerRepository;
+
   private final DinerSubscriptionRepository dinerSubscriptionRepository;
 
   /**
