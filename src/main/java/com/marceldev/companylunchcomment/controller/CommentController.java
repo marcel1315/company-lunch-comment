@@ -41,7 +41,7 @@ public class CommentController {
       @Validated @RequestBody CreateCommentDto createCommentDto
   ) {
     commentService.createComment(id, createCommentDto);
-    notificationProvider.enqueueMessage(createCommentDto.getContent());
+    notificationProvider.enqueueMessages(id, createCommentDto.getContent());
     return CustomResponse.success();
   }
 

@@ -116,12 +116,16 @@ public class NotificationService {
   private void receiveMessage(NotificationMessage message) {
     log.debug("receiveMessage: " + message);
 
-    long memberId = message.getMemberId();
+    long receiverId = message.getReceiverId();
+    String body = message.getDinerName() + ": " + message.getSenderName() + ": \n"
+        + message.getContent();
 
-    if (memberOnline.getOrDefault(memberId, false)) {
-      sendSseNotification(memberId, message.getContent());
+    if (memberOnline.getOrDefault(receiverId, false)) {
+      sendSseNotification(receiverId, body);
+    } else if (message.getReceiverFcmToken() != null) {
+      sendPushNotification(message.getReceiverFcmToken(), body);
     } else {
-      sendPushNotification(message.getFcmToken(), message.getContent());
+      log.warn("Tried to send notifications, but couldn't. ReceiverId: {}", receiverId);
     }
   }
 
@@ -143,9 +147,7 @@ public class NotificationService {
    * FCM Push Notification 보내기
    */
   private void sendPushNotification(String token, String messageContent) {
-    if (token != null) {
-      fcmPushNotification.sendPushNotification(token, messageContent);
-    }
+    fcmPushNotification.sendPushNotification(token, messageContent);
   }
 
   private void removeMemberFromSseConnection(long memberId) {

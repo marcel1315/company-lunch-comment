@@ -27,6 +27,7 @@ public class RabbitMQConfig {
   public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
     RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
     rabbitTemplate.setMessageConverter(messageConverter());
+    rabbitTemplate.setChannelTransacted(true);
     return rabbitTemplate;
   }
 

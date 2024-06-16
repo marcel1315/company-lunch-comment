@@ -7,7 +7,11 @@ import lombok.Data;
 @Builder
 public class NotificationMessage {
 
-  private Long memberId;
+  private Long senderId;
+  private Long receiverId;
+  private Long dinerId;
+  private String senderName;
+  private String dinerName;
   private String content;
-  private String fcmToken;
+  private String receiverFcmToken;
 }
