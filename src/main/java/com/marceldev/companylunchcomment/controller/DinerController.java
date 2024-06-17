@@ -29,7 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
-@Tag(name = "Diner", description = "식당 관련")
+@Tag(name = "3 Diner", description = "식당 관련")
 public class DinerController {
 
   private final DinerService dinerService;
@@ -128,7 +128,7 @@ public class DinerController {
   @Operation(
       summary = "식당 이미지 추가"
   )
-  @PostMapping("/diners/{id}/images")
+  @PostMapping(value = "/diners/{id}/images", consumes = "multipart/form-data")
   public CustomResponse<?> addDinerImage(
       @PathVariable long id,
       @RequestParam("image") MultipartFile image,

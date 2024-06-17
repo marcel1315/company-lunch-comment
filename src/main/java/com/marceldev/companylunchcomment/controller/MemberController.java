@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@Tag(name = "Member", description = "회원 관련")
+@Tag(name = "1 Member", description = "회원 관련")
 public class MemberController {
 
   private final MemberService memberService;

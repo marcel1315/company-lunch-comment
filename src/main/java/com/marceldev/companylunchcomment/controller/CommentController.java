@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@Tag(name = "Comment", description = "코멘트 관련")
+@Tag(name = "4 Comment", description = "코멘트 관련")
 public class CommentController {
 
   private final CommentService commentService;

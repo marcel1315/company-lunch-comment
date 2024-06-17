@@ -1,5 +1,6 @@
 package com.marceldev.companylunchcomment.controller;
 
+import com.marceldev.companylunchcomment.dto.notification.RegisterFcmToken;
 import com.marceldev.companylunchcomment.response.CustomResponse;
 import com.marceldev.companylunchcomment.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,7 +17,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@Tag(name = "Notification", description = "알림 관련")
+@Tag(name = "6 Notification", description = "알림 관련")
 public class NotificationController {
 
   private final NotificationService notificationService;
@@ -46,8 +47,8 @@ public class NotificationController {
       description = "클라이언트가 발급받은 FCM Push Notificaton Token을 서버로 전달한다."
   )
   @PostMapping("/notifications/fcm/token")
-  public CustomResponse<?> notificationFcmToken(@RequestBody String token) {
-    notificationService.registerToken(token);
+  public CustomResponse<?> notificationFcmToken(@RequestBody RegisterFcmToken token) {
+    notificationService.registerToken(token.getToken());
     return CustomResponse.success();
   }
 

@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@Tag(name = "Reply", description = "댓글 관련")
+@Tag(name = "5 Reply", description = "댓글 관련")
 public class ReplyController {
 
   private final ReplyService replyService;
