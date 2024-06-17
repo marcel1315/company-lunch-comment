@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@Tag(name = "Company", description = "회사 관련")
+@Tag(name = "2 Company", description = "회사 관련")
 public class CompanyController {
 
   private final CompanyService companyService;

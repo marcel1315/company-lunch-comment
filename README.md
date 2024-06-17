@@ -156,7 +156,7 @@
   aws cloudformation create-stack --stack-name nat-for-codebuild --template-body file://$(pwd)/cloudformation-for-codebuild.yml
   ```
 
-- 약 5분 후 CloudFormation의 상태를 확인해봅니다.
+- 약 3분 후 CloudFormation의 상태를 확인해봅니다. CREATE_COMPLETE 상태가 되면, 배포할 수 있습니다.
   ```bash
   aws cloudformation describe-stacks --stack-name nat-for-codebuild --query "Stacks[0].StackStatus"
   ```
