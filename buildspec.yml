@@ -6,8 +6,9 @@ phases:
       java: corretto21
   pre_build:
     commands:
-      - echo Fetching application.yml from S3...
+      - echo Fetching configuration files from S3...
       - aws s3 cp s3://our-company-lunch-deploy/application-ec2.yml src/main/resources/application-ec2.yml
+      - aws s3 cp s3://our-company-lunch-deploy/our-company-lunch-firebase-adminsdk.json src/main/resources/our-company-lunch-firebase-adminsdk.json
   build:
     commands:
       - echo "Build start on `date`"
@@ -22,4 +23,5 @@ artifacts:
     - build/libs/company-lunch-comment-*.jar
     - appspec.yml
     - startup.sh
+    - src/main/resources/our-company-lunch-firebase-adminsdk.json
   discard-paths: yes
