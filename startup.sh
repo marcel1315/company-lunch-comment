@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Firebase config
+export GOOGLE_APPLICATION_CREDENTIALS="/home/ec2-user/build/our-company-lunch-firebase-adminsdk.json"
+
+# Run jar
 JAR_NAME="company-lunch-comment-0.0.1-SNAPSHOT.jar"
 LOG_FILE="/home/ec2-user/deploy.log"
 ERROR_LOG_FILE="/home/ec2-user/deploy_err.log"
