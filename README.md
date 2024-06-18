@@ -257,4 +257,4 @@
 
 # Troubleshooting
 
-- [Go to the troubleshooting section](doc/TROUBLESHOOTING)
+- [Go to the troubleshooting section](doc/TROUBLESHOOTING.md)
