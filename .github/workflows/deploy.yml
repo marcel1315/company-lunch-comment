@@ -37,7 +37,7 @@ jobs:
       - name: Download configuration files from S3
         run: |
           aws s3 cp --region ap-northeast-2 s3://${{ secrets.S3_BUCKET_NAME }}/application-${{ env.SPRING_PROFILE }}.yml ./src/main/resources/
-          aws s3 cp --region ap-northeast-2 s3://${{ secrets.S3_BUCKET_NAME }}/${{ FIREBASE_JSON }} .
+          aws s3 cp --region ap-northeast-2 s3://${{ secrets.S3_BUCKET_NAME }}/${{ env.FIREBASE_JSON }} .
       
       - name: Change spring profile to ${{ env.SPRING_PROFILE }}
         uses: microsoft/variable-substitution@v1
