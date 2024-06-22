@@ -8,6 +8,8 @@ on:
 env:
   CODE_DEPLOY_APPLICATION_NAME: our-company-lunch-e
   CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: our-company-lunch-e-group1
+  APPLICATION_YML: ./src/main/resources/application.yml
+  SPRING_PROFILE: ec2
 
 jobs:
   build:
@@ -15,13 +17,26 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Set up jdk 21
-        uses: actions/setup-java@v1
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
         with:
-          java-version: 21
+          distribution: 'corretto'
+          java-version: '21'
+          architecture: x64
 
+      - name: Download profile files from S3
+        run: |
+          aws s3 cp --region ap-northeast-2 s3://${{ secrets.S3_BUCKET_NAME }}/application-${{ env.SPRING_PROFILE }}.yml ./src/main/resources/ 
+      
+      - name: Setup profile
+        uses: microsoft/variable-substitution@v1
+        with:
+          files: ${{ env.APPLICATION_YML }}
+        env:
+          spring.profiles.active: ${{ env.SPRING_PROFILE }}
+    
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
         shell: bash
@@ -31,11 +46,11 @@ jobs:
         shell: bash
 
       - name: Make zip file
-        run: zip -r ./$GITHUB_SHA .
+        run: zip -r ./$GITHUB_SHA . -x "*.git*"
         shell: bash
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -51,4 +66,3 @@ jobs:
           --application-name ${{ env.CODE_DEPLOY_APPLICATION_NAME }} \
           --deployment-group-name ${{ env.CODE_DEPLOY_DEPLOYMENT_GROUP_NAME }} \
           --s3-location bucket=${{ secrets.S3_BUCKET_NAME }},bundleType=zip,key=$GITHUB_SHA.zip
-
