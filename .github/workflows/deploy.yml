@@ -1,9 +1,9 @@
-name: our-company-lunch-e
+name: our-company-lunch-ec2
 
 on:
   push:
     branches:
-      - cicd
+      - main
 
 env:
   CODE_DEPLOY_APPLICATION_NAME: our-company-lunch-e
