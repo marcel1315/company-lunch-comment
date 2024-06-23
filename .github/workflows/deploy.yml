@@ -56,7 +56,9 @@ jobs:
         shell: bash
 
       - name: Archive to a zip file
-        run: zip -r ./$GITHUB_SHA build/libs/*.jar scripts/ config/ appspec.yml
+        run: |
+          mv build/libs/*.jar .
+          zip -r ./$GITHUB_SHA ./*.jar scripts/ config/ appspec.yml
         shell: bash
 
       - name: Upload to S3
