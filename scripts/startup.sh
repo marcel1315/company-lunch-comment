@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Firebase config
-export GOOGLE_APPLICATION_CREDENTIALS="/home/ec2-user/build/our-company-lunch-firebase-adminsdk.json"
+export GOOGLE_APPLICATION_CREDENTIALS="/home/ec2-user/build/config/our-company-lunch-firebase-adminsdk.json"
 
 # Run jar
 JAR_NAME="company-lunch-comment-0.0.1-SNAPSHOT.jar"
@@ -27,7 +27,7 @@ else
     sleep 5
 fi
 
-JAVA_OPTS="-Dspring.jpa.hibernate.ddl-auto=update -Dspring.profiles.active=ec2"
+JAVA_OPTS="-Dspring.jpa.hibernate.ddl-auto=update"
 
 BUILD_JAR=$DEPLOY_PATH/$JAR_NAME
 echo "> BUILD_JAR $BUILD_JAR" >> $LOG_FILE

@@ -37,7 +37,8 @@ jobs:
       - name: Download configuration files from S3
         run: |
           aws s3 cp --region ap-northeast-2 s3://${{ secrets.S3_BUCKET_NAME }}/application-${{ env.SPRING_PROFILE }}.yml ./src/main/resources/
-          aws s3 cp --region ap-northeast-2 s3://${{ secrets.S3_BUCKET_NAME }}/${{ env.FIREBASE_JSON }} .
+          mkdir -p ./config
+          aws s3 cp --region ap-northeast-2 s3://${{ secrets.S3_BUCKET_NAME }}/${{ env.FIREBASE_JSON }} ./config/
       
       - name: Change spring profile to ${{ env.SPRING_PROFILE }}
         uses: microsoft/variable-substitution@v1
@@ -55,7 +56,7 @@ jobs:
         shell: bash
 
       - name: Archive to a zip file
-        run: zip -r ./$GITHUB_SHA . -x "*.git*"
+        run: zip -r ./$GITHUB_SHA build/libs/*.jar scripts/ config/ appspec.yml
         shell: bash
 
       - name: Upload to S3
