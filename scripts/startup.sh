@@ -4,32 +4,36 @@
 export GOOGLE_APPLICATION_CREDENTIALS="/home/ec2-user/build/config/our-company-lunch-firebase-adminsdk.json"
 
 # Run jar
-JAR_NAME="company-lunch-comment-0.0.1-SNAPSHOT.jar"
-LOG_FILE="/home/ec2-user/deploy.log"
-ERROR_LOG_FILE="/home/ec2-user/deploy_err.log"
 DEPLOY_PATH="/home/ec2-user"
-BUILD_PATH="/home/ec2-user/build"
+DEPLOY_LOG_PATH="/home/ec2-user/deploy.log"
+DEPLOY_ERROR_LOG_PATH="/home/ec2-user/deploy_err.log"
+APPLICATION_LOG_PATH="/home/ec2-user/application.log"
+
+ALL_JAR="/home/ec2-user/build/*.jar" # Expects one jar file exists.
+JAR_PATH=$(ls $ALL_JAR)
+JAR_NAME=$(basename $JAR_PATH)
+
 JAVA_OPTS=""
 
-echo "> Build filename: $JAR_NAME" >> $LOG_FILE
+echo "> Build filename: $JAR_NAME" >> $DEPLOY_LOG_PATH
 
-echo "> Build file copy" >> $LOG_FILE
-cp $BUILD_PATH/*.jar $DEPLOY_PATH
+echo "> Build file copy" >> $DEPLOY_LOG_PATH
+cp $JAR_PATH $DEPLOY_PATH
 
-echo "> Get application PID if there is one running" >> $LOG_FILE
+echo "> Get application PID if there is one running" >> $DEPLOY_LOG_PATH
 CURRENT_PID=$(pgrep -f $JAR_NAME)
 
 if [ -z "$CURRENT_PID" ]; then
-    echo "> No application running" >> $LOG_FILE
+    echo "> No application running" >> $DEPLOY_LOG_PATH
 else
-    echo "> kill -9 $CURRENT_PID" >> $LOG_FILE
+    echo "> kill -9 $CURRENT_PID" >> $DEPLOY_LOG_PATH
     kill -9 $CURRENT_PID
     sleep 5
 fi
 
 JAVA_OPTS="-Dspring.jpa.hibernate.ddl-auto=update"
 
-BUILD_JAR=$DEPLOY_PATH/$JAR_NAME
-echo "> BUILD_JAR $BUILD_JAR" >> $LOG_FILE
-echo "> JAVA_OPTS $JAVA_OPTS" >> $LOG_FILE
-nohup java $JAVA_OPTS -jar $BUILD_JAR >> $LOG_FILE 2>> $ERROR_LOG_FILE &
+JAR_PATH=$DEPLOY_PATH/$JAR_NAME
+echo "> JAR_PATH $JAR_PATH" >> $DEPLOY_LOG_PATH
+echo "> JAVA_OPTS $JAVA_OPTS" >> $DEPLOY_LOG_PATH
+nohup java $JAVA_OPTS -jar $JAR_PATH >> $APPLICATION_LOG_PATH 2>> $DEPLOY_ERROR_LOG_PATH &
