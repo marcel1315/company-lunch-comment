@@ -11,8 +11,8 @@ on:
       - 'doc/**'
 
 env:
-  CODE_DEPLOY_APPLICATION_NAME: our-company-lunch-e
-  CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: our-company-lunch-e-group1
+  CODE_DEPLOY_APPLICATION_NAME: our-company-lunch
+  CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: our-company-lunch-deployment-group
   APPLICATION_YML: ./src/main/resources/application.yml
   SPRING_PROFILE: ec2
   FIREBASE_JSON: our-company-lunch-firebase-adminsdk.json
