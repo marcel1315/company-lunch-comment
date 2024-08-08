@@ -33,6 +33,7 @@ jobs:
           distribution: 'corretto'
           java-version: '21'
           architecture: x64
+          cache: 'gradle'
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -53,14 +54,14 @@ jobs:
           files: ${{ env.APPLICATION_YML }}
         env:
           spring.profiles.active: ${{ env.SPRING_PROFILE }}
-    
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
-        shell: bash
 
-      - name: Build
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-disabled: true # Use setup-java caching
+
+      - name: Build with Gradle
         run: ./gradlew build
-        shell: bash
 
       - name: Archive to a zip file
         run: |
