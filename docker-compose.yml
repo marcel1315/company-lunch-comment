@@ -1,0 +1,17 @@
+services:
+  db:
+    image: mariadb:10.11.8
+    environment:
+      MYSQL_ROOT_PASSWORD: a1234
+      MYSQL_DATABASE: ourcompanylunch
+      MYSQL_USER: ourcompanylunchuser
+      MYSQL_PASSWORD: a1234
+    ports:
+      - "3306:3306"
+  messaging:
+    image: rabbitmq:3
+    hostname: my-rabbit
+    ports:
+      - "5671:5671"
+      - "5672:5672"
+      - "15672:15672"
