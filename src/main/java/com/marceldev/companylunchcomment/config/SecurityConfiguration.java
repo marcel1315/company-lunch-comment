@@ -32,7 +32,7 @@ public class SecurityConfiguration {
             session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(authorization -> authorization
             .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
-                "/swagger-resources/**", "/webjars/**").permitAll() // Swagger UI
+                "/swagger-resources/**", "/webjars/**", "/actuator/**").permitAll() // Swagger UI
             .requestMatchers("/members/signup", "/members/signin",
                 "/members/signup/send-verification-code").permitAll()
             // sse 부분을 authenticated로 연결해놓으면, sse가 terminate되는 시점에 SecurityContextHolder가 비워지며 access denied 에러를 냄
