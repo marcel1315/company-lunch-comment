@@ -2,7 +2,7 @@
 
 - nginx 설치
   ```
-  sudo dnf search nginx
+  sudo dnf install nginx -y
   ```
 
 - nginx 시작 및 서비스 등록
