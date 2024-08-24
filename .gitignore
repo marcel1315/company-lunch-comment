@@ -37,6 +37,8 @@ out/
 .vscode/
 
 ### Config ###
-src/main/resources/application-dev.yml
-src/main/resources/application-ec2.yml
-src/main/resources/our-company-lunch-firebase-adminsdk-*
+src/main/resources/application-*.yml
+config/
+
+### Deploy ###
+deploy_*/
