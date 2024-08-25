@@ -53,7 +53,7 @@ public class DinerImageService {
    * 식당 이미지 제거
    */
   @Transactional
-  public void removeDinerImage(long dinerId, long imageId) {
+  public void removeDinerImage(long imageId) {
     // dinerId는 추후에 사용자 개념이 들어오면, diner를 지울 수 있는지 확인할 때 쓰려고 남겨놓음
 
     DinerImage dinerImage = dinerImageRepository.findById(imageId)

@@ -66,12 +66,12 @@ public class CommentController {
       summary = "코멘트 수정",
       description = "사용자는 자신이 작성한 코멘트를 수정할 수 있다."
   )
-  @PutMapping("/diners/{dinerId}/comments/{commentId}")
+  @PutMapping("/diners/comments/{id}")
   public CustomResponse<?> updateComment(
-      @PathVariable long commentId,
+      @PathVariable long id,
       @RequestBody UpdateCommentDto updateCommentDto
   ) {
-    commentService.updateComment(commentId, updateCommentDto);
+    commentService.updateComment(id, updateCommentDto);
     return CustomResponse.success();
   }
 
@@ -79,11 +79,11 @@ public class CommentController {
       summary = "코멘트 삭제",
       description = "사용자는 자신이 작성한 코멘트를 삭제할 수 있다."
   )
-  @DeleteMapping("/diners/{dinerId}/comments/{commentId}")
+  @DeleteMapping("/diners/comments/{id}")
   public CustomResponse<?> deleteComment(
-      @PathVariable long commentId
+      @PathVariable long id
   ) {
-    commentService.deleteComment(commentId);
+    commentService.deleteComment(id);
     return CustomResponse.success();
   }
 }

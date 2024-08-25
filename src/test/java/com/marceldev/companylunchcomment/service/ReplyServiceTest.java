@@ -20,6 +20,7 @@ import com.marceldev.companylunchcomment.entity.Reply;
 import com.marceldev.companylunchcomment.exception.CommentNotFoundException;
 import com.marceldev.companylunchcomment.exception.ReplyNotFoundException;
 import com.marceldev.companylunchcomment.repository.comment.CommentRepository;
+import com.marceldev.companylunchcomment.repository.company.CompanyRepository;
 import com.marceldev.companylunchcomment.repository.diner.DinerRepository;
 import com.marceldev.companylunchcomment.repository.member.MemberRepository;
 import com.marceldev.companylunchcomment.repository.reply.ReplyRepository;
@@ -58,10 +59,10 @@ class ReplyServiceTest {
   private MemberRepository memberRepository;
 
   @Mock
-  private DinerRepository dinerRepository;
+  private CommentRepository commentRepository;
 
   @Mock
-  private CommentRepository commentRepository;
+  private CompanyRepository companyRepository;
 
   @InjectMocks
   private ReplyService replyService;
@@ -108,17 +109,6 @@ class ReplyServiceTest {
         .thenReturn(Optional.of(member1));
   }
 
-  @BeforeEach
-  public void setupDiner() {
-    when(dinerRepository.findById(any()))
-        .thenReturn(Optional.of(
-            Diner.builder()
-                .id(1L)
-                .company(company1)
-                .build()
-        ));
-  }
-
   @AfterEach
   public void clearSecurityContext() {
     SecurityContextHolder.clearContext();
@@ -135,16 +125,11 @@ class ReplyServiceTest {
         .thenReturn(Optional.of(
             Comment.builder().id(2L).build()
         ));
-    when(dinerRepository.findById(any()))
-        .thenReturn(Optional.of(
-            Diner.builder()
-                .id(1L)
-                .company(company1)
-                .build(
-                )));
+    when(companyRepository.findCompanyByCommentId(2L))
+        .thenReturn(Optional.of(company1));
 
     //when
-    replyService.createReply(1L, 1L, dto);
+    replyService.createReply(2L, dto);
     ArgumentCaptor<Reply> captor = ArgumentCaptor.forClass(Reply.class);
 
     //then
@@ -161,13 +146,15 @@ class ReplyServiceTest {
     CreateReplyDto dto = CreateReplyDto.builder()
         .content("댓글입니다.")
         .build();
+    when(companyRepository.findCompanyByCommentId(1L))
+        .thenReturn(Optional.of(company1));
     when(commentRepository.findById(any()))
         .thenReturn(Optional.empty());
 
     //when
     //then
     assertThrows(CommentNotFoundException.class,
-        () -> replyService.createReply(1L, 1L, dto));
+        () -> replyService.createReply(1L, dto));
   }
 
   @Test
@@ -184,9 +171,11 @@ class ReplyServiceTest {
                 .member(Member.builder().id(1L).build())
                 .build()
         ));
+    when(companyRepository.findCompanyByReplyId(2L))
+        .thenReturn(Optional.of(company1));
 
     //when
-    replyService.updateReply(1L, 2L, dto);
+    replyService.updateReply(2L, dto);
 
     //then
     verify(replyRepository).findById(2L);
@@ -199,19 +188,23 @@ class ReplyServiceTest {
     UpdateReplyDto dto = UpdateReplyDto.builder()
         .content("댓글 수정")
         .build();
-    when(replyRepository.findById(2L))
-        .thenReturn(Optional.empty());
 
     //when
+    when(replyRepository.findById(2L))
+        .thenReturn(Optional.empty());
+    when(companyRepository.findCompanyByReplyId(2L))
+        .thenReturn(Optional.of(company1));
+
     //then
     assertThrows(ReplyNotFoundException.class,
-        () -> replyService.updateReply(1L, 2L, dto));
+        () -> replyService.updateReply(2L, dto));
   }
 
   @Test
   @DisplayName("댓글 삭제 - 성공")
   void delete_reply() {
     //given
+    //when
     when(replyRepository.findById(1L))
         .thenReturn(Optional.of(
             Reply.builder()
@@ -219,9 +212,9 @@ class ReplyServiceTest {
                 .member(Member.builder().id(1L).build())
                 .build()
         ));
-
-    //when
-    replyService.deleteReply(1L, 1L);
+    when(companyRepository.findCompanyByReplyId(1L))
+        .thenReturn(Optional.of(company1));
+    replyService.deleteReply(1L);
 
     //then
     verify(replyRepository).delete(any());
@@ -231,13 +224,15 @@ class ReplyServiceTest {
   @DisplayName("댓글 삭제 - 실패(댓글이 존재하지 않음)")
   void delete_reply_fail_no_reply() {
     //given
+    //when
     when(replyRepository.findById(2L))
         .thenReturn(Optional.empty());
+    when(companyRepository.findCompanyByReplyId(2L))
+        .thenReturn(Optional.of(company1));
 
-    //when
     //then
     assertThrows(ReplyNotFoundException.class,
-        () -> replyService.deleteReply(1L, 2L));
+        () -> replyService.deleteReply(2L));
   }
 
   @Test
@@ -252,6 +247,8 @@ class ReplyServiceTest {
             .build()
     ));
     PageRequest pageable = PageRequest.of(0, 10);
+
+    //when
     when(commentRepository.findById(any()))
         .thenReturn(Optional.of(Comment.builder()
             .id(1L)
@@ -259,9 +256,10 @@ class ReplyServiceTest {
             .build()));
     when(replyRepository.findByCommentIdOrderByCreatedAtDesc(anyLong(), any()))
         .thenReturn(page);
+    when(companyRepository.findCompanyByCommentId(1L))
+        .thenReturn(Optional.of(company1));
 
-    //when
     //then
-    replyService.getReplyList(1L, 1L, pageable);
+    replyService.getReplyList(1L, pageable);
   }
 }

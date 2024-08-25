@@ -30,13 +30,12 @@ public class ReplyController {
       summary = "댓글 작성",
       description = "사용자는 코멘트에 댓글을 작성할 수 있다."
   )
-  @PostMapping("/diners/{dinerId}/comments/{commentId}/replies")
+  @PostMapping("/comments/{id}/replies")
   public CustomResponse<?> createReply(
-      @PathVariable long dinerId,
-      @PathVariable long commentId,
+      @PathVariable long id,
       @Validated @RequestBody CreateReplyDto createReplyDto
   ) {
-    replyService.createReply(dinerId, commentId, createReplyDto);
+    replyService.createReply(id, createReplyDto);
     return CustomResponse.success();
   }
 
@@ -44,13 +43,12 @@ public class ReplyController {
       summary = "댓글 조회",
       description = "사용자는 코멘트에 작성된 댓글을 조회할 수 있다."
   )
-  @GetMapping("/diners/{dinerId}/comments/{commentId}/replies")
+  @GetMapping("/comments/{id}/replies")
   public CustomResponse<?> getReplyList(
-      @PathVariable long dinerId,
-      @PathVariable long commentId,
+      @PathVariable long id,
       Pageable pageable
   ) {
-    Page<ReplyOutputDto> replies = replyService.getReplyList(dinerId, commentId, pageable);
+    Page<ReplyOutputDto> replies = replyService.getReplyList(id, pageable);
     return CustomResponse.success(replies);
   }
 
@@ -59,13 +57,12 @@ public class ReplyController {
       description = "사용자는 코멘트에 댓글 수정이 가능하다.<br>"
           + "수정은 자신이 작성한 댓글만 가능하다."
   )
-  @PutMapping("/diners/{dinerId}/comments/{commentId}/replies/{replyId}")
+  @PutMapping("comments/replies/{id}")
   public CustomResponse<?> updateReply(
-      @PathVariable long dinerId,
-      @PathVariable long replyId,
+      @PathVariable long id,
       @Validated @RequestBody UpdateReplyDto updateReplyDto
   ) {
-    replyService.updateReply(dinerId, replyId, updateReplyDto);
+    replyService.updateReply(id, updateReplyDto);
     return CustomResponse.success();
   }
 
@@ -74,12 +71,11 @@ public class ReplyController {
       description = "사용자는 댓글 삭제가 가능하다.<br>"
           + "삭제는 자신이 작성한 댓글만 가능하다."
   )
-  @DeleteMapping("/diners/{dinerId}/comments/{commentId}/replies/{replyId}")
+  @DeleteMapping("/comments/replies/{id}")
   public CustomResponse<?> deleteReply(
-      @PathVariable long dinerId,
-      @PathVariable long replyId
+      @PathVariable long id
   ) {
-    replyService.deleteReply(dinerId, replyId);
+    replyService.deleteReply(id);
     return CustomResponse.success();
   }
 }

@@ -141,12 +141,11 @@ public class DinerController {
   @Operation(
       summary = "식당 이미지 제거"
   )
-  @DeleteMapping("/diners/{dinerId}/images/{imageId}")
+  @DeleteMapping("/diners/images/{id}")
   public CustomResponse<?> removeDinerImage(
-      @PathVariable long dinerId,
-      @PathVariable long imageId
+      @PathVariable long id
   ) {
-    dinerImageService.removeDinerImage(dinerId, imageId);
+    dinerImageService.removeDinerImage(id);
     return CustomResponse.success();
   }
 

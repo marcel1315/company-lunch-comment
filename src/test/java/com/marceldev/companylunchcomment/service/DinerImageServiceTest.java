@@ -187,7 +187,7 @@ class DinerImageServiceTest {
         ));
 
     //when
-    dinerImageService.removeDinerImage(1L, 1L);
+    dinerImageService.removeDinerImage(1L);
     ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
     //then
@@ -206,7 +206,7 @@ class DinerImageServiceTest {
     //when
     //then
     assertThrows(DinerImageNotFoundException.class,
-        () -> dinerImageService.removeDinerImage(1L, 1L));
+        () -> dinerImageService.removeDinerImage(1L));
   }
 
   @Test
@@ -227,7 +227,7 @@ class DinerImageServiceTest {
     //when
     //then
     assertThrows(ImageDeleteFail.class,
-        () -> dinerImageService.removeDinerImage(1L, 1L));
+        () -> dinerImageService.removeDinerImage(1L));
   }
 
   @Test
@@ -249,6 +249,6 @@ class DinerImageServiceTest {
     //when
     //then
     assertThrows(InternalServerError.class,
-        () -> dinerImageService.removeDinerImage(1L, 1L));
+        () -> dinerImageService.removeDinerImage(1L));
   }
 }
