@@ -176,7 +176,7 @@ public class DinerService {
   private List<String> getImageUrls(List<String> s3Keys) {
     List<String> imageUrls = new ArrayList<>();
     try {
-      imageUrls = s3Manager.getPresignedUrls(s3Keys);
+      imageUrls = s3Manager.getUrls(s3Keys);
     } catch (RuntimeException e) {
       log.error(e.getMessage());
     }

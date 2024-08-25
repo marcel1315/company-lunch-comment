@@ -378,20 +378,29 @@ class DinerServiceTest {
         .id(1L)
         .name("감성타코")
         .link("diner.com")
-        .dinerImages(List.of())
+        .dinerImages(List.of(
+            DinerImage.builder()
+                .id(10L)
+                .s3Key("diner/1.png")
+                .build(),
+            DinerImage.builder()
+                .id(11L)
+                .s3Key("diner/2.png")
+                .build()
+        ))
         .company(company1)
         .build();
-    when(dinerRepository.findById(anyLong()))
+    when(dinerRepository.findById(1L))
         .thenReturn(Optional.of(diner));
-    when(s3Manager.getPresignedUrls(any()))
-        .thenReturn(List.of("https://s3.example.com/1", "https://s3.example.com/2"));
+    when(s3Manager.getUrls(List.of("diner/1.png", "diner/2.png")))
+        .thenReturn(List.of("https://abc.cloudfront.net/diner/1.png", "https://abc.cloudfront.net/diner/2.png"));
 
     //when
     DinerDetailOutputDto dinerDetail = dinerService.getDinerDetail(1L);
 
     //then
     assertEquals(dinerDetail.getName(), "감성타코");
-    assertEquals(dinerDetail.getImageUrls().getFirst(), "https://s3.example.com/1");
+    assertEquals(dinerDetail.getImageUrls().getFirst(), "https://abc.cloudfront.net/diner/1.png");
   }
 
   @Test
@@ -408,7 +417,7 @@ class DinerServiceTest {
 
     when(dinerRepository.findById(anyLong()))
         .thenReturn(Optional.of(diner));
-    when(s3Manager.getPresignedUrls(any()))
+    when(s3Manager.getUrls(List.of("diner/1.png", "diner/2.png")))
         .thenThrow(RuntimeException.class);
 
     //when

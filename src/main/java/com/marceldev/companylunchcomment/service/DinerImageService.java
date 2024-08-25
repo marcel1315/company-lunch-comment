@@ -11,6 +11,7 @@ import com.marceldev.companylunchcomment.exception.ImageUploadFail;
 import com.marceldev.companylunchcomment.exception.InternalServerError;
 import com.marceldev.companylunchcomment.repository.diner.DinerImageRepository;
 import com.marceldev.companylunchcomment.repository.diner.DinerRepository;
+import com.marceldev.companylunchcomment.util.FileUtil;
 import java.io.IOException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -72,7 +73,7 @@ public class DinerImageService {
 
   private String uploadDinerImageToStorage(long dinerId, MultipartFile file, boolean thumbnail) {
     try {
-      String key = genDinerImageKey(dinerId, thumbnail);
+      String key = genDinerImageKey(dinerId, thumbnail, file);
       return s3Manager.uploadFile(key, file);
     } catch (IOException e) {
       log.error(e.getMessage());
@@ -120,11 +121,14 @@ public class DinerImageService {
     }
   }
 
-  private String genDinerImageKey(long dinerId, boolean thumbnail) {
+  private String genDinerImageKey(long dinerId, boolean thumbnail, MultipartFile file) {
+    String extension = FileUtil.getExtension(file)
+        .map(e -> "." + e)
+        .orElse("");
     if (thumbnail) {
-      return "diner/" + dinerId + "/thumbnails/" + UUID.randomUUID();
+      return "diner/" + dinerId + "/thumbnails/" + UUID.randomUUID() + extension;
     } else {
-      return "diner/" + dinerId + "/images/" + UUID.randomUUID();
+      return "diner/" + dinerId + "/images/" + UUID.randomUUID() + extension;
     }
   }
 

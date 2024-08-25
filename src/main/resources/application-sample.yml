@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mariadb://127.0.0.1:3307/companylunchcomment
+    url: jdbc:mariadb://127.0.0.1:3306/companylunchcomment
     driver-class-name: org.mariadb.jdbc.Driver
     username:
     password:
@@ -35,6 +35,8 @@ s3:
   bucket-name:
   diner-max-image-count: 10
 
+cloudfront-url:
+
 bypass-email-domain-check-for-dev: true # If true, you can receive email with gmail.com, naver.com, ...
 
 scheduler:
@@ -45,3 +47,9 @@ springdoc:
   swagger-ui:
     operations-sorter: method
     tags-sorter: alpha
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
