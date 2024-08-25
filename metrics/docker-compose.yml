@@ -11,3 +11,6 @@ services:
     image: grafana/grafana
     ports:
       - "3000:3000"
+    environment:
+      - GF_SERVER_DOMAIN=dashboard.ourcompanylunch.com
+      - GF_SERVER_ROOT_URL=http://dashboard.ourcompanylunch.com/
