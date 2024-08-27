@@ -8,6 +8,7 @@ import com.marceldev.companylunchcomment.exception.DinerMaxImageCountExceedExcep
 import com.marceldev.companylunchcomment.exception.DinerNotFoundException;
 import com.marceldev.companylunchcomment.exception.ImageDeleteFail;
 import com.marceldev.companylunchcomment.exception.ImageUploadFail;
+import com.marceldev.companylunchcomment.exception.ImageWithNoExtensionException;
 import com.marceldev.companylunchcomment.exception.InternalServerError;
 import com.marceldev.companylunchcomment.repository.diner.DinerImageRepository;
 import com.marceldev.companylunchcomment.repository.diner.DinerRepository;
@@ -49,7 +50,7 @@ public class DinerImageService {
     Diner diner = getDiner(dinerId);
     checkMaxImageCount(diner);
     String extension = FileUtil.getExtension(image)
-        .orElseThrow(RuntimeException::new);
+        .orElseThrow(ImageWithNoExtensionException::new);
 
     // 하나의 InputStream 을 두번 쓸 수는 없어서 BufferedInputStream 을 사용
     try (BufferedInputStream bufferedInputStream = new BufferedInputStream(
