@@ -112,9 +112,9 @@ public class DinerService {
     dinerImageRepository.deleteByDinerId(id);
     dinerRepository.delete(diner);
 
-    // diner와 dinerImage가 완전히 지워진 후, s3에 저장된 이미지를 지움
-    // s3 이미지 저장 과정에서 실패하더라도, DB에서 제거되었다면 exception을 내지 않고 성공함
-    // TODO: DB에서 제거하기 전에 S3 접속이 온전한지 체크하기?
+    // diner 와 dinerImage 가 완전히 지워진 후, s3에 저장된 이미지를 지움
+    // s3 이미지 저장 과정에서 실패하더라도, DB 에서 제거되었다면 exception 을 내지 않고 성공함
+    // TODO: DB 에서 제거하기 전에 S3 접속이 온전한지 체크하기?
     try {
       dinerImageKeys.forEach(s3Manager::removeFile);
     } catch (Exception e) {
@@ -184,7 +184,7 @@ public class DinerService {
   }
 
   /**
-   * diner를 반환함. 회원이 식당에 접근 가능한지 확인
+   * diner 를 반환함. 회원이 식당에 접근 가능한지 확인
    */
   private Diner getDiner(long dinerId) {
     Company company = getCompany();
@@ -194,7 +194,7 @@ public class DinerService {
   }
 
   /**
-   * company를 반환함. 로그인한 회원이 회사를 선택했는지 확인.
+   * company 를 반환함. 로그인한 회원이 회사를 선택했는지 확인.
    */
   private Company getCompany() {
     Member member = getMember();
@@ -205,7 +205,7 @@ public class DinerService {
   }
 
   /**
-   * member를 반환함
+   * member 를 반환함
    */
   private Member getMember() {
     UserDetails user = (UserDetails) SecurityContextHolder.getContext()
