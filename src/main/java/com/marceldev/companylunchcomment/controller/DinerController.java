@@ -131,10 +131,9 @@ public class DinerController {
   @PostMapping(value = "/diners/{id}/images", consumes = "multipart/form-data")
   public CustomResponse<?> addDinerImage(
       @PathVariable long id,
-      @RequestParam("image") MultipartFile image,
-      @RequestParam("thumbnail") MultipartFile thumbnail
+      @RequestParam("image") MultipartFile image
   ) {
-    dinerImageService.addDinerImage(id, image, thumbnail);
+    dinerImageService.addDinerImage(id, image);
     return CustomResponse.success();
   }
 

@@ -393,7 +393,8 @@ class DinerServiceTest {
     when(dinerRepository.findById(1L))
         .thenReturn(Optional.of(diner));
     when(s3Manager.getUrls(List.of("diner/1.png", "diner/2.png")))
-        .thenReturn(List.of("https://abc.cloudfront.net/diner/1.png", "https://abc.cloudfront.net/diner/2.png"));
+        .thenReturn(List.of("https://abc.cloudfront.net/diner/1.png",
+            "https://abc.cloudfront.net/diner/2.png"));
 
     //when
     DinerDetailOutputDto dinerDetail = dinerService.getDinerDetail(1L);

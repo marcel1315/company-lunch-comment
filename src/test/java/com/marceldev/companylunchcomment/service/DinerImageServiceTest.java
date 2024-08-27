@@ -17,8 +17,7 @@ import com.marceldev.companylunchcomment.exception.DinerImageNotFoundException;
 import com.marceldev.companylunchcomment.exception.DinerMaxImageCountExceedException;
 import com.marceldev.companylunchcomment.exception.DinerNotFoundException;
 import com.marceldev.companylunchcomment.exception.ImageDeleteFail;
-import com.marceldev.companylunchcomment.exception.ImageUploadFail;
-import com.marceldev.companylunchcomment.exception.InternalServerError;
+import com.marceldev.companylunchcomment.exception.ImageReadFailException;
 import com.marceldev.companylunchcomment.repository.diner.DinerImageRepository;
 import com.marceldev.companylunchcomment.repository.diner.DinerRepository;
 import java.io.IOException;
@@ -33,6 +32,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -51,8 +51,12 @@ class DinerImageServiceTest {
   @InjectMocks
   private DinerImageService dinerImageService;
 
+  private MultipartFile mockImageFile;
+
+  private Diner diner;
+
   @BeforeEach
-  public void setUp() throws Exception {
+  public void setup() throws Exception {
     setPrivateField(dinerImageService, "dinerMaxImageCount", 10);
   }
 
@@ -62,64 +66,82 @@ class DinerImageServiceTest {
     field.set(target, value);
   }
 
-  MultipartFile mockImageFile = new MockMultipartFile(
-      "file",
-      "test.png",
-      "image/png",
-      "test".getBytes()
-  );
+  private void setupDiner() {
+    diner = Diner.builder()
+        .id(1L)
+        .name("먹자 식당")
+        .build();
+  }
 
-  MultipartFile mockThumbnailFile = new MockMultipartFile(
-      "file",
-      "test_thumbnail.png",
-      "image/png",
-      "test".getBytes()
-  );
+  private void cleanDiner() {
+    diner = null;
+  }
+
+  private void setupMockImageFile() {
+    ClassPathResource imageFile = new ClassPathResource("food.jpg");
+
+    try {
+      mockImageFile = new MockMultipartFile(
+          "food.jpg",
+          imageFile.getFilename(),
+          "image/jpeg",
+          imageFile.getInputStream()
+      );
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private void cleanMockImageFile() {
+    mockImageFile = null;
+  }
 
   @Test
   @DisplayName("식당 이미지 추가 - 성공")
   void test_update_diner_add_image() throws Exception {
     //given
-    when(dinerRepository.findById(anyLong()))
-        .thenReturn(Optional.of(
-            Diner.builder().build()
-        ));
-    when(dinerImageRepository.findTopByDinerOrderByOrdersDesc(any()))
-        .thenReturn(Optional.of(
-            DinerImage.builder().orders(100).build()
-        ));
-    String key = String.format("diner/%d/images/%s", 1L, UUID.randomUUID());
-    when(s3Manager.uploadFile(any(), any()))
-        .thenReturn(key);
+    setupDiner();
+    setupMockImageFile();
+
+    DinerImage dinerImage = DinerImage.builder()
+        .id(10L)
+        .orders(100)
+        .build();
 
     //when
-    dinerImageService.addDinerImage(1, mockImageFile, mockThumbnailFile);
+    when(dinerRepository.findById(1L))
+        .thenReturn(Optional.of(diner));
+    when(dinerImageRepository.findTopByDinerOrderByOrdersDesc(diner))
+        .thenReturn(Optional.of(dinerImage));
+    dinerImageService.addDinerImage(1L, mockImageFile);
     ArgumentCaptor<DinerImage> captor = ArgumentCaptor.forClass(DinerImage.class);
 
     //then
     verify(dinerImageRepository, times(2)).save(captor.capture());
-    assertEquals(captor.getValue().getS3Key(), key);
-    assertEquals(captor.getValue().getOrders(), 200);
+    assertEquals(200, captor.getValue().getOrders());
+
+    cleanMockImageFile();
+    cleanDiner();
   }
 
   @Test
   @DisplayName("식당 이미지 추가 - 실패(식당이 존재하지 않음)")
   void test_update_diner_add_image_fail_no_diner() {
     //given
+    //when
     when(dinerRepository.findById(anyLong()))
         .thenReturn(Optional.empty());
 
-    //when
-
     //then
     assertThrows(DinerNotFoundException.class,
-        () -> dinerImageService.addDinerImage(1L, mockImageFile, mockThumbnailFile));
+        () -> dinerImageService.addDinerImage(1L, mockImageFile));
   }
 
   @Test
   @DisplayName("식당 이미지 추가 - 실패(이미 등록된 이미지가 10개 이상)")
   void test_update_diner_add_image_fail_max_count() {
     //given
+    //when
     when(dinerRepository.findById(anyLong()))
         .thenReturn(Optional.of(
             Diner.builder().build()
@@ -127,50 +149,36 @@ class DinerImageServiceTest {
     when(dinerImageRepository.countByDinerAndThumbnail(any(), anyBoolean()))
         .thenReturn(10);
 
-    //when
     //then
     assertThrows(DinerMaxImageCountExceedException.class,
-        () -> dinerImageService.addDinerImage(1L, mockImageFile, mockThumbnailFile));
+        () -> dinerImageService.addDinerImage(1L, mockImageFile));
   }
 
   @Test
-  @DisplayName("식당 이미지 추가 - 실패(S3 저장소에 이미지 업로드 실패)")
-  void test_update_diner_add_image_fail_upload() throws Exception {
+  @DisplayName("식당 이미지 추가 - 실패(읽을 수 없는 이미지 파일)")
+  void test_update_diner_add_image_fail_cant_read_image() throws Exception {
     //given
-    when(dinerRepository.findById(anyLong()))
-        .thenReturn(Optional.of(
-            Diner.builder().build()
-        ));
-    when(dinerImageRepository.countByDinerAndThumbnail(any(), anyBoolean()))
-        .thenReturn(0);
-    when(s3Manager.uploadFile(any(), any()))
-        .thenThrow(new IOException());
+    setupDiner();
+
+    mockImageFile = new MockMultipartFile(
+        "food.jpg",
+        "food.jpg",
+        "image/jpeg",
+        "not_image".getBytes()
+    );
 
     //when
-    //then
-    assertThrows(ImageUploadFail.class,
-        () -> dinerImageService.addDinerImage(1L, mockImageFile, mockThumbnailFile));
-  }
-
-  @Test
-  @DisplayName("식당 이미지 추가 - 실패(DB에 저장 실패)")
-  void test_update_diner_add_image_fail_db_save() throws Exception {
-    //given
-    when(dinerRepository.findById(anyLong()))
-        .thenReturn(Optional.of(
-            Diner.builder().build()
-        ));
-    when(dinerImageRepository.countByDinerAndThumbnail(any(), anyBoolean()))
+    when(dinerRepository.findById(diner.getId()))
+        .thenReturn(Optional.of(diner));
+    when(dinerImageRepository.countByDinerAndThumbnail(diner, false))
         .thenReturn(0);
-    when(s3Manager.uploadFile(any(), any()))
-        .thenReturn("diner/1/images/" + UUID.randomUUID());
-    when(dinerImageRepository.save(any()))
-        .thenThrow(new RuntimeException());
 
-    //when
     //then
-    assertThrows(InternalServerError.class,
-        () -> dinerImageService.addDinerImage(1L, mockImageFile, mockThumbnailFile));
+    assertThrows(ImageReadFailException.class,
+        () -> dinerImageService.addDinerImage(diner.getId(), mockImageFile));
+
+    cleanMockImageFile();
+    cleanDiner();
   }
 
   @Test
@@ -178,6 +186,8 @@ class DinerImageServiceTest {
   void test_update_diner_remove_image() {
     //given
     String key = UUID.randomUUID().toString();
+
+    //when
     when(dinerImageRepository.findById(anyLong()))
         .thenReturn(Optional.of(
             DinerImage.builder()
@@ -186,7 +196,6 @@ class DinerImageServiceTest {
                 .build()
         ));
 
-    //when
     dinerImageService.removeDinerImage(1L);
     ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
@@ -200,10 +209,10 @@ class DinerImageServiceTest {
   @DisplayName("식당 이미지 제거 - 실패(이미지가 존재하지 않음)")
   void test_update_diner_remove_image_fail_image_not_found() {
     //given
+    //when
     when(dinerImageRepository.findById(anyLong()))
         .thenReturn(Optional.empty());
 
-    //when
     //then
     assertThrows(DinerImageNotFoundException.class,
         () -> dinerImageService.removeDinerImage(1L));
@@ -214,6 +223,8 @@ class DinerImageServiceTest {
   void test_update_diner_remove_image_fail_s3_delete_fail() {
     //given
     String key = UUID.randomUUID().toString();
+
+    //when
     when(dinerImageRepository.findById(anyLong()))
         .thenReturn(Optional.of(
             DinerImage.builder()
@@ -224,31 +235,8 @@ class DinerImageServiceTest {
     doThrow(new RuntimeException())
         .when(s3Manager).removeFile(any());
 
-    //when
     //then
     assertThrows(ImageDeleteFail.class,
-        () -> dinerImageService.removeDinerImage(1L));
-  }
-
-  @Test
-  @DisplayName("식당 이미지 제거 - 실패(DB에서 제거 실패)")
-  void test_update_diner_remove_image_fail_db_delete() {
-    //given
-    String key = UUID.randomUUID().toString();
-    when(dinerImageRepository.findById(anyLong()))
-        .thenReturn(Optional.of(
-            DinerImage.builder()
-                .id(1L)
-                .s3Key(key)
-                .build()
-        ));
-
-    doThrow(new RuntimeException())
-        .when(dinerImageRepository).delete(any());
-
-    //when
-    //then
-    assertThrows(InternalServerError.class,
         () -> dinerImageService.removeDinerImage(1L));
   }
 }

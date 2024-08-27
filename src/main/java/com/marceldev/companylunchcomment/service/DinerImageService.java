@@ -12,7 +12,12 @@ import com.marceldev.companylunchcomment.exception.InternalServerError;
 import com.marceldev.companylunchcomment.repository.diner.DinerImageRepository;
 import com.marceldev.companylunchcomment.repository.diner.DinerRepository;
 import com.marceldev.companylunchcomment.util.FileUtil;
+import com.marceldev.companylunchcomment.util.MakeThumbnailUtil;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,17 +42,48 @@ public class DinerImageService {
   private final S3Manager s3Manager;
 
   /**
-   * 식당 이미지 추가 이미지의 순서값은 이미 있는 이미지의 가장 큰 값에 +100씩 함
+   * 식당 이미지 추가 이미지의 순서값은 이미 있는 이미지의 가장 큰 값에 +100씩 함 썸네일을 생성해서 별도로 저장
    */
   @Transactional
-  public void addDinerImage(long id, MultipartFile image, MultipartFile thumbnail) {
-    Diner diner = getDiner(id);
+  public void addDinerImage(long dinerId, MultipartFile image) {
+    Diner diner = getDiner(dinerId);
     checkMaxImageCount(diner);
+    String extension = FileUtil.getExtension(image)
+        .orElseThrow(RuntimeException::new);
 
-    String keyImage = uploadDinerImageToStorage(id, image, false);
-    String keyThumbnail = uploadDinerImageToStorage(id, thumbnail, true);
-    saveDinerImage(diner, keyImage, false);
-    saveDinerImage(diner, keyThumbnail, true);
+    // 하나의 InputStream 을 두번 쓸 수는 없어서 BufferedInputStream 을 사용
+    try (BufferedInputStream bufferedInputStream = new BufferedInputStream(
+        image.getInputStream())) {
+      // readLimit 을 크게 잡아 mark 가 invalidated 되지 않도록 함. reset 해서 처음 위치로 가기
+      bufferedInputStream.mark(Integer.MAX_VALUE);
+
+      // 썸네일 생성
+      bufferedInputStream.reset();
+      ByteArrayOutputStream resizedOutputStream = MakeThumbnailUtil.resizeFile(
+          bufferedInputStream, extension
+      );
+      InputStream thumbnailInputStream = new ByteArrayInputStream(
+          resizedOutputStream.toByteArray()
+      );
+
+      // S3 로 원본과 썸네일 업로드
+      bufferedInputStream.reset();
+      String keyImage = genDinerImageKey(dinerId, extension, false);
+      uploadDinerImageToStorage(
+          keyImage, bufferedInputStream, extension, image.getSize()
+      );
+      String keyThumbnail = genDinerImageKey(dinerId, extension, true);
+      uploadDinerImageToStorage(
+          keyThumbnail, thumbnailInputStream, extension, resizedOutputStream.size()
+      );
+
+      // DB 에 이미지 정보 저장
+      saveDinerImage(diner, keyImage, false);
+      saveDinerImage(diner, keyThumbnail, true);
+
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**
@@ -71,13 +107,13 @@ public class DinerImageService {
     }
   }
 
-  private String uploadDinerImageToStorage(long dinerId, MultipartFile file, boolean thumbnail) {
+  private void uploadDinerImageToStorage(String key, InputStream inputStream, String extension,
+      long size) {
     try {
-      String key = genDinerImageKey(dinerId, thumbnail, file);
-      return s3Manager.uploadFile(key, file);
+      s3Manager.uploadFile(key, inputStream, size);
     } catch (IOException e) {
       log.error(e.getMessage());
-      throw new ImageUploadFail(file.getOriginalFilename());
+      throw new ImageUploadFail(key);
     }
   }
 
@@ -105,7 +141,7 @@ public class DinerImageService {
   }
 
   private int getNextImageOrder(Diner diner) {
-    // 1개씩 order가 붙어있으면 order 수정시에 여러 image들의 order를 수정해야하므로 간격을 줌
+    // 1개씩 order 가 붙어있으면 order 수정시에 여러 image 들의 order 를 수정해야하므로 간격을 줌
     int orderStep = 100;
 
     return dinerImageRepository.findTopByDinerOrderByOrdersDesc(diner)
@@ -121,14 +157,11 @@ public class DinerImageService {
     }
   }
 
-  private String genDinerImageKey(long dinerId, boolean thumbnail, MultipartFile file) {
-    String extension = FileUtil.getExtension(file)
-        .map(e -> "." + e)
-        .orElse("");
+  private String genDinerImageKey(long dinerId, String extension, boolean thumbnail) {
     if (thumbnail) {
-      return "diner/" + dinerId + "/thumbnails/" + UUID.randomUUID() + extension;
+      return "diner/" + dinerId + "/thumbnails/" + UUID.randomUUID() + "." + extension;
     } else {
-      return "diner/" + dinerId + "/images/" + UUID.randomUUID() + extension;
+      return "diner/" + dinerId + "/images/" + UUID.randomUUID() + "." + extension;
     }
   }
 

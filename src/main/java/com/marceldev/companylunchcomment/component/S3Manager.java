@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
@@ -31,24 +30,21 @@ public class S3Manager {
   /**
    * key 와 파일을 받아 S3 버킷에 업로드
    */
-  public String uploadFile(String key, MultipartFile file) throws IOException {
-    try (InputStream is = file.getInputStream()) {
-      log.debug(key); // diner/1/images/567a3d2b-94db-4709-93b4-69771d8fdc54.png
+  public void uploadFile(String key, InputStream inputStream, long size) throws IOException {
+    // key: diner/1/images/567a3d2b-94db-4709-93b4-69771d8fdc54.png, filesize: 76120
+    log.debug("key: {}, filesize: {}", key, size);
 
-      PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-          .bucket(bucketName)
-          .key(key)
-          .build();
+    PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+        .bucket(bucketName)
+        .key(key)
+        .build();
 
-      PutObjectResponse response = s3Client.putObject(
-          putObjectRequest,
-          RequestBody.fromInputStream(is, file.getSize())
-      );
+    PutObjectResponse response = s3Client.putObject(
+        putObjectRequest,
+        RequestBody.fromInputStream(inputStream, size)
+    );
 
-      log.info(response.toString());
-
-      return key;
-    }
+    log.info(response.toString());
   }
 
   public void removeFile(String key) {
