@@ -5,13 +5,13 @@ import com.marceldev.companylunchcomment.dto.comment.CommentOutputDto;
 import com.marceldev.companylunchcomment.dto.comment.CreateCommentDto;
 import com.marceldev.companylunchcomment.dto.comment.GetCommentListDto;
 import com.marceldev.companylunchcomment.dto.comment.UpdateCommentDto;
-import com.marceldev.companylunchcomment.response.CustomResponse;
 import com.marceldev.companylunchcomment.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,13 +36,13 @@ public class CommentController {
           + "식당, 코멘트 내용, 사내 공유 여부를 입력한다."
   )
   @PostMapping("/diners/{id}/comments")
-  public CustomResponse<?> createComment(
+  public ResponseEntity<Void> createComment(
       @PathVariable long id,
       @Validated @RequestBody CreateCommentDto createCommentDto
   ) {
     commentService.createComment(id, createCommentDto);
     notificationProvider.enqueueMessages(id, createCommentDto.getContent());
-    return CustomResponse.success();
+    return ResponseEntity.ok().build();
   }
 
   @Operation(
@@ -51,7 +51,7 @@ public class CommentController {
           + "작성자 이름, 코멘트 내용으로 목록을 조회할 수 있다. 작성시간순으로 정렬할 수 있다."
   )
   @GetMapping("/diners/{id}/comments")
-  public CustomResponse<?> getCommentList(
+  public ResponseEntity<Page<CommentOutputDto>> getCommentList(
       @PathVariable long id,
       @Validated GetCommentListDto getCommentListDto,
       Pageable pageable
@@ -59,7 +59,7 @@ public class CommentController {
     Page<CommentOutputDto> comments = commentService.getCommentList(
         id, getCommentListDto, pageable
     );
-    return CustomResponse.success(comments);
+    return ResponseEntity.ok(comments);
   }
 
   @Operation(
@@ -67,12 +67,12 @@ public class CommentController {
       description = "사용자는 자신이 작성한 코멘트를 수정할 수 있다."
   )
   @PutMapping("/diners/comments/{id}")
-  public CustomResponse<?> updateComment(
+  public ResponseEntity<Void> updateComment(
       @PathVariable long id,
       @RequestBody UpdateCommentDto updateCommentDto
   ) {
     commentService.updateComment(id, updateCommentDto);
-    return CustomResponse.success();
+    return ResponseEntity.ok().build();
   }
 
   @Operation(
@@ -80,10 +80,10 @@ public class CommentController {
       description = "사용자는 자신이 작성한 코멘트를 삭제할 수 있다."
   )
   @DeleteMapping("/diners/comments/{id}")
-  public CustomResponse<?> deleteComment(
+  public ResponseEntity<Void> deleteComment(
       @PathVariable long id
   ) {
     commentService.deleteComment(id);
-    return CustomResponse.success();
+    return ResponseEntity.ok().build();
   }
 }

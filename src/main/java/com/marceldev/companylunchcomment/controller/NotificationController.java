@@ -1,12 +1,12 @@
 package com.marceldev.companylunchcomment.controller;
 
 import com.marceldev.companylunchcomment.dto.notification.RegisterFcmToken;
-import com.marceldev.companylunchcomment.response.CustomResponse;
 import com.marceldev.companylunchcomment.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,9 +37,9 @@ public class NotificationController {
           + "서버에서 keep-alive를 15초 간격으로 호출해서 끊긴 것을 감지하지만, 15초 동안 있다고 가정하고 SSE 알림을 시도한다."
   )
   @PostMapping("/notifications/sse/terminate")
-  public CustomResponse<?> notificationSseTerminate() {
+  public ResponseEntity<Void> notificationSseTerminate() {
     notificationService.removeEmitter();
-    return CustomResponse.success();
+    return ResponseEntity.ok().build();
   }
 
   @Operation(
@@ -47,9 +47,9 @@ public class NotificationController {
       description = "클라이언트가 발급받은 FCM Push Notificaton Token을 서버로 전달한다."
   )
   @PostMapping("/notifications/fcm/token")
-  public CustomResponse<?> notificationFcmToken(@RequestBody RegisterFcmToken token) {
+  public ResponseEntity<Void> notificationFcmToken(@RequestBody RegisterFcmToken token) {
     notificationService.registerToken(token.getToken());
-    return CustomResponse.success();
+    return ResponseEntity.ok().build();
   }
 
   @Operation(
@@ -57,8 +57,8 @@ public class NotificationController {
       description = "클라이언트가 발급받은 FCM Push Notification Token을 서버에서 삭제한다."
   )
   @DeleteMapping("/notifications/fcm/token")
-  public CustomResponse<?> notificationFcmTokenDelete() {
+  public ResponseEntity<Void> notificationFcmTokenDelete() {
     notificationService.unregisterToken();
-    return CustomResponse.success();
+    return ResponseEntity.ok().build();
   }
 }

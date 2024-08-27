@@ -7,7 +7,6 @@ import com.marceldev.companylunchcomment.dto.diner.DinerOutputDto;
 import com.marceldev.companylunchcomment.dto.diner.GetDinerListDto;
 import com.marceldev.companylunchcomment.dto.diner.RemoveDinerTagsDto;
 import com.marceldev.companylunchcomment.dto.diner.UpdateDinerDto;
-import com.marceldev.companylunchcomment.response.CustomResponse;
 import com.marceldev.companylunchcomment.service.DinerImageService;
 import com.marceldev.companylunchcomment.service.DinerService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,11 +42,11 @@ public class DinerController {
           + "식당 태그도 입력 가능하다. (#한식, #양식, #깔끔, #간단, #매움, #양많음 등 사용자가 임의 등록 가능)"
   )
   @PostMapping("/diners")
-  public CustomResponse<?> createDiner(
+  public ResponseEntity<Void> createDiner(
       @Validated @RequestBody CreateDinerDto createDinerDto
   ) {
     dinerService.createDiner(createDinerDto);
-    return CustomResponse.success();
+    return ResponseEntity.ok().build();
   }
 
   @Operation(
@@ -57,12 +57,12 @@ public class DinerController {
           + "식당 이름, 거리, 코멘트 갯수로 정렬할 수 있다."
   )
   @GetMapping("/diners")
-  public CustomResponse<?> getDinerList(
+  public ResponseEntity<Page<DinerOutputDto>> getDinerList(
       @Validated @ModelAttribute GetDinerListDto getDinerListDto,
       Pageable pageable
   ) {
     Page<DinerOutputDto> diners = dinerService.getDinerList(getDinerListDto, pageable);
-    return CustomResponse.success(diners);
+    return ResponseEntity.ok(diners);
   }
 
   @Operation(
@@ -72,9 +72,9 @@ public class DinerController {
           + "필요한 경우 원본 사진을 가져올 수 있다."
   )
   @GetMapping("/diners/{id}")
-  public CustomResponse<?> getDinerDetail(@PathVariable long id) {
+  public ResponseEntity<DinerDetailOutputDto> getDinerDetail(@PathVariable long id) {
     DinerDetailOutputDto diner = dinerService.getDinerDetail(id);
-    return CustomResponse.success(diner);
+    return ResponseEntity.ok(diner);
   }
 
   @Operation(
@@ -83,12 +83,12 @@ public class DinerController {
           + "자신이 작성하지 않은 식당도 수정할 수 있다."
   )
   @PutMapping("/diners/{id}")
-  public CustomResponse<?> updateDiner(
+  public ResponseEntity<Void> updateDiner(
       @PathVariable long id,
       @Validated @RequestBody UpdateDinerDto updateDinerDto
   ) {
     dinerService.updateDiner(id, updateDinerDto);
-    return CustomResponse.success();
+    return ResponseEntity.ok().build();
   }
 
   @Operation(
@@ -96,40 +96,40 @@ public class DinerController {
       description = "사용자는 식당을 제거할 수 있다."
   )
   @DeleteMapping("/diners/{id}")
-  public CustomResponse<?> removeDiner(@PathVariable long id) {
+  public ResponseEntity<Void> removeDiner(@PathVariable long id) {
     dinerService.removeDiner(id);
-    return CustomResponse.success();
+    return ResponseEntity.ok().build();
   }
 
   @Operation(
       summary = "식당 태그 추가"
   )
   @PutMapping("/diners/{id}/tags")
-  public CustomResponse<?> addDinerTags(
+  public ResponseEntity<Void> addDinerTags(
       @PathVariable long id,
       @Validated @RequestBody AddDinerTagsDto addDinerTagsDto
   ) {
     dinerService.addDinerTag(id, addDinerTagsDto);
-    return CustomResponse.success();
+    return ResponseEntity.ok().build();
   }
 
   @Operation(
       summary = "식당 태그 제거"
   )
   @DeleteMapping("/diners/{id}/tags")
-  public CustomResponse<?> removeDinerTags(
+  public ResponseEntity<Void> removeDinerTags(
       @PathVariable long id,
       @Validated @RequestBody RemoveDinerTagsDto removeDinerTagsDto
   ) {
     dinerService.removeDinerTag(id, removeDinerTagsDto);
-    return CustomResponse.success();
+    return ResponseEntity.ok().build();
   }
 
   @Operation(
       summary = "식당 이미지 추가"
   )
   @PostMapping(value = "/diners/{id}/images", consumes = "multipart/form-data")
-  public CustomResponse<?> addDinerImage(
+  public ResponseEntity<Void> addDinerImage(
       @PathVariable long id,
       @RequestParam("image") MultipartFile image
   ) {
@@ -141,32 +141,32 @@ public class DinerController {
       summary = "식당 이미지 제거"
   )
   @DeleteMapping("/diners/images/{id}")
-  public CustomResponse<?> removeDinerImage(
+  public ResponseEntity<Void> removeDinerImage(
       @PathVariable long id
   ) {
     dinerImageService.removeDinerImage(id);
-    return CustomResponse.success();
+    return ResponseEntity.ok().build();
   }
 
   @Operation(
       summary = "식당 구독"
   )
   @PostMapping("/diners/{id}/subscribe")
-  public CustomResponse<?> subscribeDiner(
+  public ResponseEntity<Void> subscribeDiner(
       @PathVariable long id
   ) {
     dinerService.subscribeDiner(id);
-    return CustomResponse.success();
+    return ResponseEntity.ok().build();
   }
 
   @Operation(
       summary = "식당 구독 취소"
   )
   @PostMapping("/diners/{id}/unsubscribe")
-  public CustomResponse<?> unsubscribeDiner(
+  public ResponseEntity<Void> unsubscribeDiner(
       @PathVariable long id
   ) {
     dinerService.unsubscribeDiner(id);
-    return CustomResponse.success();
+    return ResponseEntity.ok().build();
   }
 }

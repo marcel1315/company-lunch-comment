@@ -9,7 +9,6 @@ import com.marceldev.companylunchcomment.dto.member.SignUpDto;
 import com.marceldev.companylunchcomment.dto.member.TokenDto;
 import com.marceldev.companylunchcomment.dto.member.UpdateMemberDto;
 import com.marceldev.companylunchcomment.dto.member.WithdrawMemberDto;
-import com.marceldev.companylunchcomment.response.CustomResponse;
 import com.marceldev.companylunchcomment.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -37,10 +36,10 @@ public class MemberController {
       description = "해당 이메일로 인증번호를 발송한다."
   )
   @PostMapping("/members/signup/send-verification-code")
-  public ResponseEntity<?> sendVerificationCode(
+  public ResponseEntity<Void> sendVerificationCode(
       @Validated @RequestBody SendVerificationCodeDto dto) {
     memberService.sendVerificationCode(dto);
-    return CustomResponse.success();
+    return ResponseEntity.ok().build();
   }
 
   @Operation(
@@ -51,9 +50,9 @@ public class MemberController {
           + "회원가입 중 이메일을 통한 번호인증을 한다."
   )
   @PostMapping("/members/signup")
-  public ResponseEntity<?> signUp(@Validated @RequestBody SignUpDto signUpDto) {
+  public ResponseEntity<Void> signUp(@Validated @RequestBody SignUpDto signUpDto) {
     memberService.signUp(signUpDto);
-    return CustomResponse.success();
+    return ResponseEntity.ok().build();
   }
 
   @Operation(
@@ -61,10 +60,10 @@ public class MemberController {
       description = "사용자는 로그인을 할 수 있다. 로그인시 회원가입에 사용한 아이디(이메일)와 패스워드가 일치해야 한다.\n"
   )
   @PostMapping("/members/signin")
-  public ResponseEntity<?> signIn(@Validated @RequestBody SignInDto signInDto) {
+  public ResponseEntity<TokenDto> signIn(@Validated @RequestBody SignInDto signInDto) {
     SignInResult result = memberService.signIn(signInDto);
     String token = tokenProvider.generateToken(result.getEmail(), result.getRoleString());
-    return CustomResponse.success(new TokenDto(token));
+    return ResponseEntity.ok(new TokenDto(token));
   }
 
   @Operation(
@@ -72,12 +71,12 @@ public class MemberController {
       description = "사용자는 자신의 이름을 수정할 수 있다."
   )
   @PutMapping("/members/{id}")
-  public ResponseEntity<?> updateMember(
+  public ResponseEntity<Void> updateMember(
       @PathVariable long id,
       @Validated @RequestBody UpdateMemberDto updateMemberDto
   ) {
     memberService.updateMember(id, updateMemberDto);
-    return CustomResponse.success();
+    return ResponseEntity.ok().build();
   }
 
   @Operation(
@@ -85,12 +84,12 @@ public class MemberController {
       description = "사용자는 자신의 비밀번호를 수정할 수 있다."
   )
   @PutMapping("/members/{id}/password")
-  public ResponseEntity<?> changePassword(
+  public ResponseEntity<Void> changePassword(
       @PathVariable long id,
       @Validated @RequestBody ChangePasswordDto changePasswordDto
   ) {
     memberService.changePassword(id, changePasswordDto);
-    return CustomResponse.success();
+    return ResponseEntity.ok().build();
   }
 
   @Operation(
@@ -98,11 +97,11 @@ public class MemberController {
       description = "사용자는 아이디(이메일)와 비밀번호로 탈퇴할 수 있다."
   )
   @DeleteMapping("/members/{id}")
-  public ResponseEntity<?> withdrawMember(
+  public ResponseEntity<Void> withdrawMember(
       @PathVariable long id,
       @Validated @RequestBody WithdrawMemberDto withdrawMemberDto
   ) {
     memberService.withdrawMember(id, withdrawMemberDto);
-    return CustomResponse.success();
+    return ResponseEntity.ok().build();
   }
 }

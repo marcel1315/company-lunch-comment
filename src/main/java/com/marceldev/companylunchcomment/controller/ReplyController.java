@@ -3,13 +3,13 @@ package com.marceldev.companylunchcomment.controller;
 import com.marceldev.companylunchcomment.dto.reply.CreateReplyDto;
 import com.marceldev.companylunchcomment.dto.reply.ReplyOutputDto;
 import com.marceldev.companylunchcomment.dto.reply.UpdateReplyDto;
-import com.marceldev.companylunchcomment.response.CustomResponse;
 import com.marceldev.companylunchcomment.service.ReplyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,12 +31,12 @@ public class ReplyController {
       description = "사용자는 코멘트에 댓글을 작성할 수 있다."
   )
   @PostMapping("/comments/{id}/replies")
-  public CustomResponse<?> createReply(
+  public ResponseEntity<Void> createReply(
       @PathVariable long id,
       @Validated @RequestBody CreateReplyDto createReplyDto
   ) {
     replyService.createReply(id, createReplyDto);
-    return CustomResponse.success();
+    return ResponseEntity.ok().build();
   }
 
   @Operation(
@@ -44,12 +44,12 @@ public class ReplyController {
       description = "사용자는 코멘트에 작성된 댓글을 조회할 수 있다."
   )
   @GetMapping("/comments/{id}/replies")
-  public CustomResponse<?> getReplyList(
+  public ResponseEntity<Page<ReplyOutputDto>> getReplyList(
       @PathVariable long id,
       Pageable pageable
   ) {
     Page<ReplyOutputDto> replies = replyService.getReplyList(id, pageable);
-    return CustomResponse.success(replies);
+    return ResponseEntity.ok(replies);
   }
 
   @Operation(
@@ -58,12 +58,12 @@ public class ReplyController {
           + "수정은 자신이 작성한 댓글만 가능하다."
   )
   @PutMapping("comments/replies/{id}")
-  public CustomResponse<?> updateReply(
+  public ResponseEntity<Void> updateReply(
       @PathVariable long id,
       @Validated @RequestBody UpdateReplyDto updateReplyDto
   ) {
     replyService.updateReply(id, updateReplyDto);
-    return CustomResponse.success();
+    return ResponseEntity.ok().build();
   }
 
   @Operation(
@@ -72,10 +72,10 @@ public class ReplyController {
           + "삭제는 자신이 작성한 댓글만 가능하다."
   )
   @DeleteMapping("/comments/replies/{id}")
-  public CustomResponse<?> deleteReply(
+  public ResponseEntity<Void> deleteReply(
       @PathVariable long id
   ) {
     replyService.deleteReply(id);
-    return CustomResponse.success();
+    return ResponseEntity.ok().build();
   }
 }
