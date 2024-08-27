@@ -1,6 +1,6 @@
 package com.marceldev.companylunchcomment.util;
 
-import com.marceldev.companylunchcomment.exception.InvalidEmailFormatException;
+import com.marceldev.companylunchcomment.exception.member.InvalidEmailFormatException;
 
 public class ExtractDomainUtil {
 

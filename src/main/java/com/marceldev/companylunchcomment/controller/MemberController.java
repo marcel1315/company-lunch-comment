@@ -1,6 +1,7 @@
 package com.marceldev.companylunchcomment.controller;
 
 import com.marceldev.companylunchcomment.component.TokenProvider;
+import com.marceldev.companylunchcomment.dto.error.ErrorResponse;
 import com.marceldev.companylunchcomment.dto.member.ChangePasswordDto;
 import com.marceldev.companylunchcomment.dto.member.SendVerificationCodeDto;
 import com.marceldev.companylunchcomment.dto.member.SignInDto;
@@ -9,13 +10,20 @@ import com.marceldev.companylunchcomment.dto.member.SignUpDto;
 import com.marceldev.companylunchcomment.dto.member.TokenDto;
 import com.marceldev.companylunchcomment.dto.member.UpdateMemberDto;
 import com.marceldev.companylunchcomment.dto.member.WithdrawMemberDto;
+import com.marceldev.companylunchcomment.exception.member.AlreadyExistMemberException;
+import com.marceldev.companylunchcomment.exception.member.IncorrectPasswordException;
+import com.marceldev.companylunchcomment.exception.member.VerificationCodeNotFoundException;
 import com.marceldev.companylunchcomment.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -50,6 +58,11 @@ public class MemberController {
           + "구글, 네이버, 카카오, 다음, 한메일, 야후 등 이메일 공급자로부터 받은 이메일은 가입할 수 없다. 회사 도메인을 사용해야 한다.<br>"
           + "회원가입 중 이메일을 통한 번호인증을 한다."
   )
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "OK"),
+      @ApiResponse(responseCode = "400", description = "errorCode: 1001 - 이미 존재하는 회원<br>"
+          + "errorCode: 1002 - 인증번호가 맞지 않음", content = @Content)
+  })
   @PostMapping("/members/signup")
   public ResponseEntity<Void> signUp(
       @Validated @RequestBody SignUpDto signUpDto
@@ -60,8 +73,12 @@ public class MemberController {
 
   @Operation(
       summary = "로그인",
-      description = "사용자는 로그인을 할 수 있다. 로그인시 회원가입에 사용한 아이디(이메일)와 패스워드가 일치해야 한다.\n"
+      description = "사용자는 로그인을 할 수 있다. 로그인시 회원가입에 사용한 아이디(이메일)와 패스워드가 일치해야 한다."
   )
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "OK"),
+      @ApiResponse(responseCode = "400", description = "errorCode: 1003 - 비밀번호가 맞지 않음", content = @Content)
+  })
   @PostMapping("/members/signin")
   public ResponseEntity<TokenDto> signIn(
       @Validated @RequestBody SignInDto signInDto
@@ -108,5 +125,20 @@ public class MemberController {
   ) {
     memberService.withdrawMember(id, withdrawMemberDto);
     return ResponseEntity.ok().build();
+  }
+
+  @ExceptionHandler(AlreadyExistMemberException.class)
+  public ResponseEntity<ErrorResponse> handle(AlreadyExistMemberException e) {
+    return ErrorResponse.badRequest(1001, e.getMessage());
+  }
+
+  @ExceptionHandler(VerificationCodeNotFoundException.class)
+  public ResponseEntity<ErrorResponse> handle(VerificationCodeNotFoundException e) {
+    return ErrorResponse.badRequest(1002, e.getMessage());
+  }
+
+  @ExceptionHandler(IncorrectPasswordException.class)
+  public ResponseEntity<ErrorResponse> handle(IncorrectPasswordException e) {
+    return ErrorResponse.badRequest(1003, e.getMessage());
   }
 }

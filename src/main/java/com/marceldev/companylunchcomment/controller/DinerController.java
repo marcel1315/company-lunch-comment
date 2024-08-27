@@ -7,9 +7,15 @@ import com.marceldev.companylunchcomment.dto.diner.DinerOutputDto;
 import com.marceldev.companylunchcomment.dto.diner.GetDinerListDto;
 import com.marceldev.companylunchcomment.dto.diner.RemoveDinerTagsDto;
 import com.marceldev.companylunchcomment.dto.diner.UpdateDinerDto;
+import com.marceldev.companylunchcomment.dto.error.ErrorResponse;
+import com.marceldev.companylunchcomment.exception.diner.DinerMaxImageCountExceedException;
+import com.marceldev.companylunchcomment.exception.diner.DuplicateDinerTagException;
+import com.marceldev.companylunchcomment.exception.diner.ImageWithNoExtensionException;
 import com.marceldev.companylunchcomment.service.DinerImageService;
 import com.marceldev.companylunchcomment.service.DinerService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -112,6 +119,10 @@ public class DinerController {
   @Operation(
       summary = "식당 태그 추가"
   )
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "OK"),
+      @ApiResponse(responseCode = "400", description = "errorCode: 3002 - 중복 태그 존재")
+  })
   @PutMapping("/diners/{id}/tags")
   public ResponseEntity<Void> addDinerTags(
       @PathVariable long id,
@@ -136,6 +147,11 @@ public class DinerController {
   @Operation(
       summary = "식당 이미지 추가"
   )
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "OK"),
+      @ApiResponse(responseCode = "400", description = "errorCode: 3001 - 최대 이미지 갯수 초과<br>"
+          + "errorCode: 3003 - 파일의 확장자가 없음")
+  })
   @PostMapping(value = "/diners/{id}/images", consumes = "multipart/form-data")
   public ResponseEntity<Void> addDinerImage(
       @PathVariable long id,
@@ -176,5 +192,20 @@ public class DinerController {
   ) {
     dinerService.unsubscribeDiner(id);
     return ResponseEntity.ok().build();
+  }
+
+  @ExceptionHandler(DinerMaxImageCountExceedException.class)
+  public ResponseEntity<ErrorResponse> handle(DinerMaxImageCountExceedException e) {
+    return ErrorResponse.badRequest(3001, e.getMessage());
+  }
+
+  @ExceptionHandler(DuplicateDinerTagException.class)
+  public ResponseEntity<ErrorResponse> handle(DuplicateDinerTagException e) {
+    return ErrorResponse.badRequest(3002, e.getMessage());
+  }
+
+  @ExceptionHandler(ImageWithNoExtensionException.class)
+  public ResponseEntity<ErrorResponse> handle(ImageWithNoExtensionException e) {
+    return ErrorResponse.badRequest(3003, e.getMessage());
   }
 }

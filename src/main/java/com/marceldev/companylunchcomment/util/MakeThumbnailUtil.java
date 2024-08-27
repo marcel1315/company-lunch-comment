@@ -1,6 +1,6 @@
 package com.marceldev.companylunchcomment.util;
 
-import com.marceldev.companylunchcomment.exception.ImageReadFailException;
+import com.marceldev.companylunchcomment.exception.diner.ImageReadFailException;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;

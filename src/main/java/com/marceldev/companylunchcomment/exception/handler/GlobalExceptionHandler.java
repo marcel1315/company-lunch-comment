@@ -1,6 +1,6 @@
 package com.marceldev.companylunchcomment.exception.handler;
 
-import com.marceldev.companylunchcomment.exception.CustomException;
+import com.marceldev.companylunchcomment.exception.common.CustomException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,10 +26,9 @@ public class GlobalExceptionHandler {
     HttpHeaders headers = new HttpHeaders();
 
     Map<String, String> body = new HashMap<>();
-    body.put("errorType", e.getHttpStatusType());
     body.put("message", e.getMessage());
 
-    return new ResponseEntity<>(body, headers, e.getHttpStatusCode());
+    return new ResponseEntity<>(body, headers, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
