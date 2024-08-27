@@ -1,6 +1,7 @@
 package com.marceldev.companylunchcomment.controller;
 
 import com.marceldev.companylunchcomment.dto.reply.CreateReplyDto;
+import com.marceldev.companylunchcomment.dto.reply.GetReplyListDto;
 import com.marceldev.companylunchcomment.dto.reply.ReplyOutputDto;
 import com.marceldev.companylunchcomment.dto.reply.UpdateReplyDto;
 import com.marceldev.companylunchcomment.service.ReplyService;
@@ -8,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -46,8 +48,12 @@ public class ReplyController {
   @GetMapping("/comments/{id}/replies")
   public ResponseEntity<Page<ReplyOutputDto>> getReplyList(
       @PathVariable long id,
-      Pageable pageable
+      @Validated @RequestBody GetReplyListDto getReplyListDto
   ) {
+    Pageable pageable = PageRequest.of(
+        getReplyListDto.getPage(),
+        getReplyListDto.getSize()
+    );
     Page<ReplyOutputDto> replies = replyService.getReplyList(id, pageable);
     return ResponseEntity.ok(replies);
   }

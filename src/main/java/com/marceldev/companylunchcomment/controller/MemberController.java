@@ -37,7 +37,8 @@ public class MemberController {
   )
   @PostMapping("/members/signup/send-verification-code")
   public ResponseEntity<Void> sendVerificationCode(
-      @Validated @RequestBody SendVerificationCodeDto dto) {
+      @Validated @RequestBody SendVerificationCodeDto dto
+  ) {
     memberService.sendVerificationCode(dto);
     return ResponseEntity.ok().build();
   }
@@ -50,7 +51,9 @@ public class MemberController {
           + "회원가입 중 이메일을 통한 번호인증을 한다."
   )
   @PostMapping("/members/signup")
-  public ResponseEntity<Void> signUp(@Validated @RequestBody SignUpDto signUpDto) {
+  public ResponseEntity<Void> signUp(
+      @Validated @RequestBody SignUpDto signUpDto
+  ) {
     memberService.signUp(signUpDto);
     return ResponseEntity.ok().build();
   }
@@ -60,7 +63,9 @@ public class MemberController {
       description = "사용자는 로그인을 할 수 있다. 로그인시 회원가입에 사용한 아이디(이메일)와 패스워드가 일치해야 한다.\n"
   )
   @PostMapping("/members/signin")
-  public ResponseEntity<TokenDto> signIn(@Validated @RequestBody SignInDto signInDto) {
+  public ResponseEntity<TokenDto> signIn(
+      @Validated @RequestBody SignInDto signInDto
+  ) {
     SignInResult result = memberService.signIn(signInDto);
     String token = tokenProvider.generateToken(result.getEmail(), result.getRoleString());
     return ResponseEntity.ok(new TokenDto(token));

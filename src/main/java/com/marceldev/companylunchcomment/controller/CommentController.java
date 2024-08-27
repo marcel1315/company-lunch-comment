@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -53,9 +54,12 @@ public class CommentController {
   @GetMapping("/diners/{id}/comments")
   public ResponseEntity<Page<CommentOutputDto>> getCommentList(
       @PathVariable long id,
-      @Validated GetCommentListDto getCommentListDto,
-      Pageable pageable
+      @Validated GetCommentListDto getCommentListDto
   ) {
+    Pageable pageable = PageRequest.of(
+        getCommentListDto.getPage(),
+        getCommentListDto.getSize()
+    );
     Page<CommentOutputDto> comments = commentService.getCommentList(
         id, getCommentListDto, pageable
     );

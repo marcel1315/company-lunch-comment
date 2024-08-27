@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -56,7 +57,8 @@ public class CompanyController {
   })
   @PostMapping("/companies/send-verification-code")
   public ResponseEntity<?> sendVerificationCode(
-      @Validated @RequestBody SendVerificationCodeDto dto) {
+      @Validated @RequestBody SendVerificationCodeDto dto
+  ) {
     companyService.sendVerificationCode(dto);
     return ResponseEntity.ok().build();
   }
@@ -87,9 +89,12 @@ public class CompanyController {
   })
   @GetMapping("/companies")
   public ResponseEntity<Page<CompanyOutputDto>> getCompanyList(
-      @Validated @ModelAttribute GetCompanyListDto getCompanyListDto,
-      Pageable pageable
+      @Validated @ModelAttribute GetCompanyListDto getCompanyListDto
   ) {
+    Pageable pageable = PageRequest.of(
+        getCompanyListDto.getPage(),
+        getCompanyListDto.getSize()
+    );
     Page<CompanyOutputDto> companies = companyService.getCompanyList(getCompanyListDto, pageable);
     return ResponseEntity.ok(companies);
   }

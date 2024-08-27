@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -58,9 +59,12 @@ public class DinerController {
   )
   @GetMapping("/diners")
   public ResponseEntity<Page<DinerOutputDto>> getDinerList(
-      @Validated @ModelAttribute GetDinerListDto getDinerListDto,
-      Pageable pageable
+      @Validated @ModelAttribute GetDinerListDto getDinerListDto
   ) {
+    Pageable pageable = PageRequest.of(
+        getDinerListDto.getPage(),
+        getDinerListDto.getSize()
+    );
     Page<DinerOutputDto> diners = dinerService.getDinerList(getDinerListDto, pageable);
     return ResponseEntity.ok(diners);
   }
@@ -72,7 +76,9 @@ public class DinerController {
           + "필요한 경우 원본 사진을 가져올 수 있다."
   )
   @GetMapping("/diners/{id}")
-  public ResponseEntity<DinerDetailOutputDto> getDinerDetail(@PathVariable long id) {
+  public ResponseEntity<DinerDetailOutputDto> getDinerDetail(
+      @PathVariable long id
+  ) {
     DinerDetailOutputDto diner = dinerService.getDinerDetail(id);
     return ResponseEntity.ok(diner);
   }
@@ -96,7 +102,9 @@ public class DinerController {
       description = "사용자는 식당을 제거할 수 있다."
   )
   @DeleteMapping("/diners/{id}")
-  public ResponseEntity<Void> removeDiner(@PathVariable long id) {
+  public ResponseEntity<Void> removeDiner(
+      @PathVariable long id
+  ) {
     dinerService.removeDiner(id);
     return ResponseEntity.ok().build();
   }

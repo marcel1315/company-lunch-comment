@@ -47,7 +47,9 @@ public class NotificationController {
       description = "클라이언트가 발급받은 FCM Push Notificaton Token을 서버로 전달한다."
   )
   @PostMapping("/notifications/fcm/token")
-  public ResponseEntity<Void> notificationFcmToken(@RequestBody RegisterFcmToken token) {
+  public ResponseEntity<Void> notificationFcmToken(
+      @RequestBody RegisterFcmToken token
+  ) {
     notificationService.registerToken(token.getToken());
     return ResponseEntity.ok().build();
   }
