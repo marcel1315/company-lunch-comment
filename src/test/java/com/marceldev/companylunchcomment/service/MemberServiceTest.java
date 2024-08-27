@@ -33,7 +33,7 @@ import com.marceldev.companylunchcomment.exception.MemberUnauthorizedException;
 import com.marceldev.companylunchcomment.repository.member.MemberRepository;
 import com.marceldev.companylunchcomment.repository.verification.VerificationRepository;
 import com.marceldev.companylunchcomment.type.Role;
-import com.marceldev.companylunchcomment.util.VerificationCodeGenerator;
+import com.marceldev.companylunchcomment.util.GenerateVerificationCodeUtil;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
@@ -210,7 +210,7 @@ class MemberServiceTest {
 
     when(memberRepository.existsByEmail(any()))
         .thenReturn(false);
-    String code = VerificationCodeGenerator.generate(anyInt());
+    String code = GenerateVerificationCodeUtil.generate(anyInt());
 
     ArgumentCaptor<String> captor1 = ArgumentCaptor.forClass(String.class);
     ArgumentCaptor<String> captor2 = ArgumentCaptor.forClass(String.class);

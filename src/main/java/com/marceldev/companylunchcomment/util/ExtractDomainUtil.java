@@ -2,7 +2,7 @@ package com.marceldev.companylunchcomment.util;
 
 import com.marceldev.companylunchcomment.exception.InvalidEmailFormatException;
 
-public class ExtractDomain {
+public class ExtractDomainUtil {
 
   public static String from(String email) {
     String[] split = email.split("@");

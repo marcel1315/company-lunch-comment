@@ -16,8 +16,8 @@ import com.marceldev.companylunchcomment.exception.VerificationCodeNotFound;
 import com.marceldev.companylunchcomment.repository.company.CompanyRepository;
 import com.marceldev.companylunchcomment.repository.member.MemberRepository;
 import com.marceldev.companylunchcomment.repository.verification.VerificationRepository;
-import com.marceldev.companylunchcomment.util.ExtractDomain;
-import com.marceldev.companylunchcomment.util.VerificationCodeGenerator;
+import com.marceldev.companylunchcomment.util.ExtractDomainUtil;
+import com.marceldev.companylunchcomment.util.GenerateVerificationCodeUtil;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -51,7 +51,7 @@ public class CompanyService {
   @Transactional
   public void createCompany(CreateCompanyDto dto) {
     String email = getMemberEmail();
-    String domain = ExtractDomain.from(email);
+    String domain = ExtractDomainUtil.from(email);
 
     if (companyRepository.existsByDomainAndName(domain, dto.getName())) {
       throw new SameCompanyNameExist();
@@ -67,7 +67,7 @@ public class CompanyService {
   @Transactional
   public void sendVerificationCode(SendVerificationCodeDto dto) {
     String email = dto.getEmail();
-    String code = VerificationCodeGenerator.generate(VERIFICATION_CODE_LENGTH);
+    String code = GenerateVerificationCodeUtil.generate(VERIFICATION_CODE_LENGTH);
     sendVerificationCodeEmail(email, code);
     saveVerificationCodeToDb(email, code);
   }
@@ -103,7 +103,7 @@ public class CompanyService {
    */
   public Page<CompanyOutputDto> getCompanyList(GetCompanyListDto dto, Pageable pageable) {
     String email = getMemberEmail();
-    return companyRepository.findByDomain(ExtractDomain.from(email), pageable)
+    return companyRepository.findByDomain(ExtractDomainUtil.from(email), pageable)
         .map(CompanyOutputDto::of);
   }
 
@@ -116,7 +116,7 @@ public class CompanyService {
     Member member = memberRepository.findByEmail(email)
         .orElseThrow(MemberNotExistException::new);
     Company company = companyRepository.findById(companyId)
-        .filter(c -> c.getDomain().equals(ExtractDomain.from(email)))
+        .filter(c -> c.getDomain().equals(ExtractDomainUtil.from(email)))
         .orElseThrow(CompanyNotExistException::new);
 
     member.setCompany(company);

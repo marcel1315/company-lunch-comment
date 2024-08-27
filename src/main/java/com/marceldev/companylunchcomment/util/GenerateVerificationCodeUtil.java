@@ -2,7 +2,7 @@ package com.marceldev.companylunchcomment.util;
 
 import java.util.Random;
 
-public class VerificationCodeGenerator {
+public class GenerateVerificationCodeUtil {
 
   public static String generate(int length) {
     StringBuilder code = new StringBuilder();

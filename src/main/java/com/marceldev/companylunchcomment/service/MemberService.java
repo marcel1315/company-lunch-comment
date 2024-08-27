@@ -20,8 +20,8 @@ import com.marceldev.companylunchcomment.exception.VerificationCodeNotFound;
 import com.marceldev.companylunchcomment.repository.member.MemberRepository;
 import com.marceldev.companylunchcomment.repository.verification.VerificationRepository;
 import com.marceldev.companylunchcomment.type.Role;
-import com.marceldev.companylunchcomment.util.ExtractDomain;
-import com.marceldev.companylunchcomment.util.VerificationCodeGenerator;
+import com.marceldev.companylunchcomment.util.ExtractDomainUtil;
+import com.marceldev.companylunchcomment.util.GenerateVerificationCodeUtil;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -101,7 +101,7 @@ public class MemberService implements UserDetailsService {
     checkCompanyDomainNotEmailProvider(email);
     checkAlreadyExistsMember(email);
 
-    String code = VerificationCodeGenerator.generate(VERIFICATION_CODE_LENGTH);
+    String code = GenerateVerificationCodeUtil.generate(VERIFICATION_CODE_LENGTH);
     sendVerificationCodeEmail(email, code);
     saveVerificationCodeToDb(email, code);
   }
@@ -163,7 +163,7 @@ public class MemberService implements UserDetailsService {
       return;
     }
 
-    String domain = ExtractDomain.from(email);
+    String domain = ExtractDomainUtil.from(email);
 
     if (NOT_SUPPORTED_DOMAINS.contains(domain)) {
       throw new EmailIsNotCompanyDomain(domain);
