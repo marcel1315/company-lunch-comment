@@ -9,7 +9,7 @@ import com.marceldev.companylunchcomment.entity.Member;
 import com.marceldev.companylunchcomment.entity.PushNotificationToken;
 import com.marceldev.companylunchcomment.exception.CompanyNotExistException;
 import com.marceldev.companylunchcomment.exception.DinerNotFoundException;
-import com.marceldev.companylunchcomment.exception.FailToEnqueueNotifications;
+import com.marceldev.companylunchcomment.exception.FailToEnqueueNotificationsException;
 import com.marceldev.companylunchcomment.exception.MemberNotExistException;
 import com.marceldev.companylunchcomment.repository.diner.DinerRepository;
 import com.marceldev.companylunchcomment.repository.diner.DinerSubscriptionRepository;
@@ -76,7 +76,7 @@ public class NotificationProvider {
         log.info("{} notifications enqueued.", messages.size());
       } catch (Exception e) {
         channel.txRollback();
-        throw new FailToEnqueueNotifications();
+        throw new FailToEnqueueNotificationsException();
       }
       return null;
     });

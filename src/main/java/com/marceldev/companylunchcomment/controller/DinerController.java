@@ -134,7 +134,7 @@ public class DinerController {
       @RequestParam("image") MultipartFile image
   ) {
     dinerImageService.addDinerImage(id, image);
-    return CustomResponse.success();
+    return ResponseEntity.ok().build();
   }
 
   @Operation(

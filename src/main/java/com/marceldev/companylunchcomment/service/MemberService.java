@@ -12,11 +12,11 @@ import com.marceldev.companylunchcomment.dto.member.WithdrawMemberDto;
 import com.marceldev.companylunchcomment.entity.Member;
 import com.marceldev.companylunchcomment.entity.Verification;
 import com.marceldev.companylunchcomment.exception.AlreadyExistMemberException;
-import com.marceldev.companylunchcomment.exception.EmailIsNotCompanyDomain;
+import com.marceldev.companylunchcomment.exception.EmailIsNotCompanyDomainException;
 import com.marceldev.companylunchcomment.exception.IncorrectPasswordException;
 import com.marceldev.companylunchcomment.exception.MemberNotExistException;
 import com.marceldev.companylunchcomment.exception.MemberUnauthorizedException;
-import com.marceldev.companylunchcomment.exception.VerificationCodeNotFound;
+import com.marceldev.companylunchcomment.exception.VerificationCodeNotFoundException;
 import com.marceldev.companylunchcomment.repository.member.MemberRepository;
 import com.marceldev.companylunchcomment.repository.verification.VerificationRepository;
 import com.marceldev.companylunchcomment.type.Role;
@@ -70,7 +70,7 @@ public class MemberService implements UserDetailsService {
   @Transactional
   public void signUp(SignUpDto dto) {
     Verification verification = verificationRepository.findByEmail(dto.getEmail())
-        .orElseThrow(VerificationCodeNotFound::new);
+        .orElseThrow(VerificationCodeNotFoundException::new);
 
     matchVerificationCode(dto, verification);
     saveMember(dto);
@@ -166,7 +166,7 @@ public class MemberService implements UserDetailsService {
     String domain = ExtractDomainUtil.from(email);
 
     if (NOT_SUPPORTED_DOMAINS.contains(domain)) {
-      throw new EmailIsNotCompanyDomain(domain);
+      throw new EmailIsNotCompanyDomainException(domain);
     }
   }
 
@@ -198,11 +198,11 @@ public class MemberService implements UserDetailsService {
 
   private void matchVerificationCode(SignUpDto dto, Verification verification) {
     if (dto.getNow().isAfter(verification.getExpirationAt())) {
-      throw new VerificationCodeNotFound();
+      throw new VerificationCodeNotFoundException();
     }
 
     if (!verification.getCode().equals(dto.getVerificationCode())) {
-      throw new VerificationCodeNotFound();
+      throw new VerificationCodeNotFoundException();
     }
   }
 

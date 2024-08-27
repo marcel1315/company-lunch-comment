@@ -2,9 +2,9 @@ package com.marceldev.companylunchcomment.exception;
 
 import org.springframework.http.HttpStatus;
 
-public class SameCompanyNameExist extends CustomException {
+public class SameCompanyNameExistException extends CustomException {
 
-  public SameCompanyNameExist() {
+  public SameCompanyNameExistException() {
     super(HttpStatus.BAD_REQUEST, "Same company name exists in same domain");
   }
 }

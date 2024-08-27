@@ -16,7 +16,7 @@ import com.marceldev.companylunchcomment.entity.DinerImage;
 import com.marceldev.companylunchcomment.exception.DinerImageNotFoundException;
 import com.marceldev.companylunchcomment.exception.DinerMaxImageCountExceedException;
 import com.marceldev.companylunchcomment.exception.DinerNotFoundException;
-import com.marceldev.companylunchcomment.exception.ImageDeleteFail;
+import com.marceldev.companylunchcomment.exception.ImageDeleteFailException;
 import com.marceldev.companylunchcomment.exception.ImageReadFailException;
 import com.marceldev.companylunchcomment.repository.diner.DinerImageRepository;
 import com.marceldev.companylunchcomment.repository.diner.DinerRepository;
@@ -236,7 +236,7 @@ class DinerImageServiceTest {
         .when(s3Manager).removeFile(any());
 
     //then
-    assertThrows(ImageDeleteFail.class,
+    assertThrows(ImageDeleteFailException.class,
         () -> dinerImageService.removeDinerImage(1L));
   }
 }

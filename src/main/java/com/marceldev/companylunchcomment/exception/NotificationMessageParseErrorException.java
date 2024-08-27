@@ -2,9 +2,9 @@ package com.marceldev.companylunchcomment.exception;
 
 import org.springframework.http.HttpStatus;
 
-public class NotificationMessageParseError extends CustomException {
+public class NotificationMessageParseErrorException extends CustomException {
 
-  public NotificationMessageParseError() {
+  public NotificationMessageParseErrorException() {
     super(HttpStatus.INTERNAL_SERVER_ERROR, "Notification message parse error");
   }
 }

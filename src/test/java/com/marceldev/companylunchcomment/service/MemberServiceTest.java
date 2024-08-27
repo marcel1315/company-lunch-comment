@@ -26,7 +26,7 @@ import com.marceldev.companylunchcomment.entity.Company;
 import com.marceldev.companylunchcomment.entity.Member;
 import com.marceldev.companylunchcomment.entity.Verification;
 import com.marceldev.companylunchcomment.exception.AlreadyExistMemberException;
-import com.marceldev.companylunchcomment.exception.EmailIsNotCompanyDomain;
+import com.marceldev.companylunchcomment.exception.EmailIsNotCompanyDomainException;
 import com.marceldev.companylunchcomment.exception.IncorrectPasswordException;
 import com.marceldev.companylunchcomment.exception.MemberNotExistException;
 import com.marceldev.companylunchcomment.exception.MemberUnauthorizedException;
@@ -233,7 +233,7 @@ class MemberServiceTest {
 
     //when
     //then
-    assertThrows(EmailIsNotCompanyDomain.class,
+    assertThrows(EmailIsNotCompanyDomainException.class,
         () -> memberService.sendVerificationCode(dto));
   }
 

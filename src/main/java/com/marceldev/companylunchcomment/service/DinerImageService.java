@@ -6,10 +6,10 @@ import com.marceldev.companylunchcomment.entity.DinerImage;
 import com.marceldev.companylunchcomment.exception.DinerImageNotFoundException;
 import com.marceldev.companylunchcomment.exception.DinerMaxImageCountExceedException;
 import com.marceldev.companylunchcomment.exception.DinerNotFoundException;
-import com.marceldev.companylunchcomment.exception.ImageDeleteFail;
-import com.marceldev.companylunchcomment.exception.ImageUploadFail;
+import com.marceldev.companylunchcomment.exception.ImageDeleteFailException;
+import com.marceldev.companylunchcomment.exception.ImageUploadFailException;
 import com.marceldev.companylunchcomment.exception.ImageWithNoExtensionException;
-import com.marceldev.companylunchcomment.exception.InternalServerError;
+import com.marceldev.companylunchcomment.exception.InternalServerErrorException;
 import com.marceldev.companylunchcomment.repository.diner.DinerImageRepository;
 import com.marceldev.companylunchcomment.repository.diner.DinerRepository;
 import com.marceldev.companylunchcomment.util.FileUtil;
@@ -104,7 +104,7 @@ public class DinerImageService {
     } catch (RuntimeException e) {
       //TODO: 저장소에 이미지는 지워지고, 이미지 정보만 DB에 남게되면 어떻게 하지?
       // -> 파일이 존재하지 않으면 deleteDinerImageFromStorage에서 throw하지 않기
-      throw new InternalServerError("이미지 정보 DB삭제 실패");
+      throw new InternalServerErrorException("이미지 정보 DB삭제 실패");
     }
   }
 
@@ -114,7 +114,7 @@ public class DinerImageService {
       s3Manager.uploadFile(key, inputStream, size);
     } catch (IOException e) {
       log.error(e.getMessage());
-      throw new ImageUploadFail(key);
+      throw new ImageUploadFailException(key);
     }
   }
 
@@ -123,7 +123,7 @@ public class DinerImageService {
       s3Manager.removeFile(key);
     } catch (RuntimeException e) {
       log.error(e.getMessage());
-      throw new ImageDeleteFail(key);
+      throw new ImageDeleteFailException(key);
     }
   }
 
@@ -137,7 +137,7 @@ public class DinerImageService {
           .build();
       dinerImageRepository.save(dinerImage);
     } catch (RuntimeException e) {
-      throw new InternalServerError("식당 이미지 저장 실패");
+      throw new InternalServerErrorException("식당 이미지 저장 실패");
     }
   }
 

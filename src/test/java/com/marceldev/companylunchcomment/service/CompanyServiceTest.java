@@ -18,8 +18,8 @@ import com.marceldev.companylunchcomment.entity.Company;
 import com.marceldev.companylunchcomment.entity.Member;
 import com.marceldev.companylunchcomment.entity.Verification;
 import com.marceldev.companylunchcomment.exception.CompanyNotExistException;
-import com.marceldev.companylunchcomment.exception.SameCompanyNameExist;
-import com.marceldev.companylunchcomment.exception.VerificationCodeNotFound;
+import com.marceldev.companylunchcomment.exception.SameCompanyNameExistException;
+import com.marceldev.companylunchcomment.exception.VerificationCodeNotFoundException;
 import com.marceldev.companylunchcomment.repository.company.CompanyRepository;
 import com.marceldev.companylunchcomment.repository.member.MemberRepository;
 import com.marceldev.companylunchcomment.repository.verification.VerificationRepository;
@@ -149,7 +149,7 @@ class CompanyServiceTest {
 
     //when
     //then
-    assertThrows(SameCompanyNameExist.class,
+    assertThrows(SameCompanyNameExistException.class,
         () -> companyService.createCompany(dto));
   }
 
@@ -223,7 +223,7 @@ class CompanyServiceTest {
 
     //when
     //then
-    assertThrows(VerificationCodeNotFound.class,
+    assertThrows(VerificationCodeNotFoundException.class,
         () -> companyService.updateCompany(1L, dto));
   }
 
@@ -251,7 +251,7 @@ class CompanyServiceTest {
 
     //when
     //then
-    assertThrows(VerificationCodeNotFound.class,
+    assertThrows(VerificationCodeNotFoundException.class,
         () -> companyService.updateCompany(1L, dto));
   }
 

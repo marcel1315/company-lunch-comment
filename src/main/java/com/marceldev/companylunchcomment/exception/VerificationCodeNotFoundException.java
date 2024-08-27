@@ -2,9 +2,9 @@ package com.marceldev.companylunchcomment.exception;
 
 import org.springframework.http.HttpStatus;
 
-public class VerificationCodeNotFound extends CustomException {
+public class VerificationCodeNotFoundException extends CustomException {
 
-  public VerificationCodeNotFound() {
+  public VerificationCodeNotFoundException() {
     super(HttpStatus.BAD_REQUEST, "Verification code doesn't exist.");
   }
 }

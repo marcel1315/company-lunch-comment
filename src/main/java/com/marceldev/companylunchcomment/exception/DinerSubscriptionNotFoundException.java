@@ -2,9 +2,9 @@ package com.marceldev.companylunchcomment.exception;
 
 import org.springframework.http.HttpStatus;
 
-public class DinerSubscriptionNotFound extends CustomException {
+public class DinerSubscriptionNotFoundException extends CustomException {
 
-  public DinerSubscriptionNotFound() {
+  public DinerSubscriptionNotFoundException() {
     super(HttpStatus.NOT_FOUND, "Diner subscription doesn't exist.");
   }
 }

@@ -11,8 +11,8 @@ import com.marceldev.companylunchcomment.entity.Member;
 import com.marceldev.companylunchcomment.entity.Verification;
 import com.marceldev.companylunchcomment.exception.CompanyNotExistException;
 import com.marceldev.companylunchcomment.exception.MemberNotExistException;
-import com.marceldev.companylunchcomment.exception.SameCompanyNameExist;
-import com.marceldev.companylunchcomment.exception.VerificationCodeNotFound;
+import com.marceldev.companylunchcomment.exception.SameCompanyNameExistException;
+import com.marceldev.companylunchcomment.exception.VerificationCodeNotFoundException;
 import com.marceldev.companylunchcomment.repository.company.CompanyRepository;
 import com.marceldev.companylunchcomment.repository.member.MemberRepository;
 import com.marceldev.companylunchcomment.repository.verification.VerificationRepository;
@@ -54,7 +54,7 @@ public class CompanyService {
     String domain = ExtractDomainUtil.from(email);
 
     if (companyRepository.existsByDomainAndName(domain, dto.getName())) {
-      throw new SameCompanyNameExist();
+      throw new SameCompanyNameExistException();
     }
     Company company = dto.toEntityWithDomain(domain);
 
@@ -88,7 +88,7 @@ public class CompanyService {
     Verification verification = verificationRepository.findByEmail(email)
         .filter((v) -> v.getCode().equals(updateCompanyDto.getVerificationCode()))
         .filter((v) -> v.getExpirationAt().isAfter(LocalDateTime.now()))
-        .orElseThrow(VerificationCodeNotFound::new);
+        .orElseThrow(VerificationCodeNotFoundException::new);
 
     // 회사정보 업데이트
     Optional.ofNullable(updateCompanyDto.getAddress())

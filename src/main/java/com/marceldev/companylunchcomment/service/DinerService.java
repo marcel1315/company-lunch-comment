@@ -16,7 +16,7 @@ import com.marceldev.companylunchcomment.entity.Member;
 import com.marceldev.companylunchcomment.exception.AlreadySubscribedException;
 import com.marceldev.companylunchcomment.exception.CompanyNotExistException;
 import com.marceldev.companylunchcomment.exception.DinerNotFoundException;
-import com.marceldev.companylunchcomment.exception.DinerSubscriptionNotFound;
+import com.marceldev.companylunchcomment.exception.DinerSubscriptionNotFoundException;
 import com.marceldev.companylunchcomment.exception.MemberNotExistException;
 import com.marceldev.companylunchcomment.exception.MemberUnauthorizedException;
 import com.marceldev.companylunchcomment.repository.diner.DinerImageRepository;
@@ -168,7 +168,7 @@ public class DinerService {
 
     DinerSubscription dinerSubscription = dinerSubscriptionRepository.findByDinerAndMember(diner,
             member)
-        .orElseThrow(DinerSubscriptionNotFound::new);
+        .orElseThrow(DinerSubscriptionNotFoundException::new);
 
     dinerSubscriptionRepository.delete(dinerSubscription);
   }
