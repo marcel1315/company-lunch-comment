@@ -37,6 +37,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("식당 이미지 서비스")
 class DinerImageServiceTest {
 
   @Mock

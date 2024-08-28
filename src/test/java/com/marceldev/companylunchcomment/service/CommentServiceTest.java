@@ -53,6 +53,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("코멘트 서비스")
 class CommentServiceTest {
 
   @Mock

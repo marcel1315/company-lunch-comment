@@ -53,6 +53,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("회원 서비스")
 class MemberServiceTest {
 
   @Mock

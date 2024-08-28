@@ -48,6 +48,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("댓글 서비스")
 class ReplyServiceTest {
 
   @Mock

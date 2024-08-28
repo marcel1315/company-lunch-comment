@@ -61,6 +61,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("식당 서비스")
 class DinerServiceTest {
 
   @Mock
