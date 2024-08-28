@@ -79,14 +79,14 @@ class ReplyServiceTest {
       .id(1L)
       .email("kys@example.com")
       .name("김영수")
-      .role(Role.USER)
+      .role(Role.VIEWER)
       .password("somehashedvalue")
       .company(company1)
       .build();
 
   @BeforeEach
   public void setupMember() {
-    GrantedAuthority authority = new SimpleGrantedAuthority("USER");
+    GrantedAuthority authority = new SimpleGrantedAuthority("VIEWER");
     Collection authorities = Collections.singleton(authority); // Use raw type here
 
     Authentication authentication = mock(Authentication.class);

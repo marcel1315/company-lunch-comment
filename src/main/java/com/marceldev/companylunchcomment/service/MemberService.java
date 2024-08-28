@@ -8,10 +8,10 @@ import com.marceldev.companylunchcomment.dto.member.SignInDto;
 import com.marceldev.companylunchcomment.dto.member.SignInResult;
 import com.marceldev.companylunchcomment.dto.member.SignUpDto;
 import com.marceldev.companylunchcomment.dto.member.UpdateMemberDto;
+import com.marceldev.companylunchcomment.dto.member.VerifyVerificationCodeDto;
 import com.marceldev.companylunchcomment.dto.member.WithdrawMemberDto;
 import com.marceldev.companylunchcomment.entity.Member;
 import com.marceldev.companylunchcomment.entity.Verification;
-import com.marceldev.companylunchcomment.exception.company.EmailIsNotCompanyDomainException;
 import com.marceldev.companylunchcomment.exception.member.AlreadyExistMemberException;
 import com.marceldev.companylunchcomment.exception.member.IncorrectPasswordException;
 import com.marceldev.companylunchcomment.exception.member.MemberNotExistException;
@@ -20,14 +20,10 @@ import com.marceldev.companylunchcomment.exception.member.VerificationCodeNotFou
 import com.marceldev.companylunchcomment.repository.member.MemberRepository;
 import com.marceldev.companylunchcomment.repository.verification.VerificationRepository;
 import com.marceldev.companylunchcomment.type.Role;
-import com.marceldev.companylunchcomment.util.ExtractDomainUtil;
 import com.marceldev.companylunchcomment.util.GenerateVerificationCodeUtil;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -55,26 +51,22 @@ public class MemberService implements UserDetailsService {
 
   private final VerificationRepository verificationRepository;
 
-  private final HashSet<String> NOT_SUPPORTED_DOMAINS = new HashSet<>(List.of(
-      "naver.com", "gmail.com", "daum.net", "kakao.com", "hanmail.net", "yahoo.com",
-      "nate.com", "hotmail.com", "outlook.com", "live.com", "msn.com",
-      "icloud.com", "me.com", "aol.com", "protonmail.com"
-  ));
-
-  @Value("${bypass-email-domain-check-for-dev:false}")
-  private boolean bypassEmailDomainCheck;
-
   /**
    * 회원가입
    */
   @Transactional
   public void signUp(SignUpDto dto) {
-    Verification verification = verificationRepository.findByEmail(dto.getEmail())
-        .orElseThrow(VerificationCodeNotFoundException::new);
+    checkAlreadyExistsMember(dto.getEmail());
 
-    matchVerificationCode(dto, verification);
-    saveMember(dto);
-    verificationRepository.delete(verification);
+    String encPassword = passwordEncoder.encode(dto.getPassword());
+    Member member = Member.builder()
+        .email(dto.getEmail())
+        .password(encPassword)
+        .name(dto.getName())
+        .role(Role.VIEWER)
+        .build();
+
+    memberRepository.save(member);
   }
 
   /**
@@ -92,18 +84,31 @@ public class MemberService implements UserDetailsService {
   }
 
   /**
-   * 이메일 전송
+   * 이메일로 인증번호 전송
    */
   @Transactional
   public void sendVerificationCode(SendVerificationCodeDto dto) {
     String email = dto.getEmail();
-
-    checkCompanyDomainNotEmailProvider(email);
-    checkAlreadyExistsMember(email);
-
     String code = GenerateVerificationCodeUtil.generate(VERIFICATION_CODE_LENGTH);
+
     sendVerificationCodeEmail(email, code);
     saveVerificationCodeToDb(email, code);
+  }
+
+  /**
+   * 인증번호 검증
+   */
+  @Transactional
+  public void verifyVerificationCode(VerifyVerificationCodeDto dto) {
+    Verification verification = verificationRepository.findByEmail(dto.getEmail())
+        .orElseThrow(VerificationCodeNotFoundException::new);
+
+    matchVerificationCode(dto.getCode(), verification, dto.getNow());
+
+    Member member = getMember();
+    member.promoteToEditor();
+
+    verificationRepository.delete(verification);
   }
 
   /**
@@ -140,7 +145,8 @@ public class MemberService implements UserDetailsService {
   }
 
   /**
-   * Spring Security의 UserDetailsService의 메서드 구현 Spring Security의 username으로 해당 서비스의 email이 사용됨
+   * Spring Security 의 UserDetailsService 의 메서드 구현 Spring Security 의 username 으로 해당 서비스의 email 이
+   * 사용됨
    */
   @Override
   public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -157,19 +163,6 @@ public class MemberService implements UserDetailsService {
     log.info("MemberService.clearUnusedVerificationCodes executed: {} rows deleted", rows);
   }
 
-  private void checkCompanyDomainNotEmailProvider(String email) {
-    // only for dev
-    if (bypassEmailDomainCheck) {
-      return;
-    }
-
-    String domain = ExtractDomainUtil.from(email);
-
-    if (NOT_SUPPORTED_DOMAINS.contains(domain)) {
-      throw new EmailIsNotCompanyDomainException(domain);
-    }
-  }
-
   private void checkAlreadyExistsMember(String email) {
     if (memberRepository.existsByEmail(email)) {
       throw new AlreadyExistMemberException();
@@ -177,8 +170,8 @@ public class MemberService implements UserDetailsService {
   }
 
   private void sendVerificationCodeEmail(String email, String code) {
-    String subject = "[Company Lunch Comment] 회원가입을 위한 인증번호입니다";
-    String body = String.format("인증번호는 %s 입니다. 회원가입란에 입력해주세요.", code);
+    String subject = "[Our Company Lunch] 인증번호입니다.";
+    String body = String.format("인증번호는 %s 입니다. 인증번호란에 입력해주세요.", code);
     emailSender.sendMail(email, subject, body);
   }
 
@@ -196,30 +189,18 @@ public class MemberService implements UserDetailsService {
     verificationRepository.save(verification);
   }
 
-  private void matchVerificationCode(SignUpDto dto, Verification verification) {
-    if (dto.getNow().isAfter(verification.getExpirationAt())) {
+  private void matchVerificationCode(String code, Verification verification, LocalDateTime now) {
+    if (now.isAfter(verification.getExpirationAt())) {
       throw new VerificationCodeNotFoundException();
     }
 
-    if (!verification.getCode().equals(dto.getVerificationCode())) {
+    if (!verification.getCode().equals(code)) {
       throw new VerificationCodeNotFoundException();
     }
-  }
-
-  private void saveMember(SignUpDto dto) {
-    String encPassword = passwordEncoder.encode(dto.getPassword());
-    Member member = Member.builder()
-        .email(dto.getEmail())
-        .password(encPassword)
-        .name(dto.getName())
-        .role(Role.USER)
-        .build();
-
-    memberRepository.save(member);
   }
 
   /**
-   * member를 찾아 반환함. 토큰에 들어있던 사용자가 접근할 수 있는 member id인지 체크하고 반환함
+   * member 를 찾아 반환함. 토큰에 들어있던 사용자가 접근할 수 있는 member id 인지 체크하고 반환함
    */
   private Member getMember(long id) {
     UserDetails user = (UserDetails) SecurityContextHolder.getContext()
@@ -228,5 +209,17 @@ public class MemberService implements UserDetailsService {
     String email = user.getUsername();
     return memberRepository.findByIdAndEmail(id, email)
         .orElseThrow(MemberUnauthorizedException::new);
+  }
+
+  /**
+   * member 를 찾아 반환함.
+   */
+  private Member getMember() {
+    UserDetails user = (UserDetails) SecurityContextHolder.getContext()
+        .getAuthentication()
+        .getPrincipal();
+    String email = user.getUsername();
+    return memberRepository.findByEmail(email)
+        .orElseThrow(MemberNotExistException::new);
   }
 }

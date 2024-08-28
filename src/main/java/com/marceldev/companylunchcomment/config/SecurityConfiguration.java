@@ -31,12 +31,21 @@ public class SecurityConfiguration {
         .sessionManagement(session ->
             session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(authorization -> authorization
-            .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
-                "/swagger-resources/**", "/webjars/**", "/actuator/**").permitAll() // Swagger UI
-            .requestMatchers("/members/signup", "/members/signin",
-                "/members/signup/send-verification-code").permitAll()
-            // sse 부분을 authenticated로 연결해놓으면, sse가 terminate되는 시점에 SecurityContextHolder가 비워지며 access denied 에러를 냄
-            // permitAll이지만 헤더에 Authorization 부분이 없으면 SecurityContextHolder가 채워지지 않아 sse 연결중 에러를 내긴 함
+            .requestMatchers(
+                "/v3/api-docs/**",
+                "/swagger-ui/**",
+                "/swagger-ui.html",
+                "/swagger-resources/**",
+                "/webjars/**", // for swagger
+                "/actuator/**"
+            ).permitAll()
+            .requestMatchers(
+                "/members/signup",
+                "/members/signin"
+            ).permitAll()
+            // sse 부분을 authenticated 로 연결해놓으면,
+            // sse 가 terminate 되는 시점에 SecurityContextHolder 가 비워지며 access denied 에러를 냄
+            // permitAll 이지만 헤더에 Authorization 부분이 없으면 SecurityContextHolder 가 채워지지 않아, sse 연결중 에러를 내긴 함
             // TODO: 다르게 처리할 방법이 있는지 확인
             .requestMatchers("/notifications/sse").permitAll()
             .requestMatchers("/notifications/**").authenticated()

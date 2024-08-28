@@ -90,12 +90,12 @@ class DinerServiceTest {
       .domain("example.com")
       .build();
 
-  // 테스트에서 목으로 사용될 member. diner를 가져올 때, 적절한 member가 아니면 가져올 수 없음
+  // 테스트에서 목으로 사용될 member. diner 를 가져올 때, 적절한 member 가 아니면 가져올 수 없음
   Member member1 = Member.builder()
       .id(1L)
       .email("kys@example.com")
       .name("김영수")
-      .role(Role.USER)
+      .role(Role.VIEWER)
       .password("somehashedvalue")
       .company(company1)
       .build();
@@ -112,7 +112,7 @@ class DinerServiceTest {
 
   @BeforeEach
   public void setupMember() {
-    GrantedAuthority authority = new SimpleGrantedAuthority("USER");
+    GrantedAuthority authority = new SimpleGrantedAuthority("VIEWER");
     Collection authorities = Collections.singleton(authority); // Use raw type here
 
     Authentication authentication = mock(Authentication.class);

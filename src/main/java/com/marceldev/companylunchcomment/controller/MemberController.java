@@ -9,6 +9,7 @@ import com.marceldev.companylunchcomment.dto.member.SignInResult;
 import com.marceldev.companylunchcomment.dto.member.SignUpDto;
 import com.marceldev.companylunchcomment.dto.member.TokenDto;
 import com.marceldev.companylunchcomment.dto.member.UpdateMemberDto;
+import com.marceldev.companylunchcomment.dto.member.VerifyVerificationCodeDto;
 import com.marceldev.companylunchcomment.dto.member.WithdrawMemberDto;
 import com.marceldev.companylunchcomment.exception.member.AlreadyExistMemberException;
 import com.marceldev.companylunchcomment.exception.member.IncorrectPasswordException;
@@ -43,7 +44,7 @@ public class MemberController {
       summary = "이메일 인증번호 발송",
       description = "해당 이메일로 인증번호를 발송한다."
   )
-  @PostMapping("/members/signup/send-verification-code")
+  @PostMapping("/members/send-verification-code")
   public ResponseEntity<Void> sendVerificationCode(
       @Validated @RequestBody SendVerificationCodeDto dto
   ) {
@@ -52,16 +53,29 @@ public class MemberController {
   }
 
   @Operation(
-      summary = "회원가입",
-      description = "사용자는 회원가입을 할 수 있다. 모든 사용자는 회원가입 시 USER 권한(일반 권한)을 지닌다.<br>"
-          + "회원가입시 이메일, 이름과 비밀번호를 입력받는다. 이메일이 아이디가 되며 unique 해야한다.<br>"
-          + "구글, 네이버, 카카오, 다음, 한메일, 야후 등 이메일 공급자로부터 받은 이메일은 가입할 수 없다. 회사 도메인을 사용해야 한다.<br>"
-          + "회원가입 중 이메일을 통한 번호인증을 한다."
+      summary = "이메일 인증",
+      description = "인증번호를 입력해서 검증한다."
   )
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = "OK"),
-      @ApiResponse(responseCode = "400", description = "errorCode: 1001 - 이미 존재하는 회원<br>"
-          + "errorCode: 1002 - 인증번호가 맞지 않음", content = @Content)
+      @ApiResponse(responseCode = "400", description = "errorCode: 1002 - 인증 코드가 맞지 않음", content = @Content)
+  })
+  @PostMapping("/members/verify-verification-code")
+  public ResponseEntity<Void> verifyVerificationCode(
+      @Validated @RequestBody VerifyVerificationCodeDto dto
+  ) {
+    memberService.verifyVerificationCode(dto);
+    return ResponseEntity.ok().build();
+  }
+
+  @Operation(
+      summary = "회원가입",
+      description = "회원가입시 이메일, 이름, 비밀번호를 입력받는다.<br>"
+          + "이메일을 아이디로 사용한다.<br>"
+  )
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "OK"),
+      @ApiResponse(responseCode = "400", description = "errorCode: 1001 - 이미 존재하는 회원", content = @Content)
   })
   @PostMapping("/members/signup")
   public ResponseEntity<Void> signUp(
@@ -73,7 +87,7 @@ public class MemberController {
 
   @Operation(
       summary = "로그인",
-      description = "사용자는 로그인을 할 수 있다. 로그인시 회원가입에 사용한 아이디(이메일)와 패스워드가 일치해야 한다."
+      description = "사용자는 이메일과 비밀번호로 로그인을 할 수 있다."
   )
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = "OK"),

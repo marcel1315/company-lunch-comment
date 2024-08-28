@@ -18,14 +18,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Getter
-@ToString
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 public class Member extends BaseEntity {
@@ -54,4 +52,10 @@ public class Member extends BaseEntity {
 
   @OneToOne(mappedBy = "member")
   private PushNotificationToken token;
+
+  public void promoteToEditor() {
+    if (role == Role.VIEWER) {
+      role = Role.EDITOR;
+    }
+  }
 }
