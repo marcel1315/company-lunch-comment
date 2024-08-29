@@ -24,7 +24,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -143,12 +142,11 @@ public class CompanyService {
   }
 
   /**
-   * member email을 반환함. DB 호출을 하지 않고, SecurityContextHolder에 저장된 것을 사용
+   * member email 을 반환함. DB 호출을 하지 않고, SecurityContextHolder 에 저장된 것을 사용
    */
   private String getMemberEmail() {
-    UserDetails user = (UserDetails) SecurityContextHolder.getContext()
+    return (String) SecurityContextHolder.getContext()
         .getAuthentication()
         .getPrincipal();
-    return user.getUsername();
   }
 }

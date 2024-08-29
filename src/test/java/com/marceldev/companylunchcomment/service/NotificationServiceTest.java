@@ -7,14 +7,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.marceldev.companylunchcomment.dto.member.SecurityMember;
 import com.marceldev.companylunchcomment.entity.Member;
 import com.marceldev.companylunchcomment.entity.PushNotificationToken;
 import com.marceldev.companylunchcomment.repository.member.MemberRepository;
 import com.marceldev.companylunchcomment.repository.pushnotificatontoken.PushNotificationTokenRepository;
 import com.marceldev.companylunchcomment.type.Role;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +23,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -56,13 +55,8 @@ class NotificationServiceTest {
   @BeforeEach
   public void setupMember() {
     GrantedAuthority authority = new SimpleGrantedAuthority("VIEWER");
-    Collection authorities = Collections.singleton(authority); // Use raw type here
-
-    Authentication authentication = mock(Authentication.class);
-    lenient().when(authentication.getAuthorities()).thenReturn(authorities);
-
-    SecurityMember securityMember = SecurityMember.builder().member(member1).build();
-    lenient().when(authentication.getPrincipal()).thenReturn(securityMember);
+    Authentication authentication = new UsernamePasswordAuthenticationToken(member1.getEmail(),
+        null, List.of(authority));
 
     SecurityContext securityContext = mock(SecurityContext.class);
     lenient().when(securityContext.getAuthentication()).thenReturn(authentication);

@@ -2,10 +2,7 @@ package com.marceldev.companylunchcomment.service;
 
 import com.marceldev.companylunchcomment.component.EmailSender;
 import com.marceldev.companylunchcomment.dto.member.ChangePasswordDto;
-import com.marceldev.companylunchcomment.dto.member.SecurityMember;
 import com.marceldev.companylunchcomment.dto.member.SendVerificationCodeDto;
-import com.marceldev.companylunchcomment.dto.member.SignInDto;
-import com.marceldev.companylunchcomment.dto.member.SignInResult;
 import com.marceldev.companylunchcomment.dto.member.SignUpDto;
 import com.marceldev.companylunchcomment.dto.member.UpdateMemberDto;
 import com.marceldev.companylunchcomment.dto.member.VerifyVerificationCodeDto;
@@ -26,9 +23,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class MemberService implements UserDetailsService {
+public class MemberService {
 
   private static final int VERIFICATION_CODE_VALID_SECOND = 60 * 3;
 
@@ -67,20 +61,6 @@ public class MemberService implements UserDetailsService {
         .build();
 
     memberRepository.save(member);
-  }
-
-  /**
-   * 로그인
-   */
-  public SignInResult signIn(SignInDto dto) {
-    Member member = memberRepository.findByEmail(dto.getEmail())
-        .orElseThrow(MemberNotExistException::new);
-
-    if (!passwordEncoder.matches(dto.getPassword(), member.getPassword())) {
-      throw new IncorrectPasswordException();
-    }
-
-    return new SignInResult(member.getEmail(), member.getRole());
   }
 
   /**
@@ -144,19 +124,6 @@ public class MemberService implements UserDetailsService {
     memberRepository.delete(member);
   }
 
-  /**
-   * Spring Security 의 UserDetailsService 의 메서드 구현 Spring Security 의 username 으로 해당 서비스의 email 이
-   * 사용됨
-   */
-  @Override
-  public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-    return memberRepository.findByEmail(email)
-        .map(SecurityMember::new)
-        .orElseThrow(
-            () -> new UsernameNotFoundException(String.format("Member email not found: %s", email))
-        );
-  }
-
   @Scheduled(cron = "${scheduler.clear-verification-code.cron}")
   public void clearUnusedVerificationCodes() {
     int rows = verificationRepository.deleteAllExpiredVerificationCode(LocalDateTime.now());
@@ -203,10 +170,9 @@ public class MemberService implements UserDetailsService {
    * member 를 찾아 반환함. 토큰에 들어있던 사용자가 접근할 수 있는 member id 인지 체크하고 반환함
    */
   private Member getMember(long id) {
-    UserDetails user = (UserDetails) SecurityContextHolder.getContext()
+    String email = (String) SecurityContextHolder.getContext()
         .getAuthentication()
         .getPrincipal();
-    String email = user.getUsername();
     return memberRepository.findByIdAndEmail(id, email)
         .orElseThrow(MemberUnauthorizedException::new);
   }
@@ -215,10 +181,9 @@ public class MemberService implements UserDetailsService {
    * member 를 찾아 반환함.
    */
   private Member getMember() {
-    UserDetails user = (UserDetails) SecurityContextHolder.getContext()
+    String email = (String) SecurityContextHolder.getContext()
         .getAuthentication()
         .getPrincipal();
-    String email = user.getUsername();
     return memberRepository.findByEmail(email)
         .orElseThrow(MemberNotExistException::new);
   }

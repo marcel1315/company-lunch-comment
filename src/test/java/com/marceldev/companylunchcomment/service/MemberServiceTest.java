@@ -14,10 +14,7 @@ import static org.mockito.Mockito.when;
 
 import com.marceldev.companylunchcomment.component.EmailSender;
 import com.marceldev.companylunchcomment.dto.member.ChangePasswordDto;
-import com.marceldev.companylunchcomment.dto.member.SecurityMember;
 import com.marceldev.companylunchcomment.dto.member.SendVerificationCodeDto;
-import com.marceldev.companylunchcomment.dto.member.SignInDto;
-import com.marceldev.companylunchcomment.dto.member.SignInResult;
 import com.marceldev.companylunchcomment.dto.member.SignUpDto;
 import com.marceldev.companylunchcomment.dto.member.UpdateMemberDto;
 import com.marceldev.companylunchcomment.dto.member.VerifyVerificationCodeDto;
@@ -27,14 +24,12 @@ import com.marceldev.companylunchcomment.entity.Member;
 import com.marceldev.companylunchcomment.entity.Verification;
 import com.marceldev.companylunchcomment.exception.member.AlreadyExistMemberException;
 import com.marceldev.companylunchcomment.exception.member.IncorrectPasswordException;
-import com.marceldev.companylunchcomment.exception.member.MemberNotExistException;
 import com.marceldev.companylunchcomment.exception.member.MemberUnauthorizedException;
 import com.marceldev.companylunchcomment.repository.member.MemberRepository;
 import com.marceldev.companylunchcomment.repository.verification.VerificationRepository;
 import com.marceldev.companylunchcomment.type.Role;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,6 +40,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -83,13 +79,8 @@ class MemberServiceTest {
   @BeforeEach
   public void setupMember() {
     GrantedAuthority authority = new SimpleGrantedAuthority("VIEWER");
-    Collection authorities = Collections.singleton(authority); // Use raw type here
-
-    Authentication authentication = mock(Authentication.class);
-    lenient().when(authentication.getAuthorities()).thenReturn(authorities);
-
-    SecurityMember securityMember = SecurityMember.builder().member(member1).build();
-    lenient().when(authentication.getPrincipal()).thenReturn(securityMember);
+    Authentication authentication = new UsernamePasswordAuthenticationToken(member1.getEmail(),
+        null, List.of(authority));
 
     SecurityContext securityContext = mock(SecurityContext.class);
     lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
@@ -144,69 +135,6 @@ class MemberServiceTest {
     //then
     assertThrows(AlreadyExistMemberException.class,
         () -> memberService.signUp(dto));
-  }
-
-  @Test
-  @DisplayName("로그인 - 성공")
-  void sign_in() {
-    //given
-    SignInDto dto = SignInDto.builder()
-        .email("hello@example.com")
-        .password("a1234")
-        .build();
-    when(memberRepository.findByEmail(any()))
-        .thenReturn(Optional.of(Member.builder()
-            .id(1L)
-            .email("hello@example.com")
-            .role(Role.VIEWER)
-            .build()));
-    when(passwordEncoder.matches(eq(dto.getPassword()), any()))
-        .thenReturn(true);
-
-    //when
-    SignInResult result = memberService.signIn(dto);
-
-    //then
-    assertEquals(result.getEmail(), "hello@example.com");
-  }
-
-  @Test
-  @DisplayName("로그인 - 실패(해당 이메일이 없음)")
-  void sign_in_fail_no_email() {
-    //given
-    SignInDto dto = SignInDto.builder()
-        .email("hello@example.com")
-        .password("a1234")
-        .build();
-    when(memberRepository.findByEmail(any()))
-        .thenThrow(MemberNotExistException.class);
-
-    //when
-    //then
-    assertThrows(MemberNotExistException.class,
-        () -> memberService.signIn(dto));
-  }
-
-  @Test
-  @DisplayName("로그인 - 실패(비밀번호가 틀림)")
-  void sign_in_fail_incorrect_password() {
-    //given
-    SignInDto dto = SignInDto.builder()
-        .email("hello@example.com")
-        .password("a1234")
-        .build();
-    when(memberRepository.findByEmail(any()))
-        .thenReturn(Optional.of(Member.builder()
-            .id(1L)
-            .email("hello@example.com")
-            .build()));
-    when(passwordEncoder.matches(eq(dto.getPassword()), any()))
-        .thenReturn(false);
-
-    //when
-    //then
-    assertThrows(IncorrectPasswordException.class,
-        () -> memberService.signIn(dto));
   }
 
   @Test

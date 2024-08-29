@@ -5,14 +5,15 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -27,8 +28,6 @@ public class TokenProvider {
   private String secretKey;
 
   private static final String KEY_ROLE = "role";
-
-  private final UserDetailsService userDetailsService;
 
   private long getExpiredInSecond() {
     return 1000 * 60 * 60 * expiredInHour;
@@ -87,7 +86,11 @@ public class TokenProvider {
 
   public Authentication getAuthentication(String token) {
     String username = getUsername(token);
-    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-    return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+    GrantedAuthority authority = new SimpleGrantedAuthority(getRole(token));
+    return new UsernamePasswordAuthenticationToken(
+        username,
+        null,
+        List.of(authority)
+    );
   }
 }

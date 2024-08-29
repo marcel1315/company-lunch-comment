@@ -1,13 +1,9 @@
 package com.marceldev.companylunchcomment.controller;
 
-import com.marceldev.companylunchcomment.component.TokenProvider;
 import com.marceldev.companylunchcomment.dto.error.ErrorResponse;
 import com.marceldev.companylunchcomment.dto.member.ChangePasswordDto;
 import com.marceldev.companylunchcomment.dto.member.SendVerificationCodeDto;
-import com.marceldev.companylunchcomment.dto.member.SignInDto;
-import com.marceldev.companylunchcomment.dto.member.SignInResult;
 import com.marceldev.companylunchcomment.dto.member.SignUpDto;
-import com.marceldev.companylunchcomment.dto.member.TokenDto;
 import com.marceldev.companylunchcomment.dto.member.UpdateMemberDto;
 import com.marceldev.companylunchcomment.dto.member.VerifyVerificationCodeDto;
 import com.marceldev.companylunchcomment.dto.member.WithdrawMemberDto;
@@ -37,8 +33,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberController {
 
   private final MemberService memberService;
-
-  private final TokenProvider tokenProvider;
 
   @Operation(
       summary = "이메일 인증번호 발송",
@@ -83,23 +77,6 @@ public class MemberController {
   ) {
     memberService.signUp(signUpDto);
     return ResponseEntity.ok().build();
-  }
-
-  @Operation(
-      summary = "로그인",
-      description = "사용자는 이메일과 비밀번호로 로그인을 할 수 있다."
-  )
-  @ApiResponses({
-      @ApiResponse(responseCode = "200", description = "OK"),
-      @ApiResponse(responseCode = "400", description = "errorCode: 1003 - 비밀번호가 맞지 않음", content = @Content)
-  })
-  @PostMapping("/members/signin")
-  public ResponseEntity<TokenDto> signIn(
-      @Validated @RequestBody SignInDto signInDto
-  ) {
-    SignInResult result = memberService.signIn(signInDto);
-    String token = tokenProvider.generateToken(result.getEmail(), result.getRoleString());
-    return ResponseEntity.ok(new TokenDto(token));
   }
 
   @Operation(

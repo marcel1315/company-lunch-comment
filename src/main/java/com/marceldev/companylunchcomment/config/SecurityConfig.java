@@ -1,6 +1,7 @@
 package com.marceldev.companylunchcomment.config;
 
 import com.marceldev.companylunchcomment.filter.JwtAuthenticationFilter;
+import com.marceldev.companylunchcomment.filter.SignInAuthenticationFilter;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -10,7 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -18,14 +19,15 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class SecurityConfiguration {
+public class SecurityConfig {
 
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
+  private final SignInAuthenticationFilter signInAuthenticationFilter;
 
   @Bean
   public SecurityFilterChain configure(HttpSecurity http) throws Exception {
-    http
-        .csrf(AbstractHttpConfigurer::disable)
+    return http
+        .csrf(AbstractHttpConfigurer::disable) // Header 에서 jwt 토큰을 이용
         .httpBasic(AbstractHttpConfigurer::disable)
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .sessionManagement(session ->
@@ -54,9 +56,9 @@ public class SecurityConfiguration {
             .requestMatchers("/companies/**").authenticated()
             .anyRequest().authenticated()
         )
-        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
-    return http.build();
+        .addFilterAt(signInAuthenticationFilter, BasicAuthenticationFilter.class)
+        .addFilterAfter(jwtAuthenticationFilter, BasicAuthenticationFilter.class)
+        .build();
   }
 
   @Bean

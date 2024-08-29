@@ -43,4 +43,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
     return null;
   }
+
+  @Override
+  protected boolean shouldNotFilter(HttpServletRequest request) {
+    return request.getServletPath().equals("/members/signin"); // signin 이면 필터 미적용
+  }
 }

@@ -20,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -113,13 +112,12 @@ public class ReplyService {
   }
 
   /**
-   * member를 찾아 반환함
+   * member 를 찾아 반환함
    */
   private Member getMember() {
-    UserDetails user = (UserDetails) SecurityContextHolder.getContext()
+    String email = (String) SecurityContextHolder.getContext()
         .getAuthentication()
         .getPrincipal();
-    String email = user.getUsername();
     return memberRepository.findByEmail(email)
         .orElseThrow(MemberNotExistException::new);
   }

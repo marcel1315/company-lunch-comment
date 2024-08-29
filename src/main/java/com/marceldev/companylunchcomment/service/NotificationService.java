@@ -17,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -162,9 +161,8 @@ public class NotificationService {
   }
 
   private String getMemberEmail() {
-    UserDetails user = (UserDetails) SecurityContextHolder.getContext()
+    return (String) SecurityContextHolder.getContext()
         .getAuthentication()
         .getPrincipal();
-    return user.getUsername();
   }
 }

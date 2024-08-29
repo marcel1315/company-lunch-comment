@@ -27,6 +27,6 @@ import io.swagger.v3.oas.annotations.servers.Server;
     }
 )
 @SecurityScheme(name = "BearerAuth", scheme = "bearer", type = SecuritySchemeType.HTTP, in = SecuritySchemeIn.HEADER)
-public class SwaggerConfiguration {
+public class SwaggerConfig {
 
 }
