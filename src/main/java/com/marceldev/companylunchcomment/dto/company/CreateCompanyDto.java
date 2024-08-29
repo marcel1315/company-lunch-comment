@@ -20,6 +20,10 @@ public class CreateCompanyDto {
   private String address;
 
   @NotNull
+  @Schema(example = "company123")
+  private String enterKey;
+
+  @NotNull
   @Schema(example = "37.5665")
   private double latitude;
 
@@ -27,11 +31,11 @@ public class CreateCompanyDto {
   @Schema(example = "126.9780")
   private double longitude;
 
-  public Company toEntityWithDomain(String domain) {
+  public Company toEntity() {
     return Company.builder()
         .name(name)
         .address(address)
-        .domain(domain)
+        .enterKey(enterKey)
         .location(LocationUtil.createPoint(longitude, latitude))
         .build();
   }

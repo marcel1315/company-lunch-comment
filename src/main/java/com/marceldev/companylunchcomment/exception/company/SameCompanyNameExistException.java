@@ -5,6 +5,6 @@ import com.marceldev.companylunchcomment.exception.common.CustomException;
 public class SameCompanyNameExistException extends CustomException {
 
   public SameCompanyNameExistException() {
-    super("Same company name exists in same domain");
+    super("Same company name exists");
   }
 }

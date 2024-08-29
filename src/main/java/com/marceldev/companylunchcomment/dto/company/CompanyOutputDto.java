@@ -13,7 +13,7 @@ public class CompanyOutputDto {
   private Long id;
   private String name;
   private String address;
-  private String domain;
+  private String enterKey;
   private Double latitude;
   private Double longitude;
 
@@ -22,7 +22,7 @@ public class CompanyOutputDto {
         .id(company.getId())
         .name(company.getName())
         .address(company.getAddress())
-        .domain(company.getDomain())
+        .enterKey(company.getEnterKey())
         .latitude(Optional.ofNullable(company.getLocation()).map(Point::getX).orElse(null))
         .longitude(Optional.ofNullable(company.getLocation()).map(Point::getY).orElse(null))
         .build();

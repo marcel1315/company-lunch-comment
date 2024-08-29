@@ -35,8 +35,8 @@ public class Company extends BaseEntity {
   @Column(length = 100)
   private String address;
 
-  @Column(length = 100)
-  private String domain;
+  @Setter
+  private String enterKey;
 
   @Setter
   private Point location;

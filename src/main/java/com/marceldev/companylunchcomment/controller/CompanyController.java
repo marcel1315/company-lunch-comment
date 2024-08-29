@@ -1,5 +1,6 @@
 package com.marceldev.companylunchcomment.controller;
 
+import com.marceldev.companylunchcomment.dto.company.ChooseCompanyDto;
 import com.marceldev.companylunchcomment.dto.company.CompanyOutputDto;
 import com.marceldev.companylunchcomment.dto.company.CreateCompanyDto;
 import com.marceldev.companylunchcomment.dto.company.GetCompanyListDto;
@@ -95,9 +96,10 @@ public class CompanyController {
   )
   @PutMapping("/companies/{id}/choose")
   public ResponseEntity<Void> chooseCompany(
-      @PathVariable long id
+      @PathVariable long id,
+      @Validated @RequestBody ChooseCompanyDto chooseCompanyDto
   ) {
-    companyService.chooseCompany(id);
+    companyService.chooseCompany(id, chooseCompanyDto);
     return ResponseEntity.ok().build();
   }
 

@@ -9,6 +9,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.marceldev.companylunchcomment.dto.company.ChooseCompanyDto;
 import com.marceldev.companylunchcomment.dto.company.CompanyOutputDto;
 import com.marceldev.companylunchcomment.dto.company.CreateCompanyDto;
 import com.marceldev.companylunchcomment.dto.company.GetCompanyListDto;
@@ -70,7 +71,7 @@ class CompanyServiceTest {
       .name("좋은회사")
       .address("서울특별시 강남구 강남대로 200")
       .location(LocationUtil.createPoint(127.123123, 37.123123))
-      .domain("example.com")
+      .enterKey("company123")
       .build();
 
   // 테스트에서 목으로 사용될 member. diner를 가져올 때, 적절한 member가 아니면 가져올 수 없음
@@ -110,10 +111,11 @@ class CompanyServiceTest {
     CreateCompanyDto dto = CreateCompanyDto.builder()
         .name("좋은회사")
         .address("서울시 강남구 역삼동 123-456")
+        .enterKey("company123")
         .latitude(37.123456)
         .longitude(127.123456)
         .build();
-    when(companyRepository.existsByDomainAndName(any(), any()))
+    when(companyRepository.existsCompanyByName(any()))
         .thenReturn(false);
 
     //when
@@ -125,7 +127,7 @@ class CompanyServiceTest {
     assertEquals("좋은회사", captor.getValue().getName());
     assertEquals("서울시 강남구 역삼동 123-456", captor.getValue().getAddress());
     assertEquals(LocationUtil.createPoint(127.123456, 37.123456), captor.getValue().getLocation());
-    assertEquals("example.com", captor.getValue().getDomain());
+    assertEquals("company123", captor.getValue().getEnterKey());
   }
 
   @Test
@@ -138,7 +140,7 @@ class CompanyServiceTest {
         .latitude(37.123456)
         .longitude(127.123456)
         .build();
-    when(companyRepository.existsByDomainAndName(any(), any()))
+    when(companyRepository.existsCompanyByName(any()))
         .thenReturn(true);
 
     //when
@@ -319,14 +321,17 @@ class CompanyServiceTest {
         .name("감정타코 강남점")
         .address("서울시 강남구 역삼동 123-456")
         .location(LocationUtil.createPoint(127.123456, 37.123456))
-        .domain("example.com")
+        .enterKey("company123")
         .build();
-    when(companyRepository.findById(anyLong()))
-        .thenReturn(Optional.of(company));
+
+    ChooseCompanyDto dto = new ChooseCompanyDto("company123");
 
     //when
+    when(companyRepository.findById(1L))
+        .thenReturn(Optional.of(company));
+
     //then
-    companyService.chooseCompany(1L);
+    companyService.chooseCompany(1L, dto);
   }
 
   @Test
@@ -338,38 +343,14 @@ class CompanyServiceTest {
         .email("hello@example.com")
         .role(Role.VIEWER)
         .build();
+    ChooseCompanyDto dto = new ChooseCompanyDto("company123");
+
+    //when
     when(companyRepository.findById(1L))
         .thenReturn(Optional.empty());
 
-    //when
     //then
     assertThrows(CompanyNotExistException.class,
-        () -> companyService.chooseCompany(1L));
-  }
-
-  @Test
-  @DisplayName("회사 선택하기 - 실패(회사가 있지만, 사용자의 이메일 도메인과 회사 도메인이 다름")
-  void choose_company_fail_different_company_domain() {
-    //given
-    String email = "hello@example.com";
-    Member member = Member.builder()
-        .id(1L)
-        .email(email)
-        .role(Role.VIEWER)
-        .build();
-    Company company = Company.builder()
-        .id(1L)
-        .name("감정타코 강남점")
-        .address("서울시 강남구 역삼동 123-456")
-        .location(LocationUtil.createPoint(127.123456, 37.123456))
-        .domain("example.net") // example.com 이 아닌 도메인
-        .build();
-    when(companyRepository.findById(1L))
-        .thenReturn(Optional.of(company));
-
-    //when
-    //then
-    assertThrows(CompanyNotExistException.class,
-        () -> companyService.chooseCompany(1L));
+        () -> companyService.chooseCompany(1L, dto));
   }
 }

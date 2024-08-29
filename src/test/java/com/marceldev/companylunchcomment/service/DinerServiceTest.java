@@ -85,7 +85,7 @@ class DinerServiceTest {
       .name("좋은회사")
       .address("서울특별시 강남구 강남대로 200")
       .location(LocationUtil.createPoint(127.123123, 37.123123))
-      .domain("example.com")
+      .enterKey("company123")
       .build();
 
   // 테스트에서 목으로 사용될 member. diner 를 가져올 때, 적절한 member 가 아니면 가져올 수 없음

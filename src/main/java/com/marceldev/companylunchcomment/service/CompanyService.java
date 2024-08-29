@@ -1,6 +1,7 @@
 package com.marceldev.companylunchcomment.service;
 
 import com.marceldev.companylunchcomment.component.EmailSender;
+import com.marceldev.companylunchcomment.dto.company.ChooseCompanyDto;
 import com.marceldev.companylunchcomment.dto.company.CompanyOutputDto;
 import com.marceldev.companylunchcomment.dto.company.CreateCompanyDto;
 import com.marceldev.companylunchcomment.dto.company.GetCompanyListDto;
@@ -51,12 +52,11 @@ public class CompanyService {
   @Transactional
   public void createCompany(CreateCompanyDto dto) {
     String email = getMemberEmail();
-    String domain = ExtractDomainUtil.from(email);
 
-    if (companyRepository.existsByDomainAndName(domain, dto.getName())) {
+    if (companyRepository.existsCompanyByName(dto.getName())) {
       throw new SameCompanyNameExistException();
     }
-    Company company = dto.toEntityWithDomain(domain);
+    Company company = dto.toEntity();
 
     companyRepository.save(company);
   }
@@ -114,12 +114,18 @@ public class CompanyService {
    * 회사 선택하기
    */
   @Transactional
-  public void chooseCompany(long companyId) {
+  public void chooseCompany(long companyId, ChooseCompanyDto dto) {
     String email = getMemberEmail();
     Member member = memberRepository.findByEmail(email)
         .orElseThrow(MemberNotExistException::new);
+
+    System.out.println("dto.getEnterKey() = " + dto.getEnterKey());
+    Company company0 = companyRepository.findById(companyId)
+        .orElseThrow(CompanyNotExistException::new);
+    System.out.println("company0.getEnterKey() = " + company0.getEnterKey());
+    
     Company company = companyRepository.findById(companyId)
-        .filter(c -> c.getDomain().equals(ExtractDomainUtil.from(email)))
+        .filter(c -> c.getEnterKey().equals(dto.getEnterKey()))
         .orElseThrow(CompanyNotExistException::new);
 
     member.setCompany(company);

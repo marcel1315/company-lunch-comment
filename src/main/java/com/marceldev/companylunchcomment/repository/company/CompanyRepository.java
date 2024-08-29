@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface CompanyRepository extends JpaRepository<Company, Long> {
 
-  boolean existsByDomainAndName(String domain, String name);
+  boolean existsCompanyByName(String name);
 
   @Query("select c "
       + "from Company c "
