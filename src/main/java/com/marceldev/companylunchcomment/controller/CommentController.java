@@ -10,8 +10,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -57,12 +55,8 @@ public class CommentController {
       @PathVariable long id,
       @Validated @ModelAttribute GetCommentListDto getCommentListDto
   ) {
-    Pageable pageable = PageRequest.of(
-        getCommentListDto.getPage(),
-        getCommentListDto.getSize()
-    );
     Page<CommentOutputDto> comments = commentService.getCommentList(
-        id, getCommentListDto, pageable
+        id, getCommentListDto
     );
     return ResponseEntity.ok(comments);
   }

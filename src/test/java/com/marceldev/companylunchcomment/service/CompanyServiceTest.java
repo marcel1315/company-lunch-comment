@@ -254,6 +254,8 @@ class CompanyServiceTest {
   void get_company_list() {
     //given
     GetCompanyListDto dto = GetCompanyListDto.builder()
+        .page(0)
+        .size(10)
         .sortBy(CompanySort.COMPANY_NAME)
         .sortDirection(SortDirection.ASC)
         .build();
@@ -273,11 +275,11 @@ class CompanyServiceTest {
 
     Page<Company> pages = new PageImpl<>(List.of(company1, company2));
     PageRequest pageable = PageRequest.of(0, 10);
-    when(companyRepository.findByDomain(any(), any()))
+    when(companyRepository.findAll(pageable))
         .thenReturn(pages);
 
     //when
-    Page<CompanyOutputDto> companies = companyService.getCompanyList(dto, pageable);
+    Page<CompanyOutputDto> companies = companyService.getCompanyList(dto);
 
     //then
     assertEquals(2, companies.getSize());
@@ -288,6 +290,8 @@ class CompanyServiceTest {
   void get_company_list_empty_page() {
     //given
     GetCompanyListDto dto = GetCompanyListDto.builder()
+        .page(0)
+        .size(10)
         .sortBy(CompanySort.COMPANY_NAME)
         .sortDirection(SortDirection.ASC)
         .build();
@@ -295,11 +299,11 @@ class CompanyServiceTest {
 
     Page<Company> pages = new PageImpl<>(List.of());
     PageRequest pageable = PageRequest.of(0, 10);
-    when(companyRepository.findByDomain(any(), any()))
+    when(companyRepository.findAll(pageable))
         .thenReturn(pages);
 
     //when
-    Page<CompanyOutputDto> companies = companyService.getCompanyList(dto, pageable);
+    Page<CompanyOutputDto> companies = companyService.getCompanyList(dto);
 
     //then
     assertEquals(0, companies.getSize());

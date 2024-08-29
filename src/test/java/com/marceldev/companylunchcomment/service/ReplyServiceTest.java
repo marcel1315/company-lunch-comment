@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.marceldev.companylunchcomment.dto.reply.CreateReplyDto;
+import com.marceldev.companylunchcomment.dto.reply.GetReplyListDto;
 import com.marceldev.companylunchcomment.dto.reply.UpdateReplyDto;
 import com.marceldev.companylunchcomment.entity.Comment;
 import com.marceldev.companylunchcomment.entity.Company;
@@ -238,6 +239,10 @@ class ReplyServiceTest {
             .member(member1)
             .build()
     ));
+    GetReplyListDto dto = GetReplyListDto.builder()
+        .page(0)
+        .size(10)
+        .build();
     PageRequest pageable = PageRequest.of(0, 10);
 
     //when
@@ -252,6 +257,6 @@ class ReplyServiceTest {
         .thenReturn(Optional.of(company1));
 
     //then
-    replyService.getReplyList(1L, pageable);
+    replyService.getReplyList(1L, dto);
   }
 }

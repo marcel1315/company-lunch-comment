@@ -14,8 +14,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -86,11 +84,7 @@ public class CompanyController {
   public ResponseEntity<Page<CompanyOutputDto>> getCompanyList(
       @Validated @ModelAttribute GetCompanyListDto getCompanyListDto
   ) {
-    Pageable pageable = PageRequest.of(
-        getCompanyListDto.getPage(),
-        getCompanyListDto.getSize()
-    );
-    Page<CompanyOutputDto> companies = companyService.getCompanyList(getCompanyListDto, pageable);
+    Page<CompanyOutputDto> companies = companyService.getCompanyList(getCompanyListDto);
     return ResponseEntity.ok(companies);
   }
 

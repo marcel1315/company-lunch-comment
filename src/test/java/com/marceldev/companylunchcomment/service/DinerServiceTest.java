@@ -50,7 +50,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -330,6 +329,8 @@ class DinerServiceTest {
   void test_get_diner_list() {
     //given
     GetDinerListDto dto = GetDinerListDto.builder()
+        .page(0)
+        .size(10)
         .sortBy(DinerSort.DINER_NAME)
         .sortDirection(SortDirection.ASC)
         .build();
@@ -354,10 +355,9 @@ class DinerServiceTest {
     Page<DinerOutputDto> pages = new PageImpl<>(List.of(diner1, diner2));
     when(dinerRepository.getList(anyLong(), any(), any()))
         .thenReturn(pages);
-    PageRequest pageable = PageRequest.of(0, 10);
 
     //when
-    Page<DinerOutputDto> page = dinerService.getDinerList(dto, pageable);
+    Page<DinerOutputDto> page = dinerService.getDinerList(dto);
 
     //then
     assertEquals(page.getContent().size(), 2);

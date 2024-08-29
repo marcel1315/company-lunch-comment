@@ -2,8 +2,6 @@ package com.marceldev.companylunchcomment.repository.company;
 
 import com.marceldev.companylunchcomment.entity.Company;
 import java.util.Optional;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,8 +9,6 @@ import org.springframework.data.repository.query.Param;
 public interface CompanyRepository extends JpaRepository<Company, Long> {
 
   boolean existsByDomainAndName(String domain, String name);
-
-  Page<Company> findByDomain(String domain, Pageable pageable);
 
   @Query("select c "
       + "from Company c "

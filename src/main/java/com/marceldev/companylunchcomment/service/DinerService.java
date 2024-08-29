@@ -28,6 +28,7 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -63,8 +64,12 @@ public class DinerService {
   /**
    * 식당 목록 조회
    */
-  public Page<DinerOutputDto> getDinerList(GetDinerListDto dto, Pageable pageable) {
+  public Page<DinerOutputDto> getDinerList(GetDinerListDto dto) {
     Company company = getCompany();
+    Pageable pageable = PageRequest.of(
+        dto.getPage(),
+        dto.getSize()
+    );
     return dinerRepository.getList(company.getId(), dto, pageable);
   }
 

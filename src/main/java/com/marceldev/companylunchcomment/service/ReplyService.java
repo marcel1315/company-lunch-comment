@@ -1,6 +1,7 @@
 package com.marceldev.companylunchcomment.service;
 
 import com.marceldev.companylunchcomment.dto.reply.CreateReplyDto;
+import com.marceldev.companylunchcomment.dto.reply.GetReplyListDto;
 import com.marceldev.companylunchcomment.dto.reply.ReplyOutputDto;
 import com.marceldev.companylunchcomment.dto.reply.UpdateReplyDto;
 import com.marceldev.companylunchcomment.entity.Comment;
@@ -18,6 +19,7 @@ import com.marceldev.companylunchcomment.repository.member.MemberRepository;
 import com.marceldev.companylunchcomment.repository.reply.ReplyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -59,8 +61,13 @@ public class ReplyService {
   /**
    * 댓글 조회
    */
-  public Page<ReplyOutputDto> getReplyList(long commentId, Pageable pageable) {
+  public Page<ReplyOutputDto> getReplyList(long commentId, GetReplyListDto dto) {
     checkDinerByCommentId(commentId);
+
+    Pageable pageable = PageRequest.of(
+        dto.getPage(),
+        dto.getSize()
+    );
 
     Comment comment = commentRepository.findById(commentId)
         .orElseThrow(CommentNotFoundException::new);

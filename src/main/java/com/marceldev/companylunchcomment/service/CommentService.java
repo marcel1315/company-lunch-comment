@@ -15,6 +15,7 @@ import com.marceldev.companylunchcomment.repository.diner.DinerRepository;
 import com.marceldev.companylunchcomment.repository.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -56,7 +57,11 @@ public class CommentService {
    * 식당의 코멘트 조회
    */
   public Page<CommentOutputDto> getCommentList(long dinerId,
-      GetCommentListDto dto, Pageable pageable) {
+      GetCommentListDto dto) {
+    Pageable pageable = PageRequest.of(
+        dto.getPage(),
+        dto.getSize()
+    );
     Member member = getMember();
     return commentRepository.getList(dto, member.getId(), dinerId, pageable)
         .map(c -> CommentOutputDto.of(c, c.getMember().getName()));

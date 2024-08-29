@@ -183,6 +183,8 @@ class CommentServiceTest {
   void get_comment_list() {
     //given
     GetCommentListDto dto = GetCommentListDto.builder()
+        .page(0)
+        .size(20)
         .sortBy(CommentSort.CREATED_AT)
         .sortDirection(SortDirection.ASC)
         .commentedBy("김영수")
@@ -208,8 +210,7 @@ class CommentServiceTest {
         .thenReturn(pages);
 
     //when
-    Page<CommentOutputDto> commentsPage = commentService.getCommentList(1L, dto,
-        pageable);
+    Page<CommentOutputDto> commentsPage = commentService.getCommentList(1L, dto);
 
     //then
     assertEquals(2, commentsPage.getContent().size());
