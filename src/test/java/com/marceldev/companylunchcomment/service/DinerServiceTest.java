@@ -24,7 +24,7 @@ import com.marceldev.companylunchcomment.entity.Diner;
 import com.marceldev.companylunchcomment.entity.DinerImage;
 import com.marceldev.companylunchcomment.entity.DinerSubscription;
 import com.marceldev.companylunchcomment.entity.Member;
-import com.marceldev.companylunchcomment.exception.company.CompanyNotExistException;
+import com.marceldev.companylunchcomment.exception.company.CompanyNotFoundException;
 import com.marceldev.companylunchcomment.exception.diner.AlreadySubscribedException;
 import com.marceldev.companylunchcomment.exception.diner.DinerNotFoundException;
 import com.marceldev.companylunchcomment.exception.diner.DinerSubscriptionNotFoundException;
@@ -190,7 +190,7 @@ class DinerServiceTest {
     //when
     //then
     assertThrows(
-        CompanyNotExistException.class,
+        CompanyNotFoundException.class,
         () -> dinerService.createDiner(dto)
     );
   }

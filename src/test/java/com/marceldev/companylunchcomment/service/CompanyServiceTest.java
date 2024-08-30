@@ -17,7 +17,7 @@ import com.marceldev.companylunchcomment.dto.company.UpdateCompanyDto;
 import com.marceldev.companylunchcomment.entity.Company;
 import com.marceldev.companylunchcomment.entity.Member;
 import com.marceldev.companylunchcomment.entity.Verification;
-import com.marceldev.companylunchcomment.exception.company.CompanyNotExistException;
+import com.marceldev.companylunchcomment.exception.company.CompanyNotFoundException;
 import com.marceldev.companylunchcomment.exception.company.SameCompanyNameExistException;
 import com.marceldev.companylunchcomment.exception.member.VerificationCodeNotFoundException;
 import com.marceldev.companylunchcomment.repository.company.CompanyRepository;
@@ -191,7 +191,7 @@ class CompanyServiceTest {
 
     //when
     //then
-    assertThrows(CompanyNotExistException.class,
+    assertThrows(CompanyNotFoundException.class,
         () -> companyService.updateCompany(1L, dto));
   }
 
@@ -350,7 +350,7 @@ class CompanyServiceTest {
         .thenReturn(Optional.empty());
 
     //then
-    assertThrows(CompanyNotExistException.class,
+    assertThrows(CompanyNotFoundException.class,
         () -> companyService.chooseCompany(1L, dto));
   }
 }

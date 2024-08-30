@@ -11,7 +11,7 @@ import com.marceldev.companylunchcomment.entity.Member;
 import com.marceldev.companylunchcomment.entity.Verification;
 import com.marceldev.companylunchcomment.exception.member.AlreadyExistMemberException;
 import com.marceldev.companylunchcomment.exception.member.IncorrectPasswordException;
-import com.marceldev.companylunchcomment.exception.member.MemberNotExistException;
+import com.marceldev.companylunchcomment.exception.member.MemberNotFoundException;
 import com.marceldev.companylunchcomment.exception.member.MemberUnauthorizedException;
 import com.marceldev.companylunchcomment.exception.member.VerificationCodeNotFoundException;
 import com.marceldev.companylunchcomment.repository.member.MemberRepository;
@@ -185,6 +185,6 @@ public class MemberService {
         .getAuthentication()
         .getPrincipal();
     return memberRepository.findByEmail(email)
-        .orElseThrow(MemberNotExistException::new);
+        .orElseThrow(MemberNotFoundException::new);
   }
 }

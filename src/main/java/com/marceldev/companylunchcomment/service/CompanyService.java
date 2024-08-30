@@ -10,14 +10,13 @@ import com.marceldev.companylunchcomment.dto.member.SendVerificationCodeDto;
 import com.marceldev.companylunchcomment.entity.Company;
 import com.marceldev.companylunchcomment.entity.Member;
 import com.marceldev.companylunchcomment.entity.Verification;
-import com.marceldev.companylunchcomment.exception.company.CompanyNotExistException;
+import com.marceldev.companylunchcomment.exception.company.CompanyNotFoundException;
 import com.marceldev.companylunchcomment.exception.company.SameCompanyNameExistException;
-import com.marceldev.companylunchcomment.exception.member.MemberNotExistException;
+import com.marceldev.companylunchcomment.exception.member.MemberNotFoundException;
 import com.marceldev.companylunchcomment.exception.member.VerificationCodeNotFoundException;
 import com.marceldev.companylunchcomment.repository.company.CompanyRepository;
 import com.marceldev.companylunchcomment.repository.member.MemberRepository;
 import com.marceldev.companylunchcomment.repository.verification.VerificationRepository;
-import com.marceldev.companylunchcomment.util.ExtractDomainUtil;
 import com.marceldev.companylunchcomment.util.GenerateVerificationCodeUtil;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -82,7 +81,7 @@ public class CompanyService {
     // 회사가 존재하는지 확인
     Company company = memberRepository.findByEmailAndCompanyId(email, id)
         .map(Member::getCompany)
-        .orElseThrow(CompanyNotExistException::new);
+        .orElseThrow(CompanyNotFoundException::new);
 
     // 인증번호 확인
     Verification verification = verificationRepository.findByEmail(email)
@@ -117,16 +116,11 @@ public class CompanyService {
   public void chooseCompany(long companyId, ChooseCompanyDto dto) {
     String email = getMemberEmail();
     Member member = memberRepository.findByEmail(email)
-        .orElseThrow(MemberNotExistException::new);
-
-    System.out.println("dto.getEnterKey() = " + dto.getEnterKey());
-    Company company0 = companyRepository.findById(companyId)
-        .orElseThrow(CompanyNotExistException::new);
-    System.out.println("company0.getEnterKey() = " + company0.getEnterKey());
+        .orElseThrow(MemberNotFoundException::new);
     
     Company company = companyRepository.findById(companyId)
         .filter(c -> c.getEnterKey().equals(dto.getEnterKey()))
-        .orElseThrow(CompanyNotExistException::new);
+        .orElseThrow(CompanyNotFoundException::new);
 
     member.setCompany(company);
   }

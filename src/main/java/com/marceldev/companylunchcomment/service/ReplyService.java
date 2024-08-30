@@ -9,8 +9,8 @@ import com.marceldev.companylunchcomment.entity.Company;
 import com.marceldev.companylunchcomment.entity.Member;
 import com.marceldev.companylunchcomment.entity.Reply;
 import com.marceldev.companylunchcomment.exception.comment.CommentNotFoundException;
-import com.marceldev.companylunchcomment.exception.company.CompanyNotExistException;
-import com.marceldev.companylunchcomment.exception.member.MemberNotExistException;
+import com.marceldev.companylunchcomment.exception.company.CompanyNotFoundException;
+import com.marceldev.companylunchcomment.exception.member.MemberNotFoundException;
 import com.marceldev.companylunchcomment.exception.member.MemberUnauthorizedException;
 import com.marceldev.companylunchcomment.exception.reply.ReplyNotFoundException;
 import com.marceldev.companylunchcomment.repository.comment.CommentRepository;
@@ -126,7 +126,7 @@ public class ReplyService {
         .getAuthentication()
         .getPrincipal();
     return memberRepository.findByEmail(email)
-        .orElseThrow(MemberNotExistException::new);
+        .orElseThrow(MemberNotFoundException::new);
   }
 
   /**
@@ -136,7 +136,7 @@ public class ReplyService {
     Member member = getMember();
 
     Company company = companyRepository.findCompanyByCommentId(id)
-        .orElseThrow(CompanyNotExistException::new);
+        .orElseThrow(CompanyNotFoundException::new);
 
     if (!member.getCompany().getId().equals(company.getId())) {
       throw new MemberUnauthorizedException();
@@ -150,7 +150,7 @@ public class ReplyService {
     Member member = getMember();
 
     Company company = companyRepository.findCompanyByReplyId(id)
-        .orElseThrow(CompanyNotExistException::new);
+        .orElseThrow(CompanyNotFoundException::new);
 
     if (!member.getCompany().getId().equals(company.getId())) {
       throw new MemberUnauthorizedException();

@@ -9,7 +9,7 @@ import com.marceldev.companylunchcomment.entity.Diner;
 import com.marceldev.companylunchcomment.entity.Member;
 import com.marceldev.companylunchcomment.exception.comment.CommentNotFoundException;
 import com.marceldev.companylunchcomment.exception.diner.DinerNotFoundException;
-import com.marceldev.companylunchcomment.exception.member.MemberNotExistException;
+import com.marceldev.companylunchcomment.exception.member.MemberNotFoundException;
 import com.marceldev.companylunchcomment.repository.comment.CommentRepository;
 import com.marceldev.companylunchcomment.repository.diner.DinerRepository;
 import com.marceldev.companylunchcomment.repository.member.MemberRepository;
@@ -96,7 +96,7 @@ public class CommentService {
   private Member getMember() {
     String email = getMemberEmail();
     return memberRepository.findByEmail(email)
-        .orElseThrow(MemberNotExistException::new);
+        .orElseThrow(MemberNotFoundException::new);
   }
 
   /**

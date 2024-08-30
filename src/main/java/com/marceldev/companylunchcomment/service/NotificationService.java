@@ -5,7 +5,7 @@ import com.marceldev.companylunchcomment.config.RabbitMQConfig;
 import com.marceldev.companylunchcomment.dto.comment.NotificationMessage;
 import com.marceldev.companylunchcomment.entity.Member;
 import com.marceldev.companylunchcomment.entity.PushNotificationToken;
-import com.marceldev.companylunchcomment.exception.member.MemberNotExistException;
+import com.marceldev.companylunchcomment.exception.member.MemberNotFoundException;
 import com.marceldev.companylunchcomment.repository.member.MemberRepository;
 import com.marceldev.companylunchcomment.repository.pushnotificatontoken.PushNotificationTokenRepository;
 import java.io.IOException;
@@ -157,7 +157,7 @@ public class NotificationService {
   private Member getMember() {
     String email = getMemberEmail();
     return memberRepository.findByEmail(email)
-        .orElseThrow(MemberNotExistException::new);
+        .orElseThrow(MemberNotFoundException::new);
   }
 
   private String getMemberEmail() {
