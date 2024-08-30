@@ -118,17 +118,17 @@ public class MemberController {
     return ResponseEntity.ok().build();
   }
 
-  @ExceptionHandler(AlreadyExistMemberException.class)
+  @ExceptionHandler
   public ResponseEntity<ErrorResponse> handle(AlreadyExistMemberException e) {
     return ErrorResponse.badRequest(1001, e.getMessage());
   }
 
-  @ExceptionHandler(VerificationCodeNotFoundException.class)
+  @ExceptionHandler
   public ResponseEntity<ErrorResponse> handle(VerificationCodeNotFoundException e) {
     return ErrorResponse.badRequest(1002, e.getMessage());
   }
 
-  @ExceptionHandler(IncorrectPasswordException.class)
+  @ExceptionHandler
   public ResponseEntity<ErrorResponse> handle(IncorrectPasswordException e) {
     return ErrorResponse.badRequest(1003, e.getMessage());
   }

@@ -188,17 +188,17 @@ public class DinerController {
     return ResponseEntity.ok().build();
   }
 
-  @ExceptionHandler(DinerMaxImageCountExceedException.class)
+  @ExceptionHandler
   public ResponseEntity<ErrorResponse> handle(DinerMaxImageCountExceedException e) {
     return ErrorResponse.badRequest(3001, e.getMessage());
   }
 
-  @ExceptionHandler(DuplicateDinerTagException.class)
+  @ExceptionHandler
   public ResponseEntity<ErrorResponse> handle(DuplicateDinerTagException e) {
     return ErrorResponse.badRequest(3002, e.getMessage());
   }
 
-  @ExceptionHandler(ImageWithNoExtensionException.class)
+  @ExceptionHandler
   public ResponseEntity<ErrorResponse> handle(ImageWithNoExtensionException e) {
     return ErrorResponse.badRequest(3003, e.getMessage());
   }

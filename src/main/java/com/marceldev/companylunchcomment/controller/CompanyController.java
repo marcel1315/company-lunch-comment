@@ -108,7 +108,7 @@ public class CompanyController {
     return ResponseEntity.ok().build();
   }
 
-  @ExceptionHandler(SameCompanyNameExistException.class)
+  @ExceptionHandler
   public ResponseEntity<ErrorResponse> handle(SameCompanyNameExistException e) {
     return ErrorResponse.badRequest(2001, e.getMessage());
   }

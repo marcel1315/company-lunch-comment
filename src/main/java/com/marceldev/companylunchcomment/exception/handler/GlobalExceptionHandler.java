@@ -4,11 +4,7 @@ import com.marceldev.companylunchcomment.dto.error.ErrorResponse;
 import com.marceldev.companylunchcomment.exception.common.CustomException;
 import com.marceldev.companylunchcomment.exception.member.SignInFailException;
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -18,24 +14,19 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-  @ExceptionHandler(CustomException.class)
-  public ResponseEntity<?> handler(
+  @ExceptionHandler
+  public ResponseEntity<ErrorResponse> handler(
       CustomException e,
       HttpServletRequest request
   ) {
     log.error("CustomException, {}, {}, {}", request.getRequestURI(), e.getMessage(),
         String.valueOf(e.getCause()));
 
-    HttpHeaders headers = new HttpHeaders();
-
-    Map<String, String> body = new HashMap<>();
-    body.put("message", e.getMessage());
-
-    return new ResponseEntity<>(body, headers, HttpStatus.INTERNAL_SERVER_ERROR);
+    return ErrorResponse.serverError(9000, e.getMessage());
   }
 
   @ExceptionHandler
-  public ResponseEntity<?> handler(
+  public ResponseEntity<ErrorResponse> handler(
       SignInFailException e,
       HttpServletRequest request
   ) {
@@ -48,38 +39,29 @@ public class GlobalExceptionHandler {
     return ErrorResponse.badRequest(1004, e.getMessage());
   }
 
-  @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<Map<String, String>> handleValidation(
+  @ExceptionHandler
+  public ResponseEntity<ErrorResponse> handleValidation(
       MethodArgumentNotValidException e,
       HttpServletRequest request
   ) {
     log.error("MethodArgumentNotValidException, {}, {}, {}", request.getRequestURI(),
         e.getMessage(), String.valueOf(e.getCause()));
 
-    HttpHeaders headers = new HttpHeaders();
-
-    Map<String, String> body = new HashMap<>();
+    StringBuilder sb = new StringBuilder();
     e.getBindingResult().getFieldErrors().forEach(error -> {
-      body.put(error.getField(), error.getDefaultMessage());
+      sb.append(String.format("%s: %s\n", error.getField(), error.getDefaultMessage()));
     });
-
-    return new ResponseEntity<>(body, headers, HttpStatus.BAD_REQUEST);
+    return ErrorResponse.serverError(8000, sb.toString());
   }
 
-  @ExceptionHandler(Exception.class)
-  public ResponseEntity<?> handlerAll(
+  @ExceptionHandler
+  public ResponseEntity<ErrorResponse> handlerAll(
       Exception e,
       HttpServletRequest request
   ) {
     log.error("Exception, {}, {}, {}", request.getRequestURI(), e.getMessage(),
         String.valueOf(e.getCause()));
 
-    HttpHeaders headers = new HttpHeaders();
-
-    Map<String, String> body = new HashMap<>();
-    body.put("errorType", "unknown");
-    body.put("message", "unknown");
-
-    return new ResponseEntity<>(body, headers, HttpStatus.INTERNAL_SERVER_ERROR);
+    return ErrorResponse.serverError(9000, "unknown");
   }
 }
