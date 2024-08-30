@@ -5,6 +5,7 @@ import com.marceldev.companylunchcomment.util.LocationUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Data;
 import org.locationtech.jts.geom.Point;
@@ -18,6 +19,10 @@ public class UpdateCompanyDto {
   private String verificationCode;
 
   @NotNull
+  @Schema(example = "company123")
+  private String enterKey;
+
+  @NotNull
   @Schema(example = "서울특별시 강남구 역삼동 123-1", requiredMode = RequiredMode.NOT_REQUIRED)
   private String address;
 
@@ -28,6 +33,9 @@ public class UpdateCompanyDto {
   @NotNull
   @Schema(example = "127.202021111", requiredMode = RequiredMode.NOT_REQUIRED)
   private double longitude;
+
+  @JsonIgnore
+  private final LocalDateTime now = LocalDateTime.now();
 
   @JsonIgnore
   public Point getLocation() {

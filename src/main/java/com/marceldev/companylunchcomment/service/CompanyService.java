@@ -19,7 +19,6 @@ import com.marceldev.companylunchcomment.repository.member.MemberRepository;
 import com.marceldev.companylunchcomment.repository.verification.VerificationRepository;
 import com.marceldev.companylunchcomment.util.GenerateVerificationCodeUtil;
 import java.time.LocalDateTime;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -50,8 +49,6 @@ public class CompanyService {
    */
   @Transactional
   public void createCompany(CreateCompanyDto dto) {
-    String email = getMemberEmail();
-
     if (companyRepository.existsCompanyByName(dto.getName())) {
       throw new SameCompanyNameExistException();
     }
@@ -75,7 +72,7 @@ public class CompanyService {
    * 회사 정보 수정. 인증번호가 맞아야 수정 가능
    */
   @Transactional
-  public void updateCompany(long id, UpdateCompanyDto updateCompanyDto) {
+  public void updateCompany(long id, UpdateCompanyDto dto) {
     String email = getMemberEmail();
 
     // 회사가 존재하는지 확인
@@ -85,14 +82,14 @@ public class CompanyService {
 
     // 인증번호 확인
     Verification verification = verificationRepository.findByEmail(email)
-        .filter((v) -> v.getCode().equals(updateCompanyDto.getVerificationCode()))
-        .filter((v) -> v.getExpirationAt().isAfter(LocalDateTime.now()))
+        .filter((v) -> v.getCode().equals(dto.getVerificationCode()))
+        .filter((v) -> v.getExpirationAt().isAfter(dto.getNow()))
         .orElseThrow(VerificationCodeNotFoundException::new);
 
     // 회사정보 업데이트
-    Optional.ofNullable(updateCompanyDto.getAddress())
-        .ifPresent(company::setAddress);
-    company.setLocation(updateCompanyDto.getLocation());
+    company.setAddress(dto.getAddress());
+    company.setLocation(dto.getLocation());
+    company.setEnterKey(dto.getEnterKey());
 
     verificationRepository.delete(verification);
   }
@@ -117,7 +114,7 @@ public class CompanyService {
     String email = getMemberEmail();
     Member member = memberRepository.findByEmail(email)
         .orElseThrow(MemberNotFoundException::new);
-    
+
     Company company = companyRepository.findById(companyId)
         .filter(c -> c.getEnterKey().equals(dto.getEnterKey()))
         .orElseThrow(CompanyNotFoundException::new);
@@ -126,7 +123,7 @@ public class CompanyService {
   }
 
   private void sendVerificationCodeEmail(String email, String code) {
-    String subject = "[Company Lunch Comment] 회사정보 수정을 위한 인증번호입니다";
+    String subject = "[Our Company Lunch] 회사정보 수정을 위한 인증번호입니다";
     String body = String.format("인증번호는 %s 입니다. 회사정보 수정란에 입력해주세요.", code);
     emailSender.sendMail(email, subject, body);
   }
