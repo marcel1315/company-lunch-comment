@@ -14,3 +14,5 @@ services:
     environment:
       - GF_SERVER_DOMAIN=dashboard.ourcompanylunch.com
       - GF_SERVER_ROOT_URL=http://dashboard.ourcompanylunch.com/
+    volumes:
+      - './grafana_storage:/var/lib/grafana'

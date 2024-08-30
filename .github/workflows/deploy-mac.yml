@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - cicd
+      - main
     paths-ignore:
       - 'README.md'
       - '.github/**'
@@ -42,10 +42,11 @@ jobs:
 
       - name: Download configuration files from S3
         run: |
-          aws s3 cp --region ap-northeast-2 s3://${{ vars.S3_BUCKET_NAME }}/application-${{ env.SPRING_PROFILE }}.yml ./src/main/resources/
           mkdir -p ./config
-          aws s3 cp --region ap-northeast-2 s3://${{ vars.S3_BUCKET_NAME }}/${{ env.FIREBASE_JSON }} ./config/
-      
+          aws s3 cp --region ap-northeast-2 s3://${{ vars.S3_BUCKET_NAME }}/${{ env.FIREBASE_JSON }} ./config/          
+          aws s3 cp --region ap-northeast-2 s3://${{ vars.S3_BUCKET_NAME }}/application-${{ env.SPRING_PROFILE }}.yml ./src/main/resources/
+          aws s3 cp --region ap-northeast-2 s3://${{ vars.S3_BUCKET_NAME }}/docker-compose.mac.yml ./docker-compose.mac.yml
+
       - name: Change spring profile to ${{ env.SPRING_PROFILE }}
         uses: microsoft/variable-substitution@v1
         with:
@@ -63,8 +64,8 @@ jobs:
 
       - name: Archive to a zip file
         run: |
-          mv build/libs/*.jar .
-          zip -r ./$GITHUB_SHA ./*.jar scripts/ config/ metrics/ nginx/ ./docker-compose.yml
+          pwd
+          zip -r ./$GITHUB_SHA build/ scripts/ config/ metrics/ nginx/ ./docker-compose.mac.yml
         shell: bash
 
       - name: Upload to S3
@@ -72,12 +73,20 @@ jobs:
 
       - name: Connect SSH and run jar
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          FILENAME: ${{ github.sha }}
         with:
           host: ${{ secrets.MAC_HOST }}
           username: ${{ secrets.MAC_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          script: | 
-            whoami
-            ls -al
-            touch hello.txt
+          envs: FILENAME
+          script: |
+            echo $- # print shell state. -569X
+            echo $0 # print shell. zsh.
+            export PATH="/usr/local/bin/:$PATH" # aws command path
+            pwd 
+            aws s3 cp --profile marcel-ourcompanylunch --region ap-northeast-2 s3://${{ vars.S3_BUCKET_NAME }}/$FILENAME.zip ./$FILENAME.zip
+            unzip -o -q $FILENAME.zip -d ~/web/ourcompanylunch/
+            cd ~/web/ourcompanylunch
+            scripts/startup_in_mac.sh

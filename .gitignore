@@ -37,8 +37,14 @@ out/
 .vscode/
 
 ### Config ###
-src/main/resources/application-*.yml
 config/
+src/main/resources/application-dev.yml
+src/main/resources/application-ec2.yml
+src/main/resources/application-mac.yml
 
 ### Deploy ###
 deploy_*/
+docker-compose.mac.yml
+
+### Grafana ###
+grafana_storage/

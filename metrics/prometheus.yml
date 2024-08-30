@@ -38,15 +38,20 @@ scrape_configs:
       - targets:
           - localhost:9090
   - job_name: ourcompanylunchapp
-    scrape_interval: 3s
-    scrape_timeout: 2s
+    scrape_interval: 5s
+    scrape_timeout: 3s
     metrics_path: /actuator/prometheus
     scheme: http
-    enable_compression: true
     follow_redirects: true
-    enable_http2: true
-    http_headers: null
     static_configs:
       - targets:
-          #- localhost:8080
           - host.docker.internal:8080
+  - job_name: kafka
+    scrape_interval: 5s
+    scrape_timeout: 3s
+    metrics_path: /metrics
+    scheme: http
+    follow_redirects: true
+    static_configs:
+      - targets:
+          - host.docker.internal:12345

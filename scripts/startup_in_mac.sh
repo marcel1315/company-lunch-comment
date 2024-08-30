@@ -44,4 +44,9 @@ JAVA_OPTS="-Dspring.jpa.hibernate.ddl-auto=update"
 JAR_PATH=$DEPLOY_PATH/$JAR_NAME
 echo "> JAR_PATH $JAR_PATH" >> $DEPLOY_LOG_PATH
 echo "> JAVA_OPTS $JAVA_OPTS" >> $DEPLOY_LOG_PATH
-nohup java $JAVA_OPTS -jar $JAR_PATH > $APPLICATION_LOG_PATH &
+
+# To set java
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+nohup java $JAVA_OPTS -jar $JAR_PATH 1> $APPLICATION_LOG_PATH 2> $DEPLOY_LOG_PATH &
