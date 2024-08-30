@@ -1,4 +1,4 @@
-name: Our Company Lunch Build & Deploy
+name: Our Company Lunch Build & Deploy - EC2
 
 on:
   workflow_dispatch:

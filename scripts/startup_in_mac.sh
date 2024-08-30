@@ -5,6 +5,7 @@ CURRENT_DATE=$(date +%Y%m%d%H%M%S)
 
 # Firebase config
 export GOOGLE_APPLICATION_CREDENTIALS="$WORK_DIR/config/our-company-lunch-firebase-adminsdk.json"
+# AWS config
 export AWS_REGION="ap-northeast-2"
 
 # Run jar

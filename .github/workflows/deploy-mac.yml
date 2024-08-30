@@ -1,0 +1,83 @@
+name: Our Company Lunch Build & Deploy - Home server (Mac Mini)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'README.md'
+      - '.github/**'
+      - 'doc/**'
+
+env:
+  APPLICATION_YML: ./src/main/resources/application.yml
+  SPRING_PROFILE: mac
+  FIREBASE_JSON: our-company-lunch-firebase-adminsdk.json
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: '21'
+          architecture: x64
+          cache: 'gradle'
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ap-northeast-2
+          role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_ARN }}
+          role-duration-seconds: 1800
+
+      - name: Download configuration files from S3
+        run: |
+          aws s3 cp --region ap-northeast-2 s3://${{ vars.S3_BUCKET_NAME }}/application-${{ env.SPRING_PROFILE }}.yml ./src/main/resources/
+          mkdir -p ./config
+          aws s3 cp --region ap-northeast-2 s3://${{ vars.S3_BUCKET_NAME }}/${{ env.FIREBASE_JSON }} ./config/
+      
+      - name: Change spring profile to ${{ env.SPRING_PROFILE }}
+        uses: microsoft/variable-substitution@v1
+        with:
+          files: ${{ env.APPLICATION_YML }}
+        env:
+          spring.profiles.active: ${{ env.SPRING_PROFILE }}
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-disabled: true # Use setup-java caching
+
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      - name: Archive to a zip file
+        run: |
+          mv build/libs/*.jar .
+          zip -r ./$GITHUB_SHA ./*.jar scripts/ config/ metrics/ nginx/ ./docker-compose.yml
+        shell: bash
+
+      - name: Upload to S3
+        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://${{ vars.S3_BUCKET_NAME }}/$GITHUB_SHA.zip
+
+      - name: Connect SSH and run jar
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.MAC_HOST }}
+          username: ${{ secrets.MAC_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: | 
+            whoami
+            ls -al
+            touch hello.txt
