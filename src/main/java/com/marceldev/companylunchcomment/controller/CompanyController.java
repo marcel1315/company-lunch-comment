@@ -7,6 +7,7 @@ import com.marceldev.companylunchcomment.dto.company.GetCompanyListDto;
 import com.marceldev.companylunchcomment.dto.company.UpdateCompanyDto;
 import com.marceldev.companylunchcomment.dto.error.ErrorResponse;
 import com.marceldev.companylunchcomment.dto.member.SendVerificationCodeDto;
+import com.marceldev.companylunchcomment.exception.company.CompanyEnterKeyNotMatchException;
 import com.marceldev.companylunchcomment.exception.company.SameCompanyNameExistException;
 import com.marceldev.companylunchcomment.service.CompanyService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -94,6 +95,10 @@ public class CompanyController {
       description = "사용자는 회사를 선택할 수 있다.<br>"
           + "같은 회사라도 여러 지점이 있을 수 있다. 자신이 점심 먹는 회사를 선택한다."
   )
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "OK"),
+      @ApiResponse(responseCode = "400", description = "errorCode: 2002 - 입장키 잘못 입력")
+  })
   @PutMapping("/companies/{id}/choose")
   public ResponseEntity<Void> chooseCompany(
       @PathVariable long id,
@@ -106,5 +111,10 @@ public class CompanyController {
   @ExceptionHandler(SameCompanyNameExistException.class)
   public ResponseEntity<ErrorResponse> handle(SameCompanyNameExistException e) {
     return ErrorResponse.badRequest(2001, e.getMessage());
+  }
+
+  @ExceptionHandler
+  public ResponseEntity<ErrorResponse> handle(CompanyEnterKeyNotMatchException e) {
+    return ErrorResponse.badRequest(2002, e.getMessage());
   }
 }

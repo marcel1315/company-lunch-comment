@@ -19,9 +19,12 @@ public class CreateCompanyDto {
   @Schema(example = "서울특별시 강남구 강남대로 123")
   private String address;
 
-  @NotNull
   @Schema(example = "company123")
   private String enterKey;
+
+  @NotNull
+  @Schema(example = "false")
+  private Boolean enterKeyEnabled;
 
   @NotNull
   @Schema(example = "37.5665")
@@ -36,6 +39,7 @@ public class CreateCompanyDto {
         .name(name)
         .address(address)
         .enterKey(enterKey)
+        .enterKeyEnabled(enterKeyEnabled)
         .location(LocationUtil.createPoint(longitude, latitude))
         .build();
   }

@@ -39,5 +39,8 @@ public class Company extends BaseEntity {
   private String enterKey;
 
   @Setter
+  private boolean enterKeyEnabled;
+
+  @Setter
   private Point location;
 }

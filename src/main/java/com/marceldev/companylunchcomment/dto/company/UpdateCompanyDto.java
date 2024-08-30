@@ -18,9 +18,12 @@ public class UpdateCompanyDto {
   @Schema(example = "123123")
   private String verificationCode;
 
-  @NotNull
   @Schema(example = "company123")
   private String enterKey;
+
+  @NotNull
+  @Schema(example = "false")
+  private Boolean enterKeyEnabled;
 
   @NotNull
   @Schema(example = "서울특별시 강남구 역삼동 123-1", requiredMode = RequiredMode.NOT_REQUIRED)

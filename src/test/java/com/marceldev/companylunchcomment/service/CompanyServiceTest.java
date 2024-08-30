@@ -112,6 +112,7 @@ class CompanyServiceTest {
         .name("좋은회사")
         .address("서울시 강남구 역삼동 123-456")
         .enterKey("company123")
+        .enterKeyEnabled(false)
         .latitude(37.123456)
         .longitude(127.123456)
         .build();
@@ -157,6 +158,7 @@ class CompanyServiceTest {
         .address("서울시 강남구 역삼동 123-456")
         .latitude(37.123456)
         .longitude(127.123456)
+        .enterKeyEnabled(false)
         .verificationCode("123456")
         .build();
     when(memberRepository.findByEmailAndCompanyId(any(), anyLong()))

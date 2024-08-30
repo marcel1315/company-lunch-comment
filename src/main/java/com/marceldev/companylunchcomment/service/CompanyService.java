@@ -10,6 +10,7 @@ import com.marceldev.companylunchcomment.dto.member.SendVerificationCodeDto;
 import com.marceldev.companylunchcomment.entity.Company;
 import com.marceldev.companylunchcomment.entity.Member;
 import com.marceldev.companylunchcomment.entity.Verification;
+import com.marceldev.companylunchcomment.exception.company.CompanyEnterKeyNotMatchException;
 import com.marceldev.companylunchcomment.exception.company.CompanyNotFoundException;
 import com.marceldev.companylunchcomment.exception.company.SameCompanyNameExistException;
 import com.marceldev.companylunchcomment.exception.member.MemberNotFoundException;
@@ -90,6 +91,7 @@ public class CompanyService {
     company.setAddress(dto.getAddress());
     company.setLocation(dto.getLocation());
     company.setEnterKey(dto.getEnterKey());
+    company.setEnterKeyEnabled(dto.getEnterKeyEnabled());
 
     verificationRepository.delete(verification);
   }
@@ -116,8 +118,12 @@ public class CompanyService {
         .orElseThrow(MemberNotFoundException::new);
 
     Company company = companyRepository.findById(companyId)
-        .filter(c -> c.getEnterKey().equals(dto.getEnterKey()))
         .orElseThrow(CompanyNotFoundException::new);
+
+    if (company.isEnterKeyEnabled() &&
+        !company.getEnterKey().equals(dto.getEnterKey())) {
+      throw new CompanyEnterKeyNotMatchException();
+    }
 
     member.setCompany(company);
   }
