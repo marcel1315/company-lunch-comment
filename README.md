@@ -91,7 +91,7 @@
 
 # ERD
 
-![ERD](doc/img/company-lunch-comment-erd.png)
+![ERD](doc/img/our-company-lunch-erd.png)
 
 # API 문서
 

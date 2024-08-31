@@ -12,7 +12,7 @@ java {
 }
 
 bootJar {
-    archiveFileName = "company-lunch-comment-${version}.jar"
+    archiveFileName = "our-company-lunch-${version}.jar"
 }
 
 jar {

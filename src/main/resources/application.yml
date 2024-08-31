@@ -1,8 +1,8 @@
 spring:
   application:
-    name: company-lunch-comment
+    name: our-company-lunch
   profiles:
-    active: "dev"
+    active: "local"
   servlet:
     multipart:
       max-file-size: 20MB
