@@ -1,7 +1,6 @@
 package com.marceldev.ourcompanylunch.controller;
 
 import com.marceldev.ourcompanylunch.component.NotificationProvider;
-import com.marceldev.ourcompanylunch.component.NotificationProviderZZ;
 import com.marceldev.ourcompanylunch.dto.comment.CommentOutputDto;
 import com.marceldev.ourcompanylunch.dto.comment.CreateCommentDto;
 import com.marceldev.ourcompanylunch.dto.comment.GetCommentListDto;
@@ -29,7 +28,7 @@ public class CommentController {
 
   private final CommentService commentService;
 
-  private final NotificationProviderZZ notificationProvider;
+  private final NotificationProvider notificationProvider;
 
   @Operation(
       summary = "식당에 코멘트 작성",

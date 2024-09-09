@@ -197,7 +197,7 @@
 
 - SSE(Server Side Event)
 
-- RabbitMQ
+- Kafka
 
 - Firebase Cloud Messaging
 
@@ -228,7 +228,7 @@
 
 - 개발하는 환경에서 AWS 계정에 접속할 수 있어야 하고, S3에 버킷을 만들어 프로젝트에 연결합니다. 버킷의 이름은 applicatoin-dev.yml에서 설정합니다.
 
-- RabbitMQ에 연결할 수 있어야 합니다. 기본포트(5692)를 사용해서 연결합니다. 포트 및 연결 설정을 변경하려면 application-dev.yml을 수정합니다.
+- Kafka가 실행중이어야 합니다. 포트 및 연결 설정을 변경하려면 application-dev.yml을 수정합니다.
 
 - Firebase 프로젝트가 있어야 하며, 서비스 계정 json 파일을 환경변수로 설정해야 합니다.
   ```bash

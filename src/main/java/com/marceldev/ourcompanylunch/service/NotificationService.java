@@ -1,8 +1,6 @@
 package com.marceldev.ourcompanylunch.service;
 
 import com.marceldev.ourcompanylunch.component.FCMPushNotification;
-import com.marceldev.ourcompanylunch.config.RabbitMQConfig;
-import com.marceldev.ourcompanylunch.dto.comment.NotificationMessage;
 import com.marceldev.ourcompanylunch.entity.Member;
 import com.marceldev.ourcompanylunch.entity.PushNotificationToken;
 import com.marceldev.ourcompanylunch.exception.member.MemberNotFoundException;
@@ -15,7 +13,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -111,6 +108,7 @@ public class NotificationService {
    * Queue에 들어온 메시지를 처리함. 사용자가 SSE 연결이 되어 있으면 SSE 응답으로 보내기. SSE 연결이 없으면, Push Notification으로 보내기
    * listener를 실행하는 시점에 SecurityContextHolder는 유지되지 않음.
    */
+  /* This logic will go to new notification server. Then delete this.
   @RabbitListener(queues = RabbitMQConfig.QUEUE_NAME, containerFactory = "rabbitListenerContainerFactory")
   private void receiveMessage(NotificationMessage message) {
     log.debug("receiveMessage: " + message);
@@ -126,7 +124,7 @@ public class NotificationService {
     } else {
       log.warn("Tried to send notifications, but couldn't. ReceiverId: {}", receiverId);
     }
-  }
+  }*/
 
   /**
    * SSE로 클라이언트에게 응답 보내기

@@ -26,26 +26,17 @@ spring:
         smtp:
           starttls:
             enable: true
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
 s3:
   bucket-name:
   diner-max-image-count: 10
-
 cloudfront-url:
-
 scheduler:
   clear-verification-code:
     cron: "0 0 3 * * *" # Run every day 03:00 AM
-
 springdoc:
   swagger-ui:
     operations-sorter: method
     tags-sorter: alpha
-
 management:
   endpoints:
     web:
