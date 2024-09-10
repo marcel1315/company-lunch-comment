@@ -2,6 +2,7 @@ package com.marceldev.ourcompanylunch.controller;
 
 import com.marceldev.ourcompanylunch.dto.error.ErrorResponse;
 import com.marceldev.ourcompanylunch.dto.member.SendVerificationCodeDto;
+import com.marceldev.ourcompanylunch.dto.member.SignUpDto;
 import com.marceldev.ourcompanylunch.dto.member.UpdateMemberDto;
 import com.marceldev.ourcompanylunch.dto.member.VerifyVerificationCodeDto;
 import com.marceldev.ourcompanylunch.exception.member.AlreadyExistMemberException;
@@ -71,6 +72,17 @@ public class MemberController {
     return ResponseEntity.ok().build();
   }
 
+  @Operation(
+      summary = "Sign up from auth server(Do not call from client)"
+  )
+  @PostMapping("/members/signup")
+  public ResponseEntity<Void> signupMember(
+      @Validated @RequestBody SignUpDto dto
+  ) {
+    memberService.signUp(dto);
+    return ResponseEntity.ok().build();
+  }
+
   @ExceptionHandler
   public ResponseEntity<ErrorResponse> handle(AlreadyExistMemberException e) {
     return ErrorResponse.badRequest(1001, e.getMessage());
@@ -79,10 +91,5 @@ public class MemberController {
   @ExceptionHandler
   public ResponseEntity<ErrorResponse> handle(VerificationCodeNotFoundException e) {
     return ErrorResponse.badRequest(1002, e.getMessage());
-  }
-
-  @ExceptionHandler
-  public ResponseEntity<ErrorResponse> handle(IncorrectPasswordException e) {
-    return ErrorResponse.badRequest(1003, e.getMessage());
   }
 }

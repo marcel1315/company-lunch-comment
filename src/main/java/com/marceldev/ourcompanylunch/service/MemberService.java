@@ -2,20 +2,24 @@ package com.marceldev.ourcompanylunch.service;
 
 import com.marceldev.ourcompanylunch.component.EmailSender;
 import com.marceldev.ourcompanylunch.dto.member.SendVerificationCodeDto;
+import com.marceldev.ourcompanylunch.dto.member.SignUpDto;
 import com.marceldev.ourcompanylunch.dto.member.UpdateMemberDto;
 import com.marceldev.ourcompanylunch.dto.member.VerifyVerificationCodeDto;
 import com.marceldev.ourcompanylunch.entity.Member;
 import com.marceldev.ourcompanylunch.entity.Verification;
+import com.marceldev.ourcompanylunch.exception.member.AlreadyExistMemberException;
 import com.marceldev.ourcompanylunch.exception.member.MemberNotFoundException;
 import com.marceldev.ourcompanylunch.exception.member.MemberUnauthorizedException;
 import com.marceldev.ourcompanylunch.exception.member.VerificationCodeNotFoundException;
 import com.marceldev.ourcompanylunch.repository.member.MemberRepository;
 import com.marceldev.ourcompanylunch.repository.verification.VerificationRepository;
+import com.marceldev.ourcompanylunch.type.Role;
 import com.marceldev.ourcompanylunch.util.GenerateVerificationCodeUtil;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,12 +69,31 @@ public class MemberService {
   }
 
   /**
-   * 회원정보 수정
+   * Update member information
    */
   @Transactional
   public void updateMember(long id, UpdateMemberDto dto) {
-    Member member = getMember(id);
+    Member member = getMemberOf(id);
     member.setName(dto.getName());
+  }
+
+  /**
+   * Register member
+   */
+  @Transactional
+  public void signUp(SignUpDto dto) {
+    String email = getEmail();
+    if (memberRepository.existsByEmail(email)) {
+      throw new AlreadyExistMemberException();
+    }
+
+    Member member = Member.builder()
+        .email(email)
+        .name(dto.getName())
+        .role(getRole())
+        .build();
+
+    memberRepository.save(member);
   }
 
   @Scheduled(cron = "${scheduler.clear-verification-code.cron}")
@@ -110,9 +133,9 @@ public class MemberService {
   }
 
   /**
-   * member 를 찾아 반환함. 토큰에 들어있던 사용자가 접근할 수 있는 member id 인지 체크하고 반환함
+   * Get member from db id and see if email from authentication is correct.
    */
-  private Member getMember(long id) {
+  private Member getMemberOf(long id) {
     String email = (String) SecurityContextHolder.getContext()
         .getAuthentication()
         .getPrincipal();
@@ -121,7 +144,7 @@ public class MemberService {
   }
 
   /**
-   * member 를 찾아 반환함.
+   * Get member from authentication
    */
   private Member getMember() {
     String email = (String) SecurityContextHolder.getContext()
@@ -129,5 +152,20 @@ public class MemberService {
         .getPrincipal();
     return memberRepository.findByEmail(email)
         .orElseThrow(MemberNotFoundException::new);
+  }
+
+  /**
+   * Find out role from authentication
+   */
+  private Role getRole() {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    return auth.getAuthorities().stream().findFirst()
+        .map(a -> Role.valueOf(a.getAuthority()))
+        .orElseThrow(RuntimeException::new);
+  }
+
+  private String getEmail() {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    return auth.getName();
   }
 }
