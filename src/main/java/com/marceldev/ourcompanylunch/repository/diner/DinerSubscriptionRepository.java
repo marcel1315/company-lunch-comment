@@ -5,6 +5,7 @@ import com.marceldev.ourcompanylunch.entity.DinerSubscription;
 import com.marceldev.ourcompanylunch.entity.Member;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -17,7 +18,7 @@ public interface DinerSubscriptionRepository extends JpaRepository<DinerSubscrip
       + " join fetch ds.member"
       + " left join fetch ds.member.token"
       + " where ds.diner.id = :dinerId")
-  List<DinerSubscription> findDinerSubscriptionAndTokenByDinerId(long dinerId);
+  Set<DinerSubscription> findDinerSubscriptionAndTokenByDinerId(long dinerId);
 
   boolean existsByDinerAndMember(Diner diner, Member member);
 }

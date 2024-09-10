@@ -1,31 +1,31 @@
-package com.marceldev.ourcompanylunch.component;
+package com.marceldev.ourcompanylunch.service;
 
-import com.marceldev.ourcompanylunch.dto.comment.NotificationMessage;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.marceldev.ourcompanylunch.dto.comment.NotificationMessageDto;
 import com.marceldev.ourcompanylunch.entity.Company;
 import com.marceldev.ourcompanylunch.entity.Diner;
 import com.marceldev.ourcompanylunch.entity.DinerSubscription;
 import com.marceldev.ourcompanylunch.entity.Member;
-import com.marceldev.ourcompanylunch.entity.PushNotificationToken;
 import com.marceldev.ourcompanylunch.exception.company.CompanyNotFoundException;
 import com.marceldev.ourcompanylunch.exception.diner.DinerNotFoundException;
 import com.marceldev.ourcompanylunch.exception.member.MemberNotFoundException;
 import com.marceldev.ourcompanylunch.repository.diner.DinerRepository;
 import com.marceldev.ourcompanylunch.repository.diner.DinerSubscriptionRepository;
 import com.marceldev.ourcompanylunch.repository.member.MemberRepository;
-import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 @Slf4j
-@Component
+@Service
 @RequiredArgsConstructor
-public class NotificationProvider {
+public class MessageProducerService {
 
-  private final static String CHECKOUT_COMPLETE_TOPIC_NAME = "checkout.complete.v1";
+  private final static String COMMENT_WRITE_TOPIC_NAME = "comment.write.v1";
 
   private final KafkaTemplate<String, String> kafkaTemplate;
 
@@ -35,32 +35,48 @@ public class NotificationProvider {
 
   private final DinerSubscriptionRepository dinerSubscriptionRepository;
 
-  public void enqueueMessages(long dinerId, String messageContent) {
+  private final ObjectMapper objectMapper;
+
+  /**
+   * Produce messages to kafka for the diner subscriptions.
+   */
+  public void produceForDinerSubscribers(long dinerId, String messageContent) {
     Member sender = getMember();
     Diner diner = getDiner(dinerId);
 
-    // 항상 FCM만 사용하는 것은 아니지만, 여기서 token을 조회해서 큐에 넣어주는 이유는
-    // consumer에서 token을 일일이 조회하지 않도록 하기 위해
-    List<DinerSubscription> subscriptions = dinerSubscriptionRepository.findDinerSubscriptionAndTokenByDinerId(
+    Set<DinerSubscription> subscriptions = dinerSubscriptionRepository.findDinerSubscriptionAndTokenByDinerId(
         dinerId);
-    // 본인에게 보내는 알림 메시지는 불필요
-    //subscriptions.removeIf(s -> s.getMember().getId().equals(sender.getId()));
 
-    List<NotificationMessage> messages = subscriptions.stream()
-        .map(s -> NotificationMessage.builder()
+    // No need to send message to self.
+    subscriptions.removeIf(s -> s.getMember().getId().equals(sender.getId()));
+
+    subscriptions.stream()
+        .map(s -> NotificationMessageDto.builder()
             .senderId(sender.getId())
             .receiverId(s.getMember().getId())
             .dinerId(diner.getId())
             .senderName(sender.getName())
+            .receiverName(s.getMember().getName())
             .dinerName(diner.getName())
             .content(messageContent)
-            .receiverFcmToken(Optional.ofNullable(s.getMember().getToken())
-                .map(PushNotificationToken::getToken)
-                .orElse(null))
             .build())
-        .toList();
+        .map(this::convertMessageToString)
+        .forEach(m -> kafkaTemplate.send(COMMENT_WRITE_TOPIC_NAME, m));
+  }
 
-    kafkaTemplate.send(CHECKOUT_COMPLETE_TOPIC_NAME, messageContent);
+  private String convertMessageToString(NotificationMessageDto dto) {
+    try {
+      return objectMapper.writeValueAsString(dto);
+    } catch (JsonProcessingException e) {
+      log.error(e.getMessage());
+      throw new RuntimeException();
+    }
+  }
+
+  private String getEmail() {
+    return (String) SecurityContextHolder.getContext()
+        .getAuthentication()
+        .getPrincipal();
   }
 
   private Diner getDiner(long dinerId) {
@@ -71,7 +87,7 @@ public class NotificationProvider {
   }
 
   private Member getMember() {
-    String email = getMemberEmail();
+    String email = getEmail();
     return memberRepository.findByEmail(email)
         .orElseThrow(MemberNotFoundException::new);
   }
@@ -82,11 +98,5 @@ public class NotificationProvider {
       throw new CompanyNotFoundException();
     }
     return member.getCompany();
-  }
-
-  private String getMemberEmail() {
-    return (String) SecurityContextHolder.getContext()
-        .getAuthentication()
-        .getPrincipal();
   }
 }
