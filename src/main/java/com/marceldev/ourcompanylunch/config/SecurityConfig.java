@@ -1,7 +1,6 @@
 package com.marceldev.ourcompanylunch.config;
 
 import com.marceldev.ourcompanylunch.filter.JwtAuthenticationFilter;
-import com.marceldev.ourcompanylunch.filter.SignInAuthenticationFilter;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +21,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
-  private final SignInAuthenticationFilter signInAuthenticationFilter;
 
   @Bean
   public SecurityFilterChain configure(HttpSecurity http) throws Exception {
@@ -42,21 +40,18 @@ public class SecurityConfig {
                 "/actuator/**"
             ).permitAll()
             .requestMatchers(
-                "/members/signup",
-                "/members/signin"
-            ).permitAll()
+                "/members/**",
+                "/diners/**",
+                "/companies/**"
+            ).authenticated()
             // sse 부분을 authenticated 로 연결해놓으면,
             // sse 가 terminate 되는 시점에 SecurityContextHolder 가 비워지며 access denied 에러를 냄
             // permitAll 이지만 헤더에 Authorization 부분이 없으면 SecurityContextHolder 가 채워지지 않아, sse 연결중 에러를 내긴 함
             // TODO: 다르게 처리할 방법이 있는지 확인
             .requestMatchers("/notifications/sse").permitAll()
             .requestMatchers("/notifications/**").authenticated()
-            .requestMatchers("/members/**").authenticated()
-            .requestMatchers("/diners/**").authenticated()
-            .requestMatchers("/companies/**").authenticated()
             .anyRequest().authenticated()
         )
-        .addFilterAt(signInAuthenticationFilter, BasicAuthenticationFilter.class)
         .addFilterAfter(jwtAuthenticationFilter, BasicAuthenticationFilter.class)
         .build();
   }

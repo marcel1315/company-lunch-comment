@@ -49,7 +49,6 @@ class NotificationServiceTest {
       .email("kys@example.com")
       .name("김영수")
       .role(Role.VIEWER)
-      .password("somehashedvalue")
       .build();
 
   @BeforeEach

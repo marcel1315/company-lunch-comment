@@ -80,7 +80,6 @@ class CompanyServiceTest {
       .email("kys@example.com")
       .name("김영수")
       .role(Role.VIEWER)
-      .password("somehashedvalue")
       .company(company1)
       .build();
 

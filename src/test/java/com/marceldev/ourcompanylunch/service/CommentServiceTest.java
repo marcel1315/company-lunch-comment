@@ -72,7 +72,6 @@ class CommentServiceTest {
       .email("kys@example.com")
       .name("김영수")
       .role(Role.VIEWER)
-      .password("somehashedvalue")
       .company(Company.builder().id(1L).build())
       .build();
 

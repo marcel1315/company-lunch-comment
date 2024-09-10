@@ -1,29 +1,22 @@
 package com.marceldev.ourcompanylunch.service;
 
 import com.marceldev.ourcompanylunch.component.EmailSender;
-import com.marceldev.ourcompanylunch.dto.member.ChangePasswordDto;
 import com.marceldev.ourcompanylunch.dto.member.SendVerificationCodeDto;
-import com.marceldev.ourcompanylunch.dto.member.SignUpDto;
 import com.marceldev.ourcompanylunch.dto.member.UpdateMemberDto;
 import com.marceldev.ourcompanylunch.dto.member.VerifyVerificationCodeDto;
-import com.marceldev.ourcompanylunch.dto.member.WithdrawMemberDto;
 import com.marceldev.ourcompanylunch.entity.Member;
 import com.marceldev.ourcompanylunch.entity.Verification;
-import com.marceldev.ourcompanylunch.exception.member.AlreadyExistMemberException;
-import com.marceldev.ourcompanylunch.exception.member.IncorrectPasswordException;
 import com.marceldev.ourcompanylunch.exception.member.MemberNotFoundException;
 import com.marceldev.ourcompanylunch.exception.member.MemberUnauthorizedException;
 import com.marceldev.ourcompanylunch.exception.member.VerificationCodeNotFoundException;
 import com.marceldev.ourcompanylunch.repository.member.MemberRepository;
 import com.marceldev.ourcompanylunch.repository.verification.VerificationRepository;
-import com.marceldev.ourcompanylunch.type.Role;
 import com.marceldev.ourcompanylunch.util.GenerateVerificationCodeUtil;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,29 +32,9 @@ public class MemberService {
 
   private final MemberRepository memberRepository;
 
-  private final PasswordEncoder passwordEncoder;
-
   private final EmailSender emailSender;
 
   private final VerificationRepository verificationRepository;
-
-  /**
-   * 회원가입
-   */
-  @Transactional
-  public void signUp(SignUpDto dto) {
-    checkAlreadyExistsMember(dto.getEmail());
-
-    String encPassword = passwordEncoder.encode(dto.getPassword());
-    Member member = Member.builder()
-        .email(dto.getEmail())
-        .password(encPassword)
-        .name(dto.getName())
-        .role(Role.VIEWER)
-        .build();
-
-    memberRepository.save(member);
-  }
 
   /**
    * 이메일로 인증번호 전송
@@ -100,40 +73,10 @@ public class MemberService {
     member.setName(dto.getName());
   }
 
-  /**
-   * 회원 비밀번호 수정
-   */
-  @Transactional
-  public void changePassword(long id, ChangePasswordDto dto) {
-    Member member = getMember(id);
-    if (!passwordEncoder.matches(dto.getOldPassword(), member.getPassword())) {
-      throw new IncorrectPasswordException();
-    }
-    member.setPassword(passwordEncoder.encode(dto.getNewPassword()));
-  }
-
-  /**
-   * 회원 탈퇴
-   */
-  @Transactional
-  public void withdrawMember(long id, WithdrawMemberDto dto) {
-    Member member = getMember(id);
-    if (!passwordEncoder.matches(dto.getPassword(), member.getPassword())) {
-      throw new IncorrectPasswordException();
-    }
-    memberRepository.delete(member);
-  }
-
   @Scheduled(cron = "${scheduler.clear-verification-code.cron}")
   public void clearUnusedVerificationCodes() {
     int rows = verificationRepository.deleteAllExpiredVerificationCode(LocalDateTime.now());
     log.info("MemberService.clearUnusedVerificationCodes executed: {} rows deleted", rows);
-  }
-
-  private void checkAlreadyExistsMember(String email) {
-    if (memberRepository.existsByEmail(email)) {
-      throw new AlreadyExistMemberException();
-    }
   }
 
   private void sendVerificationCodeEmail(String email, String code) {

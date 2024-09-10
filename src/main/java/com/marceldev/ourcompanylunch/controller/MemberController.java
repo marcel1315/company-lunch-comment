@@ -1,12 +1,9 @@
 package com.marceldev.ourcompanylunch.controller;
 
 import com.marceldev.ourcompanylunch.dto.error.ErrorResponse;
-import com.marceldev.ourcompanylunch.dto.member.ChangePasswordDto;
 import com.marceldev.ourcompanylunch.dto.member.SendVerificationCodeDto;
-import com.marceldev.ourcompanylunch.dto.member.SignUpDto;
 import com.marceldev.ourcompanylunch.dto.member.UpdateMemberDto;
 import com.marceldev.ourcompanylunch.dto.member.VerifyVerificationCodeDto;
-import com.marceldev.ourcompanylunch.dto.member.WithdrawMemberDto;
 import com.marceldev.ourcompanylunch.exception.member.AlreadyExistMemberException;
 import com.marceldev.ourcompanylunch.exception.member.IncorrectPasswordException;
 import com.marceldev.ourcompanylunch.exception.member.VerificationCodeNotFoundException;
@@ -19,7 +16,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -63,23 +59,6 @@ public class MemberController {
   }
 
   @Operation(
-      summary = "회원가입",
-      description = "회원가입시 이메일, 이름, 비밀번호를 입력받는다.<br>"
-          + "이메일을 아이디로 사용한다.<br>"
-  )
-  @ApiResponses({
-      @ApiResponse(responseCode = "200", description = "OK"),
-      @ApiResponse(responseCode = "400", description = "errorCode: 1001 - 이미 존재하는 회원", content = @Content)
-  })
-  @PostMapping("/members/signup")
-  public ResponseEntity<Void> signUp(
-      @Validated @RequestBody SignUpDto signUpDto
-  ) {
-    memberService.signUp(signUpDto);
-    return ResponseEntity.ok().build();
-  }
-
-  @Operation(
       summary = "회원정보 수정",
       description = "사용자는 자신의 이름을 수정할 수 있다."
   )
@@ -89,32 +68,6 @@ public class MemberController {
       @Validated @RequestBody UpdateMemberDto updateMemberDto
   ) {
     memberService.updateMember(id, updateMemberDto);
-    return ResponseEntity.ok().build();
-  }
-
-  @Operation(
-      summary = "회원 비밀번호 수정",
-      description = "사용자는 자신의 비밀번호를 수정할 수 있다."
-  )
-  @PutMapping("/members/{id}/password")
-  public ResponseEntity<Void> changePassword(
-      @PathVariable long id,
-      @Validated @RequestBody ChangePasswordDto changePasswordDto
-  ) {
-    memberService.changePassword(id, changePasswordDto);
-    return ResponseEntity.ok().build();
-  }
-
-  @Operation(
-      summary = "회원 탈퇴",
-      description = "사용자는 아이디(이메일)와 비밀번호로 탈퇴할 수 있다."
-  )
-  @DeleteMapping("/members/{id}")
-  public ResponseEntity<Void> withdrawMember(
-      @PathVariable long id,
-      @Validated @RequestBody WithdrawMemberDto withdrawMemberDto
-  ) {
-    memberService.withdrawMember(id, withdrawMemberDto);
     return ResponseEntity.ok().build();
   }
 
