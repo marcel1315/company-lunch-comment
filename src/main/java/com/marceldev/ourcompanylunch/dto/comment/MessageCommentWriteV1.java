@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class NotificationMessageDto {
+public class MessageCommentWriteV1 {
 
   private Long senderId;
   private Long receiverId;

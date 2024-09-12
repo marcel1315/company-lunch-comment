@@ -2,7 +2,7 @@ package com.marceldev.ourcompanylunch.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.marceldev.ourcompanylunch.dto.comment.NotificationMessageDto;
+import com.marceldev.ourcompanylunch.dto.comment.MessageCommentWriteV1;
 import com.marceldev.ourcompanylunch.entity.Company;
 import com.marceldev.ourcompanylunch.entity.Diner;
 import com.marceldev.ourcompanylunch.entity.DinerSubscription;
@@ -51,7 +51,7 @@ public class MessageProducerService {
     subscriptions.removeIf(s -> s.getMember().getId().equals(sender.getId()));
 
     subscriptions.stream()
-        .map(s -> NotificationMessageDto.builder()
+        .map(s -> MessageCommentWriteV1.builder()
             .senderId(sender.getId())
             .receiverId(s.getMember().getId())
             .dinerId(diner.getId())
@@ -64,7 +64,7 @@ public class MessageProducerService {
         .forEach(m -> kafkaTemplate.send(COMMENT_WRITE_TOPIC_NAME, m));
   }
 
-  private String convertMessageToString(NotificationMessageDto dto) {
+  private String convertMessageToString(MessageCommentWriteV1 dto) {
     try {
       return objectMapper.writeValueAsString(dto);
     } catch (JsonProcessingException e) {
