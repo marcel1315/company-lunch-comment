@@ -13,7 +13,6 @@ on:
 env:
   APPLICATION_YML: ./src/main/resources/application.yml
   SPRING_PROFILE: mac
-  FIREBASE_JSON: our-company-lunch-firebase-adminsdk.json
 
 jobs:
   build:
@@ -43,7 +42,6 @@ jobs:
       - name: Download configuration files from S3
         run: |
           mkdir -p ./config
-          aws s3 cp --region ap-northeast-2 s3://${{ vars.S3_BUCKET_NAME }}/${{ env.FIREBASE_JSON }} ./config/          
           aws s3 cp --region ap-northeast-2 s3://${{ vars.S3_BUCKET_NAME }}/application-${{ env.SPRING_PROFILE }}.yml ./src/main/resources/
           aws s3 cp --region ap-northeast-2 s3://${{ vars.S3_BUCKET_NAME }}/docker-compose.mac.yml ./docker-compose.mac.yml
 
@@ -65,7 +63,7 @@ jobs:
       - name: Archive to a zip file
         run: |
           pwd
-          zip -r ./$GITHUB_SHA build/ scripts/ config/ metrics/ nginx/ ./docker-compose.mac.yml
+          zip -r ./$GITHUB_SHA build/ scripts/ metrics/ nginx/ ./docker-compose.mac.yml
         shell: bash
 
       - name: Upload to S3

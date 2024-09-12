@@ -1,11 +1,11 @@
 package com.marceldev.ourcompanylunch.controller;
 
-import com.marceldev.ourcompanylunch.service.MessageProducerService;
 import com.marceldev.ourcompanylunch.dto.comment.CommentOutputDto;
 import com.marceldev.ourcompanylunch.dto.comment.CreateCommentDto;
 import com.marceldev.ourcompanylunch.dto.comment.GetCommentListDto;
 import com.marceldev.ourcompanylunch.dto.comment.UpdateCommentDto;
 import com.marceldev.ourcompanylunch.service.CommentService;
+import com.marceldev.ourcompanylunch.service.MessageProducerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

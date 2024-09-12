@@ -15,7 +15,6 @@ env:
   CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: our-company-lunch-deployment-group
   APPLICATION_YML: ./src/main/resources/application.yml
   SPRING_PROFILE: ec2
-  FIREBASE_JSON: our-company-lunch-firebase-adminsdk.json
 
 jobs:
   build:
@@ -45,9 +44,7 @@ jobs:
       - name: Download configuration files from S3
         run: |
           aws s3 cp --region ap-northeast-2 s3://${{ vars.S3_BUCKET_NAME }}/application-${{ env.SPRING_PROFILE }}.yml ./src/main/resources/
-          mkdir -p ./config
-          aws s3 cp --region ap-northeast-2 s3://${{ vars.S3_BUCKET_NAME }}/${{ env.FIREBASE_JSON }} ./config/
-      
+
       - name: Change spring profile to ${{ env.SPRING_PROFILE }}
         uses: microsoft/variable-substitution@v1
         with:
@@ -66,7 +63,7 @@ jobs:
       - name: Archive to a zip file
         run: |
           mv build/libs/*.jar .
-          zip -r ./$GITHUB_SHA ./*.jar scripts/ config/ appspec.yml
+          zip -r ./$GITHUB_SHA ./*.jar scripts/ appspec.yml
         shell: bash
 
       - name: Upload to S3

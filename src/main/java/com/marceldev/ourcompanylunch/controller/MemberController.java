@@ -6,7 +6,6 @@ import com.marceldev.ourcompanylunch.dto.member.SignUpDto;
 import com.marceldev.ourcompanylunch.dto.member.UpdateMemberDto;
 import com.marceldev.ourcompanylunch.dto.member.VerifyVerificationCodeDto;
 import com.marceldev.ourcompanylunch.exception.member.AlreadyExistMemberException;
-import com.marceldev.ourcompanylunch.exception.member.IncorrectPasswordException;
 import com.marceldev.ourcompanylunch.exception.member.VerificationCodeNotFoundException;
 import com.marceldev.ourcompanylunch.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;

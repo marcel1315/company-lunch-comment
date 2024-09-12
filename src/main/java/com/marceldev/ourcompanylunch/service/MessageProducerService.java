@@ -44,7 +44,7 @@ public class MessageProducerService {
     Member sender = getMember();
     Diner diner = getDiner(dinerId);
 
-    Set<DinerSubscription> subscriptions = dinerSubscriptionRepository.findDinerSubscriptionAndTokenByDinerId(
+    Set<DinerSubscription> subscriptions = dinerSubscriptionRepository.findDinerSubscriptionByDinerId(
         dinerId);
 
     // No need to send message to self.
