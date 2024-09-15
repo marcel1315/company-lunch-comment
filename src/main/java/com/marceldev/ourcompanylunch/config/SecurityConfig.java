@@ -1,6 +1,6 @@
 package com.marceldev.ourcompanylunch.config;
 
-import com.marceldev.ourcompanylunch.filter.JwtAuthenticationFilter;
+import com.marceldev.ourcompanylunchcommon.JwtAuthenticationFilter;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

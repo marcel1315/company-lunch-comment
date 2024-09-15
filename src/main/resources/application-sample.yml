@@ -13,9 +13,6 @@ spring:
     properties:
       hibernate:
         default_batch_fetch_size: 100
-  jwt:
-    secret:
-    expired-in-hour: 24
   mail:
     host: smtp.gmail.com
     port: 587
@@ -30,6 +27,10 @@ s3:
   bucket-name:
   diner-max-image-count: 10
 cloudfront-url:
+common:
+  jwt:
+    secret:
+    expired-in-hour: 1
 scheduler:
   clear-verification-code:
     cron: "0 0 3 * * *" # Run every day 03:00 AM
