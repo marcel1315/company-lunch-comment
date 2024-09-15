@@ -85,6 +85,7 @@ jobs:
             export PATH="/usr/local/bin/:$PATH" # aws command path
             pwd 
             aws s3 cp --profile marcel-ourcompanylunch --region ap-northeast-2 s3://${{ vars.S3_BUCKET_NAME }}/$FILENAME.zip ./$FILENAME.zip
+            rm -r ~/web/ourcompanylunch/build
             unzip -o -q $FILENAME.zip -d ~/web/ourcompanylunch/
             cd ~/web/ourcompanylunch
             scripts/startup_in_mac.sh
