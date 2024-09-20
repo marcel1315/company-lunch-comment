@@ -1,27 +1,18 @@
 package com.marceldev.ourcompanylunch.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.marceldev.ourcompanylunch.component.EmailSender;
-import com.marceldev.ourcompanylunch.dto.member.SendVerificationCodeDto;
 import com.marceldev.ourcompanylunch.dto.member.UpdateMemberDto;
-import com.marceldev.ourcompanylunch.dto.member.VerifyVerificationCodeDto;
 import com.marceldev.ourcompanylunch.entity.Company;
 import com.marceldev.ourcompanylunch.entity.Member;
-import com.marceldev.ourcompanylunch.entity.Verification;
 import com.marceldev.ourcompanylunch.exception.member.MemberUnauthorizedException;
 import com.marceldev.ourcompanylunch.repository.member.MemberRepository;
-import com.marceldev.ourcompanylunch.repository.verification.VerificationRepository;
 import com.marceldev.ourcompanylunch.type.Role;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
@@ -29,7 +20,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -46,12 +36,6 @@ class MemberServiceTest {
 
   @Mock
   private MemberRepository memberRepository;
-
-  @Mock
-  private EmailSender emailSender;
-
-  @Mock
-  private VerificationRepository verificationRepository;
 
   @InjectMocks
   private MemberService memberService;
@@ -85,49 +69,6 @@ class MemberServiceTest {
   }
 
   @Test
-  @DisplayName("인증번호 이메일 전송 - 성공")
-  void send_verification_code() {
-    //given
-    SendVerificationCodeDto dto = new SendVerificationCodeDto();
-    dto.setEmail("hello@example.com");
-
-    //when
-    memberService.sendVerificationCode(dto);
-
-    ArgumentCaptor<String> captorEmail = ArgumentCaptor.forClass(String.class);
-    ArgumentCaptor<String> captorSubject = ArgumentCaptor.forClass(String.class);
-    ArgumentCaptor<String> captorBody = ArgumentCaptor.forClass(String.class);
-
-    //then
-    verify(emailSender).sendMail(captorEmail.capture(), captorSubject.capture(),
-        captorBody.capture());
-    assertEquals("hello@example.com", captorEmail.getValue());
-    assertTrue(captorSubject.getValue().contains("Our Company Lunch"));
-    assertTrue(captorBody.getValue().contains("인증번호"));
-  }
-
-  @Test
-  @DisplayName("인증번호 인증 - 성공")
-  void verify_verification_code() {
-    //given
-    VerifyVerificationCodeDto dto = new VerifyVerificationCodeDto();
-    dto.setEmail("hello@example.com");
-    dto.setCode("123123");
-
-    //when
-    when(verificationRepository.findByEmail("hello@example.com"))
-        .thenReturn(Optional.of(Verification.builder()
-            .email("hello@example.com")
-            .code("123123")
-            .expirationAt(LocalDateTime.now().plusSeconds(30))
-            .build()
-        ));
-
-    //then
-    memberService.verifyVerificationCode(dto);
-  }
-
-  @Test
   @DisplayName("회원정보 수정 - 성공")
   void update_member_info() {
     //given
@@ -135,10 +76,10 @@ class MemberServiceTest {
         .name("이영수2")
         .build();
 
+    //when
     when(memberRepository.findByIdAndEmail(anyLong(), any()))
         .thenReturn(Optional.of(member1));
 
-    //when
     //then
     memberService.updateMember(1L, dto);
   }
@@ -151,10 +92,10 @@ class MemberServiceTest {
         .name("이영수2")
         .build();
 
+    //when
     when(memberRepository.findByIdAndEmail(anyLong(), any()))
         .thenReturn(Optional.empty());
 
-    //when
     //then
     assertThrows(MemberUnauthorizedException.class,
         () -> memberService.updateMember(1L, dto));
