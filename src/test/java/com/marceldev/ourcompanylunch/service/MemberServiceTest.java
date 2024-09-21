@@ -31,7 +31,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("회원 서비스")
 class MemberServiceTest {
 
   @Mock
@@ -42,8 +41,8 @@ class MemberServiceTest {
 
   Member member1 = Member.builder()
       .id(1L)
-      .email("kys@example.com")
-      .name("김영수")
+      .email("jack@example.com")
+      .name("Jack")
       .role(Role.VIEWER)
       .company(Company.builder().id(1L).build())
       .build();
@@ -69,11 +68,11 @@ class MemberServiceTest {
   }
 
   @Test
-  @DisplayName("회원정보 수정 - 성공")
+  @DisplayName("Update member - Success")
   void update_member_info() {
     //given
     UpdateMemberDto dto = UpdateMemberDto.builder()
-        .name("이영수2")
+        .name("James")
         .build();
 
     //when
@@ -85,11 +84,11 @@ class MemberServiceTest {
   }
 
   @Test
-  @DisplayName("회원정보 수정 - 실패(member id가 자신의 id가 아님 - 권한이 없음)")
+  @DisplayName("Update member - Fail(member id is not own id - Unauthorized)")
   void update_member_info_fail() {
     //given
     UpdateMemberDto dto = UpdateMemberDto.builder()
-        .name("이영수2")
+        .name("James")
         .build();
 
     //when

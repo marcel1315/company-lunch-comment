@@ -28,7 +28,7 @@ public class S3Manager {
   private final S3Client s3Client;
 
   /**
-   * key 와 파일을 받아 S3 버킷에 업로드
+   * Upload file to an S3 bucket, receiving key and file inputstream.
    */
   public void uploadFile(String key, InputStream inputStream, long size) throws IOException {
     // key: diner/1/images/567a3d2b-94db-4709-93b4-69771d8fdc54.png, filesize: 76120

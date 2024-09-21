@@ -12,11 +12,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
 
-@DisplayName("썸네일 생성 유틸")
 class MakeThumbnailUtilTest {
 
   @Test
-  @DisplayName("썸네일 생성 - 성공(jpg)")
+  @DisplayName("Create thumbnail - Success(jpg)")
   public void make_thumbnail_success_jpg() throws IOException {
     //given
     ClassPathResource imageFile = new ClassPathResource("food.jpg");
@@ -38,7 +37,7 @@ class MakeThumbnailUtilTest {
   }
 
   @Test
-  @DisplayName("썸네일 생성 - 성공(png)")
+  @DisplayName("Create thumbnail - Success(png)")
   public void make_thumbnail_success_png() throws IOException {
     //given
     ClassPathResource imageFile = new ClassPathResource("food-salad.png");
@@ -60,7 +59,7 @@ class MakeThumbnailUtilTest {
   }
 
   @Test
-  @DisplayName("썸네일 생성 - 실패(이미지로 읽을 수 없는 파일인 경우)")
+  @DisplayName("Create thumbnail - Fail(File format is not image)")
   public void make_thumbnail_fail_no_extension() throws IOException {
     //given
     ClassPathResource textFile = new ClassPathResource("food.txt");

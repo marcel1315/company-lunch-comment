@@ -51,7 +51,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("코멘트 서비스")
 class CommentServiceTest {
 
   @Mock
@@ -66,30 +65,31 @@ class CommentServiceTest {
   @InjectMocks
   private CommentService commentService;
 
-  // 테스트에서 목으로 사용될 member. diner를 가져올 때, 적절한 member가 아니면 가져올 수 없음
+  // Mock member
   private final Member member1 = Member.builder()
       .id(1L)
-      .email("kys@example.com")
-      .name("김영수")
+      .email("jack@example.com")
+      .name("Jack")
       .role(Role.VIEWER)
       .company(Company.builder().id(1L).build())
       .build();
 
-  // 테스트에서 목으로 사용될 company. diner를 가져올 때, member가 속한 company의 diner가 아니면 가져올 수 없음
+  // Mock company.
+  // When retrieving diner, if it's not the diner in the company of the member, the diner is not accessible.
   private final Company company1 = Company.builder()
       .id(1L)
-      .name("좋은회사")
-      .address("서울특별시 강남구 강남대로 200")
+      .name("HelloCompany")
+      .address("123, Gangnam-daero Gangnam-gu Seoul")
       .location(LocationUtil.createPoint(127.123123, 37.123123))
       .enterKey("company123")
       .build();
 
-  // 테스트에서 목으로 사용될 diner.
+  // Mock diner.
   private final Diner diner1 = Diner.builder()
       .id(1L)
-      .name("피자학원")
+      .name("ItalyPizza")
       .location(LocationUtil.createPoint(127.123123, 37.123123))
-      .tags(new LinkedHashSet<>(List.of("피자", "맛집")))
+      .tags(new LinkedHashSet<>(List.of("Pizza", "Hot Place")))
       .company(company1)
       .build();
 
@@ -114,14 +114,14 @@ class CommentServiceTest {
   }
 
   @Test
-  @DisplayName("코멘트 작성 - 성공")
+  @DisplayName("Create comment - Success")
   void create_comment() {
     //given
     CreateCommentDto dto = CreateCommentDto.builder()
-        .content("맛있어요")
+        .content("It's delicious")
         .shareStatus(ShareStatus.COMPANY)
         .build();
-    String email = "kys@example.com";
+    String email = "jack@example.com";
     when(memberRepository.findByEmail(email))
         .thenReturn(Optional.of(member1));
     when(dinerRepository.findById(1L))
@@ -133,21 +133,21 @@ class CommentServiceTest {
 
     //then
     verify(commentRepository).save(captor.capture());
-    assertEquals("맛있어요", captor.getValue().getContent());
+    assertEquals("It's delicious", captor.getValue().getContent());
     assertEquals(ShareStatus.COMPANY, captor.getValue().getShareStatus());
     assertEquals(member1, captor.getValue().getMember());
     assertEquals(diner1, captor.getValue().getDiner());
   }
 
   @Test
-  @DisplayName("코멘트 작성 - 실패(사용자를 못찾음)")
+  @DisplayName("Create comment - Fail(Member not found)")
   void create_comment_fail_member_not_found() {
     //given
     CreateCommentDto dto = CreateCommentDto.builder()
-        .content("맛있어요")
+        .content("It's delicious")
         .shareStatus(ShareStatus.COMPANY)
         .build();
-    String email = "kys@example.com";
+    String email = "jack@example.com";
     when(memberRepository.findByEmail(email))
         .thenReturn(Optional.empty());
 
@@ -158,14 +158,14 @@ class CommentServiceTest {
   }
 
   @Test
-  @DisplayName("코멘트 작성 - 실패(식당을 못찾음)")
+  @DisplayName("Create comment - Fail(Diner not found)")
   void create_comment_fail_diner_not_found() {
     //given
     CreateCommentDto dto = CreateCommentDto.builder()
-        .content("맛있어요")
+        .content("It's delicious")
         .shareStatus(ShareStatus.COMPANY)
         .build();
-    String email = "kys@example.com";
+    String email = "jack@example.com";
     when(memberRepository.findByEmail(email))
         .thenReturn(Optional.of(member1));
     when(dinerRepository.findById(1L))
@@ -178,7 +178,7 @@ class CommentServiceTest {
   }
 
   @Test
-  @DisplayName("코멘트 목록 가져오기 - 성공")
+  @DisplayName("Get comment list - Success")
   void get_comment_list() {
     //given
     GetCommentListDto dto = GetCommentListDto.builder()
@@ -186,8 +186,8 @@ class CommentServiceTest {
         .size(20)
         .sortBy(CommentSort.CREATED_AT)
         .sortDirection(SortDirection.ASC)
-        .commentedBy("김영수")
-        .keyword("친절")
+        .commentedBy("Jack")
+        .keyword("Very kind")
         .build();
 
     Comment comment1 = Comment.builder()
@@ -217,7 +217,7 @@ class CommentServiceTest {
   }
 
   @Test
-  @DisplayName("코멘트 삭제 - 성공")
+  @DisplayName("Delete comment - Success")
   void delete_comment() {
     //given
     when(commentRepository.findByIdAndMember_Email(anyLong(), any()))
@@ -230,7 +230,7 @@ class CommentServiceTest {
   }
 
   @Test
-  @DisplayName("코멘트 삭제 - 실패(코멘트 아이디와 자신의 이메일로 검색했을 때, 삭제하려는 코멘트가 없음)")
+  @DisplayName("Delete comment - Fail(Comment not found)")
   void delete_comment_no_comment() {
     //given
     when(commentRepository.findByIdAndMember_Email(anyLong(), any()))
@@ -243,16 +243,16 @@ class CommentServiceTest {
   }
 
   @Test
-  @DisplayName("코멘트 수정 - 성공")
+  @DisplayName("Update comment - Success")
   void update_comment() {
     //given
     UpdateCommentDto dto = UpdateCommentDto.builder()
-        .content("맛있어요")
+        .content("It's delicious")
         .shareStatus(ShareStatus.COMPANY)
         .build();
     when(commentRepository.findByIdAndMember_Email(anyLong(), any()))
         .thenReturn(Optional.of(Comment.builder()
-            .content("친절해요")
+            .content("Very kind")
             .shareStatus(ShareStatus.ME)
             .build()));
 
@@ -262,11 +262,11 @@ class CommentServiceTest {
   }
 
   @Test
-  @DisplayName("코멘트 수정 - 실패(코멘트 아이디와 자신의 이메일로 검색했을 때, 삭제하려는 코멘트가 없음)")
+  @DisplayName("Update comment - Fail(Comment not found)")
   void update_comment_fail() {
     //given
     UpdateCommentDto dto = UpdateCommentDto.builder()
-        .content("맛있어요")
+        .content("It's delicious")
         .shareStatus(ShareStatus.COMPANY)
         .build();
     when(commentRepository.findByIdAndMember_Email(anyLong(), any()))

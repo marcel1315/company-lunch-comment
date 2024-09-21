@@ -9,6 +9,6 @@ import lombok.Data;
 public class RemoveDinerTagsDto {
 
   @NotNull
-  @Schema(example = "[\"멕시코\"]")
+  @Schema(example = "[\"Mexico\"]")
   private List<String> tags;
 }

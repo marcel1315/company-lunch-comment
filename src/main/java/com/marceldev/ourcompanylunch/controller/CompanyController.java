@@ -29,20 +29,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@Tag(name = "2 Company", description = "회사 관련")
+@Tag(name = "2 Company")
 public class CompanyController {
 
   private final CompanyService companyService;
 
   @Operation(
-      summary = "회사 등록",
-      description = "사용자는 회사를 등록할 수 있다. 가입한 이메일 도메인으로 회사가 등록된다.<br>"
-          + "회사 등록시 이름, 주소, 위도, 경도를 입력한다.<br>"
-          + "같은 회사라도 여러 주소가 있을 수 있으므로, 같은 도메인의 회사 등록은 여러 곳이 가능하다."
+      summary = "Register a company",
+      description = "A member can register a company.<br>"
+          + "Company enterKey is the key that others can join this company with."
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "OK"),
-      @ApiResponse(responseCode = "400", description = "errorCode: 2001 - 같은 이름의 회사가 존재")
+      @ApiResponse(responseCode = "400", description = "errorCode: 2001 - A company with same name exists.")
   })
   @PostMapping("/companies")
   public ResponseEntity<Void> createCompany(
@@ -53,8 +52,7 @@ public class CompanyController {
   }
 
   @Operation(
-      summary = "이메일 인증번호 발송",
-      description = "해당 이메일로 인증번호를 발송한다."
+      summary = "Send email a verification code"
   )
   @PostMapping("/companies/send-verification-code")
   public ResponseEntity<Void> sendVerificationCode(
@@ -65,9 +63,9 @@ public class CompanyController {
   }
 
   @Operation(
-      summary = "회사 정보 수정",
-      description = "사용자는 회사 정보를 수정할 수 있다. 주소, 위도, 경도를 수정할 수 있다.<br>"
-          + "회사 정보 수정을 위해 이메일을 통한 번호 인증을 해야한다."
+      summary = "Update company information",
+      description = "A member can change address, latitude and longitude.<br>"
+          + "Require email verification code to update company information."
   )
   @PutMapping("/companies/{id}")
   public ResponseEntity<Void> updateCompany(
@@ -79,8 +77,7 @@ public class CompanyController {
   }
 
   @Operation(
-      summary = "회사 목록 조회",
-      description = "사용자는 가입한 이메일 도메인으로 등록된 회사들을 조회할 수 있다."
+      summary = "Get company list"
   )
   @GetMapping("/companies")
   public ResponseEntity<Page<CompanyOutputDto>> getCompanyList(
@@ -91,13 +88,13 @@ public class CompanyController {
   }
 
   @Operation(
-      summary = "회사 선택",
-      description = "사용자는 회사를 선택할 수 있다.<br>"
-          + "같은 회사라도 여러 지점이 있을 수 있다. 자신이 점심 먹는 회사를 선택한다."
+      summary = "Join a company",
+      description = "A member choose a company.<br>"
+          + "If a company has many branches, choose by the branch where eat lunch."
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "OK"),
-      @ApiResponse(responseCode = "400", description = "errorCode: 2002 - 입장키 잘못 입력")
+      @ApiResponse(responseCode = "400", description = "errorCode: 2002 - Incorrect enter key")
   })
   @PutMapping("/companies/{id}/choose")
   public ResponseEntity<Void> chooseCompany(

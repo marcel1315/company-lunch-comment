@@ -50,7 +50,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("회사 서비스")
 class CompanyServiceTest {
 
   @Mock
@@ -65,20 +64,21 @@ class CompanyServiceTest {
   @InjectMocks
   private CompanyService companyService;
 
-  // 테스트에서 목으로 사용될 company. diner를 가져올 때, member가 속한 company의 diner가 아니면 가져올 수 없음
+  // Mock company.
+  // When retrieving diner, if it's not the diner in the company of the member, the diner is not accessible.
   private final Company company1 = Company.builder()
       .id(1L)
-      .name("좋은회사")
-      .address("서울특별시 강남구 강남대로 200")
+      .name("HelloCompany")
+      .address("123, Gangnam-daero Gangnam-gu Seoul")
       .location(LocationUtil.createPoint(127.123123, 37.123123))
       .enterKey("company123")
       .build();
 
-  // 테스트에서 목으로 사용될 member. diner를 가져올 때, 적절한 member가 아니면 가져올 수 없음
+  // Mock member
   private final Member member1 = Member.builder()
       .id(1L)
-      .email("kys@example.com")
-      .name("김영수")
+      .email("jack@example.com")
+      .name("Jack")
       .role(Role.VIEWER)
       .company(company1)
       .build();
@@ -104,12 +104,12 @@ class CompanyServiceTest {
   }
 
   @Test
-  @DisplayName("회사 생성 - 성공")
+  @DisplayName("Create company - Success")
   void create_company() {
     //given
     CreateCompanyDto dto = CreateCompanyDto.builder()
-        .name("좋은회사")
-        .address("서울시 강남구 역삼동 123-456")
+        .name("HelloCompany")
+        .address("321, Teheran-ro Gangnam-gu Seoul")
         .enterKey("company123")
         .enterKeyEnabled(false)
         .latitude(37.123456)
@@ -124,19 +124,19 @@ class CompanyServiceTest {
 
     //then
     verify(companyRepository).save(captor.capture());
-    assertEquals("좋은회사", captor.getValue().getName());
-    assertEquals("서울시 강남구 역삼동 123-456", captor.getValue().getAddress());
+    assertEquals("HelloCompany", captor.getValue().getName());
+    assertEquals("321, Teheran-ro Gangnam-gu Seoul", captor.getValue().getAddress());
     assertEquals(LocationUtil.createPoint(127.123456, 37.123456), captor.getValue().getLocation());
     assertEquals("company123", captor.getValue().getEnterKey());
   }
 
   @Test
-  @DisplayName("회사 생성 - 실패(같은 회사 이름이 존재, 같은 이메일 도메인 안에)")
+  @DisplayName("Create company - Fail(Same company name exists)")
   void create_company_fail_same_email_domain() {
     //given
     CreateCompanyDto dto = CreateCompanyDto.builder()
-        .name("좋은회사")
-        .address("서울시 강남구 역삼동 123-456")
+        .name("HelloCompany")
+        .address("321, Teheran-ro Gangnam-gu Seoul")
         .latitude(37.123456)
         .longitude(127.123456)
         .build();
@@ -150,11 +150,11 @@ class CompanyServiceTest {
   }
 
   @Test
-  @DisplayName("회사 정보 수정 - 성공")
+  @DisplayName("Update company - Success")
   void update_company() {
     //given
     UpdateCompanyDto dto = UpdateCompanyDto.builder()
-        .address("서울시 강남구 역삼동 123-456")
+        .address("321, Teheran-ro Gangnam-gu Seoul")
         .latitude(37.123456)
         .longitude(127.123456)
         .enterKeyEnabled(false)
@@ -178,11 +178,11 @@ class CompanyServiceTest {
   }
 
   @Test
-  @DisplayName("회사 정보 수정 - 실패(해당 회사가 존재하지 않음)")
+  @DisplayName("Update company - Fail(Company not found)")
   void update_company_fail_no_company() {
     //given
     UpdateCompanyDto dto = UpdateCompanyDto.builder()
-        .address("서울시 강남구 역삼동 123-456")
+        .address("321, Teheran-ro Gangnam-gu Seoul")
         .latitude(37.123456)
         .longitude(127.123456)
         .verificationCode("123456")
@@ -197,11 +197,11 @@ class CompanyServiceTest {
   }
 
   @Test
-  @DisplayName("회사 정보 수정 - 실패(인증번호가 맞지 않음)")
+  @DisplayName("Update company - Fail(Verification code incorrect)")
   void update_company_fail_verification_code_incorrect() {
     //given
     UpdateCompanyDto dto = UpdateCompanyDto.builder()
-        .address("서울시 강남구 역삼동 123-456")
+        .address("321, Teheran-ro Gangnam-gu Seoul")
         .latitude(37.123456)
         .longitude(127.123456)
         .verificationCode("123456")
@@ -225,11 +225,11 @@ class CompanyServiceTest {
   }
 
   @Test
-  @DisplayName("회사 정보 수정 - 실패(인증번호의 만료시간이 현재시간보다 먼저인 경우)")
+  @DisplayName("Update company - Fail(Verification code expiration date is before now)")
   void update_company_fail_verification_code_expired() {
     //given
     UpdateCompanyDto dto = UpdateCompanyDto.builder()
-        .address("서울시 강남구 역삼동 123-456")
+        .address("321, Teheran-ro Gangnam-gu Seoul")
         .latitude(37.123456)
         .longitude(127.123456)
         .verificationCode("123456")
@@ -253,7 +253,7 @@ class CompanyServiceTest {
   }
 
   @Test
-  @DisplayName("회사 목록 불러오기 - 성공")
+  @DisplayName("Get company list - Success")
   void get_company_list() {
     //given
     GetCompanyListDto dto = GetCompanyListDto.builder()
@@ -265,14 +265,14 @@ class CompanyServiceTest {
     String email = "hello@example.com";
     Company company1 = Company.builder()
         .id(1L)
-        .name("감정타코 강남점")
-        .address("서울시 강남구 역삼동 123-456")
+        .name("Emotion Taco Gangnam branch")
+        .address("321, Teheran-ro Gangnam-gu Seoul")
         .location(LocationUtil.createPoint(127.123456, 37.123456))
         .build();
     Company company2 = Company.builder()
         .id(2L)
-        .name("감정타코 신사점")
-        .address("서울시 강남구 신사동 123-456")
+        .name("Emotion Taco Sinsa branch")
+        .address("432, Teheran-ro Gangnam-gu Seoul")
         .location(LocationUtil.createPoint(127.123457, 37.123457))
         .build();
 
@@ -289,7 +289,7 @@ class CompanyServiceTest {
   }
 
   @Test
-  @DisplayName("회사 목록 불러오기 - 성공(빈 페이지)")
+  @DisplayName("Get company list - Success(Blank list)")
   void get_company_list_empty_page() {
     //given
     GetCompanyListDto dto = GetCompanyListDto.builder()
@@ -314,13 +314,13 @@ class CompanyServiceTest {
   }
 
   @Test
-  @DisplayName("회사 선택하기 - 성공")
+  @DisplayName("Choose company - Success")
   void choose_company() {
     //given
     Company company = Company.builder()
         .id(1L)
-        .name("감정타코 강남점")
-        .address("서울시 강남구 역삼동 123-456")
+        .name("Emotion Taco Gangnam branch")
+        .address("321, Teheran-ro Gangnam-gu Seoul")
         .location(LocationUtil.createPoint(127.123456, 37.123456))
         .enterKey("company123")
         .build();
@@ -336,7 +336,7 @@ class CompanyServiceTest {
   }
 
   @Test
-  @DisplayName("회사 선택하기 - 실패(회사가 없음)")
+  @DisplayName("Choose company - Fail(Company not found)")
   void choose_company_fail_no_company() {
     //given
     Member member = Member.builder()

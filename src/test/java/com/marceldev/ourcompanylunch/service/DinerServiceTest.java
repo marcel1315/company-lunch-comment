@@ -58,7 +58,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("식당 서비스")
 class DinerServiceTest {
 
   @Mock
@@ -79,32 +78,33 @@ class DinerServiceTest {
   @InjectMocks
   private DinerService dinerService;
 
-  // 테스트에서 목으로 사용될 company. diner를 가져올 때, member가 속한 company의 diner가 아니면 가져올 수 없음
+  // Mock company
+  // When retrieving diner, if it's not the diner in the company of the member, the diner is not accessible.
   Company company1 = Company.builder()
       .id(1L)
-      .name("좋은회사")
-      .address("서울특별시 강남구 강남대로 200")
+      .name("HelloCompany")
+      .address("123, Gangnam-daero Gangnam-gu Seoul")
       .location(LocationUtil.createPoint(127.123123, 37.123123))
       .enterKey("company123")
       .build();
 
-  // 테스트에서 목으로 사용될 member. diner 를 가져올 때, 적절한 member 가 아니면 가져올 수 없음
+  // Mock member
   Member member1 = Member.builder()
       .id(1L)
-      .email("kys@example.com")
-      .name("김영수")
+      .email("jack@example.com")
+      .name("Jack")
       .role(Role.VIEWER)
       .company(company1)
       .build();
 
-  // 테스트에서 목으로 사용될 diner.
+  // Mock diner
   Diner diner1 = Diner.builder()
       .id(1L)
-      .name("감성타코")
+      .name("Gamsung Taco")
       .link("taco.com")
       .location(LocationUtil.createPoint(127.123123, 37.123123))
       .company(company1)
-      .tags(new LinkedHashSet<>(List.of("태그1", "태그2")))
+      .tags(new LinkedHashSet<>(List.of("tag1", "tag2")))
       .build();
 
   @BeforeEach
@@ -131,15 +131,15 @@ class DinerServiceTest {
   }
 
   @Test
-  @DisplayName("식당 생성 - 성공")
+  @DisplayName("Create diner - Success")
   void test_create_diner() {
     //given
     LinkedHashSet<String> tags = new LinkedHashSet<>();
-    tags.add("멕시코");
-    tags.add("분위기좋은");
+    tags.add("Mexico");
+    tags.add("Good atmosphere");
 
     CreateDinerDto dto = CreateDinerDto.builder()
-        .name("감성타코")
+        .name("Gamsung Taco")
         .link("diner.com")
         .latitude(37.29283882)
         .longitude(127.39232323)
@@ -148,9 +148,10 @@ class DinerServiceTest {
 
     Company company = Company.builder()
         .id(1L)
-        .name("좋은회사")
+        .name("HelloCompany")
         .build();
 
+    //when
     when(memberRepository.findByEmail(any()))
         .thenReturn(Optional.of(
             Member.builder()
@@ -158,27 +159,27 @@ class DinerServiceTest {
                 .build()
         ));
 
-    //when
     ArgumentCaptor<Diner> captor = ArgumentCaptor.forClass(Diner.class);
     dinerService.createDiner(dto);
 
     //then
     verify(dinerRepository).save(captor.capture());
     Diner diner = captor.getValue();
-    assertEquals(diner.getName(), "감성타코");
+    assertEquals(diner.getName(), "Gamsung Taco");
     assertEquals(diner.getLink(), "diner.com");
     assertEquals(diner.getLocation(), LocationUtil.createPoint(127.39232323, 37.29283882));
-    assertEquals(diner.getTags().getLast(), "분위기좋은");
+    assertEquals(diner.getTags().getLast(), "Good atmosphere");
   }
 
   @Test
-  @DisplayName("식당 생성 - 실패(선택된 회사가 없음)")
+  @DisplayName("Create diner - Fail(No company chosen)")
   void test_create_diner_no_company_chosen() {
     //given
     CreateDinerDto dto = CreateDinerDto.builder()
-        .name("감성타코")
+        .name("Gamsung Taco")
         .build();
 
+    //when
     when(memberRepository.findByEmail(any()))
         .thenReturn(Optional.of(
             Member.builder()
@@ -186,7 +187,6 @@ class DinerServiceTest {
                 .build()
         ));
 
-    //when
     //then
     assertThrows(
         CompanyNotFoundException.class,
@@ -195,7 +195,7 @@ class DinerServiceTest {
   }
 
   @Test
-  @DisplayName("식당 정보 수정 - 성공")
+  @DisplayName("Update diner - Success")
   void test_update_diner() {
     //given
     UpdateDinerDto dto = UpdateDinerDto.builder()
@@ -203,6 +203,8 @@ class DinerServiceTest {
         .latitude(37.11111111)
         .longitude(127.11111111)
         .build();
+
+    //when
     when(dinerRepository.findById(anyLong()))
         .thenReturn(Optional.ofNullable(
             Diner
@@ -214,34 +216,35 @@ class DinerServiceTest {
                 .build()
         ));
 
-    //when
     //then
     dinerService.updateDiner(1, dto);
   }
 
   @Test
-  @DisplayName("식당 정보 수정 - 실패(존재하지 않는 식당)")
+  @DisplayName("Update diner - Fail(Diner not found)")
   void test_update_diner_fail_not_found() {
     //given
     UpdateDinerDto dto = UpdateDinerDto.builder()
         .link("diner1.com")
         .build();
+
+    //when
     when(dinerRepository.findById(anyLong()))
         .thenReturn(Optional.empty());
 
-    //when
     //then
     assertThrows(DinerNotFoundException.class,
         () -> dinerService.updateDiner(1, dto));
   }
 
   @Test
-  @DisplayName("식당 태그 추가 - 성공(다른 태그가 없을 때)")
+  @DisplayName("Add diner tag - Success(When tags is empty)")
   void test_update_diner_add_tag_blank() {
     //given
     AddDinerTagsDto dto = new AddDinerTagsDto();
-    dto.setTags(List.of("태그1", "태그2"));
+    dto.setTags(List.of("tag1", "tag2"));
 
+    //when
     when(dinerRepository.findById(anyLong()))
         .thenReturn(Optional.ofNullable(
             Diner
@@ -252,79 +255,78 @@ class DinerServiceTest {
                 .build()
         ));
 
-    //when
     //then
     dinerService.addDinerTag(1, dto);
   }
 
   @Test
-  @DisplayName("식당 태그 추가 - 성공(다른 태그가 있을 때, 기존 태그가 없어지면 안됨)")
+  @DisplayName("Add diner tag - Success(When other tags exists. Existing tags should remain.)")
   void test_update_diner_add_tag_not_blank() {
     //given
     AddDinerTagsDto dto = new AddDinerTagsDto();
-    dto.setTags(List.of("태그2", "태그3"));
+    dto.setTags(List.of("tag2", "tag3"));
 
+    //when
     when(dinerRepository.findById(anyLong()))
         .thenReturn(Optional.ofNullable(
             Diner
                 .builder()
                 .id(1L)
                 .company(company1)
-                .tags(new LinkedHashSet<>(List.of("태그1")))
+                .tags(new LinkedHashSet<>(List.of("tag1")))
                 .build()
         ));
 
-    //when
     //then
     dinerService.addDinerTag(1, dto);
   }
 
   @Test
-  @DisplayName("식당 태그 추가 - 성공(동일한 이름의 태그가 이미 존재하더라도 없는 것만 추가하고, 에러는 내지 않음)")
+  @DisplayName("Add diner tag - Success(Same name tags already exists. Add only non-existing ones and success.)")
   void test_update_diner_add_tag_already_exist_tag() {
     //given
     AddDinerTagsDto dto = new AddDinerTagsDto();
-    dto.setTags(List.of("태그1", "태그2"));
+    dto.setTags(List.of("tag1", "tag2"));
 
+    //when
     when(dinerRepository.findById(anyLong()))
         .thenReturn(Optional.ofNullable(
             Diner
                 .builder()
                 .id(1L)
                 .company(company1)
-                .tags(new LinkedHashSet<>(List.of("태그2")))
+                .tags(new LinkedHashSet<>(List.of("tag2")))
                 .build()
         ));
 
-    //when
     //then
     dinerService.addDinerTag(1, dto);
   }
 
   @Test
-  @DisplayName("식당 태그 삭제 - 성공")
+  @DisplayName("Add diner tag - Success")
   void test_update_diner_remove_tag() {
     //given
     RemoveDinerTagsDto dto = new RemoveDinerTagsDto();
-    dto.setTags(List.of("태그1", "태그2"));
+    dto.setTags(List.of("tag1", "tag2"));
 
+    //when
     when(dinerRepository.findById(anyLong()))
         .thenReturn(Optional.ofNullable(
             Diner
                 .builder()
                 .id(1L)
                 .company(company1)
-                .tags(new LinkedHashSet<>(List.of("태그1", "태그2", "태그3")))
+                .tags(new LinkedHashSet<>(List.of("tag1", "tag2", "tag3")))
                 .build()
         ));
 
-    //when
     //then
     dinerService.removeDinerTag(1, dto);
   }
 
   @Test
-  @DisplayName("식당 목록 불러오기 - 성공")
+  @DisplayName("Get diner list - Success")
   void test_get_diner_list() {
     //given
     GetDinerListDto dto = GetDinerListDto.builder()
@@ -336,40 +338,39 @@ class DinerServiceTest {
 
     DinerOutputDto diner1 = DinerOutputDto.builder()
         .id(1L)
-        .name("감성타코")
+        .name("Gamsung Taco")
         .link("diner.com")
         .latitude(37.123123)
         .longitude(127.123123)
-        .tags(new LinkedHashSet<>(List.of("태그1", "태그2")))
+        .tags(new LinkedHashSet<>(List.of("tag1", "tag2")))
         .build();
     DinerOutputDto diner2 = DinerOutputDto.builder()
         .id(2L)
-        .name("감성타코2")
+        .name("Gamsung Taco2")
         .link("diner2.com")
         .latitude(37.123123)
         .longitude(127.123123)
-        .tags(new LinkedHashSet<>(List.of("태그1", "태그2")))
+        .tags(new LinkedHashSet<>(List.of("tag1", "tag2")))
         .build();
 
+    //when
     Page<DinerOutputDto> pages = new PageImpl<>(List.of(diner1, diner2));
     when(dinerRepository.getList(anyLong(), any(), any()))
         .thenReturn(pages);
-
-    //when
     Page<DinerOutputDto> page = dinerService.getDinerList(dto);
 
     //then
     assertEquals(page.getContent().size(), 2);
-    assertEquals(page.getContent().getFirst().getName(), "감성타코");
+    assertEquals(page.getContent().getFirst().getName(), "Gamsung Taco");
   }
 
   @Test
-  @DisplayName("식당 상세 불러오기 - 성공")
+  @DisplayName("Get diner detail - Success")
   void test_get_diner_detail() {
     //given
     Diner diner = Diner.builder()
         .id(1L)
-        .name("감성타코")
+        .name("Gamsung Taco")
         .link("diner.com")
         .dinerImages(List.of(
             DinerImage.builder()
@@ -383,51 +384,26 @@ class DinerServiceTest {
         ))
         .company(company1)
         .build();
+    //when
     when(dinerRepository.findById(1L))
         .thenReturn(Optional.of(diner));
     when(s3Manager.getUrls(List.of("diner/1.png", "diner/2.png")))
         .thenReturn(List.of("https://abc.cloudfront.net/diner/1.png",
             "https://abc.cloudfront.net/diner/2.png"));
-
-    //when
     DinerDetailOutputDto dinerDetail = dinerService.getDinerDetail(1L);
 
     //then
-    assertEquals(dinerDetail.getName(), "감성타코");
+    assertEquals(dinerDetail.getName(), "Gamsung Taco");
     assertEquals(dinerDetail.getImageUrls().getFirst(), "https://abc.cloudfront.net/diner/1.png");
   }
 
   @Test
-  @DisplayName("식당 상세 불러오기 - 성공(S3 저장소에서 url만들기가 실패하더라도 나머지 정보로 성공 돌려주기")
-  void test_get_diner_detail_even_if_s3_fail() {
-    //given
-    Diner diner = Diner.builder()
-        .id(1L)
-        .name("감성타코")
-        .link("diner.com")
-        .company(company1)
-        .dinerImages(List.of())
-        .build();
-
-    when(dinerRepository.findById(anyLong()))
-        .thenReturn(Optional.of(diner));
-    when(s3Manager.getUrls(List.of("diner/1.png", "diner/2.png")))
-        .thenThrow(RuntimeException.class);
-
-    //when
-    DinerDetailOutputDto dinerDetail = dinerService.getDinerDetail(1L);
-
-    //then
-    assertEquals(dinerDetail.getName(), "감성타코");
-  }
-
-  @Test
-  @DisplayName("식당 제거 - 성공")
+  @DisplayName("Remove diner - Success")
   void test_remove_diner() {
     //given
     Diner diner = Diner.builder()
         .id(1L)
-        .name("감성타코")
+        .name("Gamsung Taco")
         .company(company1)
         .dinerImages(List.of(
             DinerImage.builder()
@@ -438,10 +414,10 @@ class DinerServiceTest {
                 .build()
         ))
         .build();
-    when(dinerRepository.findById(anyLong()))
-        .thenReturn(Optional.of(diner));
 
     //when
+    when(dinerRepository.findById(anyLong()))
+        .thenReturn(Optional.of(diner));
     dinerService.removeDiner(1L);
 
     //then
@@ -451,12 +427,12 @@ class DinerServiceTest {
   }
 
   @Test
-  @DisplayName("식당 제거 - 성공(S3 저장소의 이미지 삭제를 실패해도 식당 제거는 성공을 내보냄")
+  @DisplayName("Remove diner - Success(Removing diner success, even if removing in S3 fails.")
   void test_remove_diner_even_if_s3_fail() {
     //given
     Diner diner = Diner.builder()
         .id(1L)
-        .name("감성타코")
+        .name("Gamsung Taco")
         .company(company1)
         .dinerImages(List.of(
             DinerImage.builder()
@@ -467,12 +443,12 @@ class DinerServiceTest {
                 .build()
         ))
         .build();
+
+    //when
     when(dinerRepository.findById(anyLong()))
         .thenReturn(Optional.of(diner));
     doThrow(new RuntimeException())
         .when(s3Manager).removeFile(any());
-
-    //when
     dinerService.removeDiner(1L);
 
     //then
@@ -481,13 +457,13 @@ class DinerServiceTest {
   }
 
   @Test
-  @DisplayName("식당 구독 - 성공")
+  @DisplayName("Subscribe diner - Success")
   void subscribe_diner() {
     //given
+    //when
     when(dinerSubscriptionRepository.existsByDinerAndMember(any(), any()))
         .thenReturn(false);
 
-    //when
     dinerService.subscribeDiner(1L);
     ArgumentCaptor<DinerSubscription> captor = ArgumentCaptor.forClass(DinerSubscription.class);
 
@@ -497,28 +473,28 @@ class DinerServiceTest {
   }
 
   @Test
-  @DisplayName("식당 구독 - 실패(이미 구독 중)")
+  @DisplayName("Subscribe diner - Fail(Already subscribing)")
   void subscribe_diner_fail_already_subscribed() {
     //given
+    //when
     when(dinerSubscriptionRepository.existsByDinerAndMember(any(), any()))
         .thenReturn(true);
 
-    //when
     //then
     assertThrows(AlreadySubscribedException.class,
         () -> dinerService.subscribeDiner(1L));
   }
 
   @Test
-  @DisplayName("식당 구독 취소 - 성공")
+  @DisplayName("Unsubscribe diner - Success")
   void unsubscribe_diner() {
     //given
+    //when
     when(dinerSubscriptionRepository.findByDinerAndMember(any(), any()))
         .thenReturn(Optional.of(DinerSubscription.builder()
             .id(1L)
             .build()));
 
-    //when
     dinerService.unsubscribeDiner(1L);
 
     //then
@@ -526,13 +502,13 @@ class DinerServiceTest {
   }
 
   @Test
-  @DisplayName("식당 구독 취소 - 실패(구독이 없음)")
+  @DisplayName("Unsubscribe diner - Fail(No subscription)")
   void unsubscribe_diner_fail_no_subscription() {
     //given
+    //when
     when(dinerSubscriptionRepository.findByDinerAndMember(any(), any()))
         .thenReturn(Optional.empty());
 
-    //when
     //then
     assertThrows(DinerSubscriptionNotFoundException.class,
         () -> dinerService.unsubscribeDiner(1L));

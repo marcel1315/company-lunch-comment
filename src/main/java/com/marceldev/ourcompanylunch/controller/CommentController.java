@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@Tag(name = "4 Comment", description = "코멘트 관련")
+@Tag(name = "4 Comment")
 public class CommentController {
 
   private final CommentService commentService;
@@ -31,9 +31,9 @@ public class CommentController {
   private final MessageProducerService messageProducerService;
 
   @Operation(
-      summary = "식당에 코멘트 작성",
-      description = "사용자는 등록된 식당에 대해 코멘트를 작성할 수 있다.<br>"
-          + "식당, 코멘트 내용, 사내 공유 여부를 입력한다."
+      summary = "Write a comment on a diner",
+      description = "A member can write a comment on a registered diner.<br>"
+          + "Also enter a sharing option."
   )
   @PostMapping("/diners/{id}/comments")
   public ResponseEntity<Void> createComment(
@@ -46,9 +46,10 @@ public class CommentController {
   }
 
   @Operation(
-      summary = "식당의 코멘트 조회",
-      description = "사용자는 사내 공유된 식당의 코멘트 목록을 조회할 수 있다.<br>"
-          + "작성자 이름, 코멘트 내용으로 목록을 조회할 수 있다. 작성시간순으로 정렬할 수 있다."
+      summary = "Get a list of comments on the diner",
+      description =
+          "A member can get a list of comments on the diner that shared in the company.<br>"
+              + "Query with author name, comment content text. Sort by created time."
   )
   @GetMapping("/diners/{id}/comments")
   public ResponseEntity<Page<CommentOutputDto>> getCommentList(
@@ -62,8 +63,8 @@ public class CommentController {
   }
 
   @Operation(
-      summary = "코멘트 수정",
-      description = "사용자는 자신이 작성한 코멘트를 수정할 수 있다."
+      summary = "Update the comment",
+      description = "A member can update the comment that he/she wrote."
   )
   @PutMapping("/diners/comments/{id}")
   public ResponseEntity<Void> updateComment(
@@ -75,8 +76,8 @@ public class CommentController {
   }
 
   @Operation(
-      summary = "코멘트 삭제",
-      description = "사용자는 자신이 작성한 코멘트를 삭제할 수 있다."
+      summary = "Remove the comment",
+      description = "A member can remove the comment that he/she wrote."
   )
   @DeleteMapping("/diners/comments/{id}")
   public ResponseEntity<Void> deleteComment(

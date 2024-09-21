@@ -43,7 +43,8 @@ public class DinerImageService {
   private final S3Manager s3Manager;
 
   /**
-   * 식당 이미지 추가 이미지의 순서값은 이미 있는 이미지의 가장 큰 값에 +100씩 함 썸네일을 생성해서 별도로 저장
+   * Order value of image is defined by the most value of an existing image's order + 100. Create a
+   * thumbnail and save it in S3.
    */
   @Transactional
   public void addDinerImage(long dinerId, MultipartFile image) {
@@ -52,13 +53,14 @@ public class DinerImageService {
     String extension = FileUtil.getExtension(image)
         .orElseThrow(ImageWithNoExtensionException::new);
 
-    // 하나의 InputStream 을 두번 쓸 수는 없어서 BufferedInputStream 을 사용
+    // Use BufferedInputStream to reuse. (Normally, input stream is used once.)
     try (BufferedInputStream bufferedInputStream = new BufferedInputStream(
         image.getInputStream())) {
-      // readLimit 을 크게 잡아 mark 가 invalidated 되지 않도록 함. reset 해서 처음 위치로 가기
+      // Set a large read limit to prevent the mark from being invalidated.
+      // Thus, I can call reset. (If the mark is invalidated, I can't call reset.)
       bufferedInputStream.mark(Integer.MAX_VALUE);
 
-      // 썸네일 생성
+      // Create a thumbnail
       bufferedInputStream.reset();
       ByteArrayOutputStream resizedOutputStream = MakeThumbnailUtil.resizeFile(
           bufferedInputStream, extension
@@ -67,7 +69,7 @@ public class DinerImageService {
           resizedOutputStream.toByteArray()
       );
 
-      // S3 로 원본과 썸네일 업로드
+      // Upload original and thumbnail image in S3.
       bufferedInputStream.reset();
       String keyImage = genDinerImageKey(dinerId, extension, false);
       uploadDinerImageToStorage(
@@ -78,7 +80,7 @@ public class DinerImageService {
           keyThumbnail, thumbnailInputStream, extension, resizedOutputStream.size()
       );
 
-      // DB 에 이미지 정보 저장
+      // Save image info in DB.
       saveDinerImage(diner, keyImage, false);
       saveDinerImage(diner, keyThumbnail, true);
 
@@ -87,13 +89,8 @@ public class DinerImageService {
     }
   }
 
-  /**
-   * 식당 이미지 제거
-   */
   @Transactional
   public void removeDinerImage(long imageId) {
-    // dinerId는 추후에 사용자 개념이 들어오면, diner를 지울 수 있는지 확인할 때 쓰려고 남겨놓음
-
     DinerImage dinerImage = dinerImageRepository.findById(imageId)
         .orElseThrow(() -> new DinerImageNotFoundException(imageId));
     String key = dinerImage.getS3Key();
@@ -102,9 +99,10 @@ public class DinerImageService {
     try {
       dinerImageRepository.delete(dinerImage);
     } catch (RuntimeException e) {
-      //TODO: 저장소에 이미지는 지워지고, 이미지 정보만 DB에 남게되면 어떻게 하지?
-      // -> 파일이 존재하지 않으면 deleteDinerImageFromStorage에서 throw하지 않기
-      throw new InternalServerErrorException("이미지 정보 DB삭제 실패");
+      // What if the image in S3 is removed and the image info remains in DB?
+      // -> When calling deleteDinerImageFromStorage, don't throw even if the file doesn't exist.
+      // TODO: How can I handle this more gracefully?
+      throw new InternalServerErrorException("Fail to remove a diner image info");
     }
   }
 
@@ -137,12 +135,12 @@ public class DinerImageService {
           .build();
       dinerImageRepository.save(dinerImage);
     } catch (RuntimeException e) {
-      throw new InternalServerErrorException("식당 이미지 저장 실패");
+      throw new InternalServerErrorException("Fail to save a diner image");
     }
   }
 
   private int getNextImageOrder(Diner diner) {
-    // 1개씩 order 가 붙어있으면 order 수정시에 여러 image 들의 order 를 수정해야하므로 간격을 줌
+    // Set the unit of order step to 100 because unit 1 could make changing order logic complex. Changing order is not implemented yet though.
     int orderStep = 100;
 
     return dinerImageRepository.findTopByDinerOrderByOrdersDesc(diner)

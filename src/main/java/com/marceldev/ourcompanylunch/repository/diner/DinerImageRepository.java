@@ -8,17 +8,17 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface DinerImageRepository extends JpaRepository<DinerImage, Long> {
 
   /**
-   * 같은 Diner를 가진 DinerImage 중 가장 큰 orders 값을 가진 DinerImage
+   * DinerImage has a largest order value within DinerImage that has same Diner.
    */
   Optional<DinerImage> findTopByDinerOrderByOrdersDesc(Diner diner);
 
   /**
-   * image의 갯수
+   * An amount of images.
    */
   int countByDinerAndThumbnail(Diner diner, boolean thumbnail);
 
   /**
-   * dinerId에 해당하는 모든 image를 제거
+   * Remove all DinerImages that has same diner id.
    */
   void deleteByDinerId(Long dinerId);
 }

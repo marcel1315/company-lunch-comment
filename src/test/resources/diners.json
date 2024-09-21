@@ -1,202 +1,202 @@
 [
   {
-    "name": "소문난김밥",
-    "link": "https://naver.me/x1234abcd",
+    "name": "Famous Kimbap",
+    "link": "https://link.me/x1234abcd",
     "latitude": "37.4999021",
     "longitude": "127.0266099",
     "tags": [
-      "한식",
-      "김밥"
+      "Korean",
+      "Kimbap"
     ]
   },
   {
-    "name": "맛집수제버거",
-    "link": "https://naver.me/y5678efgh",
+    "name": "Delicious Handmade Burger",
+    "link": "https://link.me/y5678efgh",
     "latitude": "37.5009021",
     "longitude": "127.0256099",
     "tags": [
-      "미국식",
-      "버거"
+      "American",
+      "Burger"
     ]
   },
   {
-    "name": "정통중식당",
-    "link": "https://naver.me/z9012ijkl",
+    "name": "Authentic Chinese Restaurant",
+    "link": "https://link.me/z9012ijkl",
     "latitude": "37.5019021",
     "longitude": "127.0246099",
     "tags": [
-      "중식",
-      "짜장면"
+      "Chinese",
+      "Jjajangmyeon"
     ]
   },
   {
-    "name": "분식천국",
-    "link": "https://naver.me/a3456mnop",
+    "name": "Snack Paradise",
+    "link": "https://link.me/a3456mnop",
     "latitude": "37.5029021",
     "longitude": "127.0236099",
     "tags": [
-      "한식",
-      "떡볶이"
+      "Korean",
+      "Tteokbokki"
     ]
   },
   {
-    "name": "어린이식당",
-    "link": "https://naver.me/b7890qrst",
+    "name": "Kids Restaurant",
+    "link": "https://link.me/b7890qrst",
     "latitude": "37.5039021",
     "longitude": "127.0226099",
     "tags": [
-      "한식",
-      "어린이"
+      "Korean",
+      "Kids"
     ]
   },
   {
-    "name": "바베큐하우스",
-    "link": "https://naver.me/c1234uvwx",
+    "name": "BBQ House",
+    "link": "https://link.me/c1234uvwx",
     "latitude": "37.5049021",
     "longitude": "127.0216099",
     "tags": [
-      "미국식",
-      "바베큐"
+      "American",
+      "BBQ"
     ]
   },
   {
-    "name": "감성이탈리아",
-    "link": "https://naver.me/d5678yzab",
+    "name": "Gamsung Italia",
+    "link": "https://link.me/d5678yzab",
     "latitude": "37.5059021",
     "longitude": "127.0206099",
     "tags": [
-      "이탈리아",
-      "파스타"
+      "Italian",
+      "Pasta"
     ]
   },
   {
-    "name": "일식집",
-    "link": "https://naver.me/e9012cdef",
+    "name": "Japanese Restaurant",
+    "link": "https://link.me/e9012cdef",
     "latitude": "37.5069021",
     "longitude": "127.0196099",
     "tags": [
-      "일식",
-      "스시"
+      "Japanese",
+      "Sushi"
     ]
   },
   {
-    "name": "양식의정석",
-    "link": "https://naver.me/f3456ghij",
+    "name": "Western Cuisine Masterpiece",
+    "link": "https://link.me/f3456ghij",
     "latitude": "37.5079021",
     "longitude": "127.0186099",
     "tags": [
-      "양식",
-      "스테이크"
+      "Western",
+      "Steak"
     ]
   },
   {
-    "name": "퓨전한식당",
-    "link": "https://naver.me/g7890klmn",
+    "name": "Fusion Korean Restaurant",
+    "link": "https://link.me/g7890klmn",
     "latitude": "37.4989021",
     "longitude": "127.0286099",
     "tags": [
-      "퓨전",
-      "한식"
+      "Fusion",
+      "Korean"
     ]
   },
   {
-    "name": "전통떡집",
-    "link": "https://naver.me/h1234opqr",
+    "name": "Traditional Rice Cake Shop",
+    "link": "https://link.me/h1234opqr",
     "latitude": "37.4979021",
     "longitude": "127.0296099",
     "tags": [
-      "한식",
-      "떡"
+      "Korean",
+      "Rice Cake"
     ]
   },
   {
-    "name": "친구들과함께",
-    "link": "https://naver.me/i5678stuv",
+    "name": "With Friends Cafe",
+    "link": "https://link.me/i5678stuv",
     "latitude": "37.4969021",
     "longitude": "127.0306099",
     "tags": [
-      "카페",
-      "디저트"
+      "Cafe",
+      "Dessert"
     ]
   },
   {
-    "name": "해물요리전문점",
-    "link": "https://naver.me/j9012wxyz",
+    "name": "Seafood Specialty",
+    "link": "https://link.me/j9012wxyz",
     "latitude": "37.4959021",
     "longitude": "127.0316099",
     "tags": [
-      "해물",
-      "전문점"
+      "Seafood",
+      "Specialty"
     ]
   },
   {
-    "name": "다이어트식당",
-    "link": "https://naver.me/k3456abcd",
+    "name": "Diet Restaurant",
+    "link": "https://link.me/k3456abcd",
     "latitude": "37.4949021",
     "longitude": "127.0326099",
     "tags": [
-      "건강식",
-      "다이어트"
+      "Healthy",
+      "Diet"
     ]
   },
   {
-    "name": "치킨과맥주",
-    "link": "https://naver.me/l7890efgh",
+    "name": "Chicken and Beer",
+    "link": "https://link.me/l7890efgh",
     "latitude": "37.4939021",
     "longitude": "127.0336099",
     "tags": [
-      "치킨",
-      "맥주"
+      "Chicken",
+      "Beer"
     ]
   },
   {
-    "name": "감자탕맛집",
-    "link": "https://naver.me/m1234ijkl",
+    "name": "Gamjatang Specialty",
+    "link": "https://link.me/m1234ijkl",
     "latitude": "37.4929021",
     "longitude": "127.0346099",
     "tags": [
-      "한식",
-      "감자탕"
+      "Korean",
+      "Gamjatang"
     ]
   },
   {
-    "name": "비건베이커리",
-    "link": "https://naver.me/n5678mnop",
+    "name": "Vegan Bakery",
+    "link": "https://link.me/n5678mnop",
     "latitude": "37.4919021",
     "longitude": "127.0356099",
     "tags": [
-      "베이커리",
-      "비건"
+      "Bakery",
+      "Vegan"
     ]
   },
   {
-    "name": "옛날순대국",
-    "link": "https://naver.me/o9012qrst",
+    "name": "Old School Sundaeguk",
+    "link": "https://link.me/o9012qrst",
     "latitude": "37.4909021",
     "longitude": "127.0366099",
     "tags": [
-      "한식",
-      "순대국"
+      "Korean",
+      "Sundaeguk"
     ]
   },
   {
-    "name": "핫도그맛집",
-    "link": "https://naver.me/p3456uvwx",
+    "name": "Hot Dog Specialty",
+    "link": "https://link.me/p3456uvwx",
     "latitude": "37.4899021",
     "longitude": "127.0376099",
     "tags": [
-      "분식",
-      "핫도그"
+      "Snack",
+      "Hot Dog"
     ]
   },
   {
-    "name": "이색음식점",
-    "link": "https://naver.me/q7890yzab",
+    "name": "Unique Restaurant",
+    "link": "https://link.me/q7890yzab",
     "latitude": "37.4889021",
     "longitude": "127.0386099",
     "tags": [
-      "퓨전",
-      "이색"
+      "Fusion",
+      "Unique"
     ]
   }
 ]

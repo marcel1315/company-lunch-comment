@@ -19,14 +19,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@Tag(name = "1 Member", description = "회원 관련")
+@Tag(name = "1 Member")
 public class MemberController {
 
   private final MemberService memberService;
 
   @Operation(
-      summary = "회원정보 수정",
-      description = "사용자는 자신의 이름을 수정할 수 있다."
+      summary = "Update member info",
+      description = "A member can change his/her own name."
   )
   @PutMapping("/members/{id}")
   public ResponseEntity<Void> updateMember(
@@ -38,7 +38,7 @@ public class MemberController {
   }
 
   @Operation(
-      summary = "Sign up from auth server(Do not call from client)"
+      summary = "Sign up from auth server(Do not call from web client)"
   )
   @PostMapping("/members/signup")
   public ResponseEntity<Void> signupMember(

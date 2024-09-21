@@ -12,11 +12,11 @@ import lombok.Data;
 public class CreateCompanyDto {
 
   @NotNull
-  @Schema(example = "좋은회사")
+  @Schema(example = "HelloCompany")
   private String name;
 
   @NotNull
-  @Schema(example = "서울특별시 강남구 강남대로 123")
+  @Schema(example = "123, Gangnam-daero Gangnam-gu Seoul")
   private String address;
 
   @Schema(example = "company123")

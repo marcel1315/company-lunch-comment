@@ -14,11 +14,11 @@ import lombok.Data;
 public class CreateDinerDto {
 
   @NotNull
-  @Schema(example = "감성타코")
+  @Schema(example = "Gamsung Taco")
   private String name;
 
   @NotNull
-  @Schema(example = "https://naver.me/FeOCTkYP", requiredMode = RequiredMode.NOT_REQUIRED)
+  @Schema(example = "https://link.me/FeOCTkYP", requiredMode = RequiredMode.NOT_REQUIRED)
   private String link;
 
   @NotNull
@@ -30,7 +30,7 @@ public class CreateDinerDto {
   private double longitude;
 
   @NotNull
-  @Schema(example = "[\"멕시코\", \"감성\"]")
+  @Schema(example = "[\"Mexico\", \"Gamsung\"]")
   private LinkedHashSet<String> tags;
 
   public Diner toEntity() {

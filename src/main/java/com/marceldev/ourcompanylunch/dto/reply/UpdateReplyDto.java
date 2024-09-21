@@ -11,7 +11,7 @@ import lombok.Data;
 public class UpdateReplyDto {
 
   @NotNull
-  @Schema(example = "댓글입니다")
+  @Schema(example = "I'll try next time")
   private String content;
 
   public UpdateReplyDto(@JsonProperty("content") String content) {

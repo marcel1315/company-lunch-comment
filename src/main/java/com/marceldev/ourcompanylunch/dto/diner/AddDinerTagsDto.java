@@ -9,6 +9,6 @@ import lombok.Data;
 public class AddDinerTagsDto {
 
   @NotNull
-  @Schema(example = "[\"간단\"]")
+  @Schema(example = "[\"Quick\"]")
   private List<String> tags;
 }

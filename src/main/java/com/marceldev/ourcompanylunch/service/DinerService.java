@@ -50,9 +50,6 @@ public class DinerService {
 
   private final DinerSubscriptionRepository dinerSubscriptionRepository;
 
-  /**
-   * 식당 생성
-   */
   @Transactional
   public void createDiner(CreateDinerDto createDinerDto) {
     Company company = getCompany();
@@ -61,9 +58,6 @@ public class DinerService {
     dinerRepository.save(diner);
   }
 
-  /**
-   * 식당 목록 조회
-   */
   public Page<DinerOutputDto> getDinerList(GetDinerListDto dto) {
     Company company = getCompany();
     Pageable pageable = PageRequest.of(
@@ -73,9 +67,6 @@ public class DinerService {
     return dinerRepository.getList(company.getId(), dto, pageable);
   }
 
-  /**
-   * 식당 상세 조회
-   */
   public DinerDetailOutputDto getDinerDetail(long id) {
     Diner diner = getDiner(id);
     List<String> dinerImageKeys = diner.getDinerImages().stream()
@@ -93,9 +84,6 @@ public class DinerService {
     return DinerDetailOutputDto.of(diner, thumbnailUrls, imageUrls, distance);
   }
 
-  /**
-   * 식당 수정
-   */
   @Transactional
   public void updateDiner(long id, UpdateDinerDto dto) {
     Diner diner = getDiner(id);
@@ -103,9 +91,6 @@ public class DinerService {
     diner.setLocation(dto.getLocation());
   }
 
-  /**
-   * 식당 제거
-   */
   @Transactional
   public void removeDiner(long id) {
     Diner diner = getDiner(id);
@@ -116,9 +101,8 @@ public class DinerService {
     dinerImageRepository.deleteByDinerId(id);
     dinerRepository.delete(diner);
 
-    // diner 와 dinerImage 가 완전히 지워진 후, s3에 저장된 이미지를 지움
-    // s3 이미지 저장 과정에서 실패하더라도, DB 에서 제거되었다면 exception 을 내지 않고 성공함
-    // TODO: DB 에서 제거하기 전에 S3 접속이 온전한지 체크하기?
+    // After removing diner and dinerImage, remove the image stored in S3.
+    // Even if removing the S3 image failed, if the diner is removed from DB, it succeeds without exception.
     try {
       dinerImageKeys.forEach(s3Manager::removeFile);
     } catch (Exception e) {
@@ -126,27 +110,18 @@ public class DinerService {
     }
   }
 
-  /**
-   * 태그 추가
-   */
   @Transactional
   public void addDinerTag(long id, AddDinerTagsDto dto) {
     Diner diner = getDiner(id);
     dto.getTags().forEach(diner::addTag);
   }
 
-  /**
-   * 태그 제거
-   */
   @Transactional
   public void removeDinerTag(long id, RemoveDinerTagsDto dto) {
     Diner diner = getDiner(id);
     dto.getTags().forEach(diner::removeTag);
   }
 
-  /**
-   * 식당 구독
-   */
   @Transactional
   public void subscribeDiner(long id) {
     Diner diner = getDiner(id);
@@ -162,9 +137,6 @@ public class DinerService {
         .build());
   }
 
-  /**
-   * 식당 구독 취소
-   */
   @Transactional
   public void unsubscribeDiner(long id) {
     Diner diner = getDiner(id);
@@ -188,7 +160,7 @@ public class DinerService {
   }
 
   /**
-   * diner 를 반환함. 회원이 식당에 접근 가능한지 확인
+   * Get diner. Check if the member can access the diner.
    */
   private Diner getDiner(long dinerId) {
     Company company = getCompany();
@@ -198,7 +170,7 @@ public class DinerService {
   }
 
   /**
-   * company 를 반환함. 로그인한 회원이 회사를 선택했는지 확인.
+   * Get company. Check if the member can access the company.
    */
   private Company getCompany() {
     Member member = getMember();
@@ -208,9 +180,6 @@ public class DinerService {
     return member.getCompany();
   }
 
-  /**
-   * member 를 반환함
-   */
   private Member getMember() {
     String email = (String) SecurityContextHolder.getContext()
         .getAuthentication()

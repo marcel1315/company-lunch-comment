@@ -15,7 +15,7 @@ public class FileUtil {
       return Optional.empty();
     }
 
-    // 디렉토리명까지 모두 불러와지는 경우 대비
+    // Prepare a whole path including directory.
     int lastSlashIndex = original.lastIndexOf("/");
     if (lastSlashIndex != -1) {
       original = original.substring(lastSlashIndex + 1);

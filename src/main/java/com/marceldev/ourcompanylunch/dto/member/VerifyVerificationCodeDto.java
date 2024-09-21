@@ -19,6 +19,6 @@ public class VerifyVerificationCodeDto {
   @Schema(example = "123456")
   private String code;
 
-  @JsonIgnore // 클라이언트에 표시되는 필드에는 포함하지 않음
+  @JsonIgnore // Doesn't take this from client request
   private final LocalDateTime now = LocalDateTime.now();
 }

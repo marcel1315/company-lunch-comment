@@ -13,7 +13,7 @@ import lombok.Data;
 @Builder
 public class GetDinerListDto {
 
-  @Schema(example = "칼국수")
+  @Schema(example = "Noodle")
   private String keyword;
 
   @Schema

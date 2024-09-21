@@ -26,7 +26,7 @@ public class UpdateCompanyDto {
   private Boolean enterKeyEnabled;
 
   @NotNull
-  @Schema(example = "서울특별시 강남구 역삼동 123-1", requiredMode = RequiredMode.NOT_REQUIRED)
+  @Schema(example = "321, Teheran-ro Gangnam-gu Seoul", requiredMode = RequiredMode.NOT_REQUIRED)
   private String address;
 
   @NotNull

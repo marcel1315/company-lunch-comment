@@ -37,7 +37,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("식당 이미지 서비스")
 class DinerImageServiceTest {
 
   @Mock
@@ -70,7 +69,7 @@ class DinerImageServiceTest {
   private void setupDiner() {
     diner = Diner.builder()
         .id(1L)
-        .name("먹자 식당")
+        .name("Eat Diner")
         .build();
   }
 
@@ -98,7 +97,7 @@ class DinerImageServiceTest {
   }
 
   @Test
-  @DisplayName("식당 이미지 추가 - 성공")
+  @DisplayName("Add diner image - Success")
   void test_update_diner_add_image() throws Exception {
     //given
     setupDiner();
@@ -126,7 +125,7 @@ class DinerImageServiceTest {
   }
 
   @Test
-  @DisplayName("식당 이미지 추가 - 실패(식당이 존재하지 않음)")
+  @DisplayName("Add diner image - Fail(Diner not found)")
   void test_update_diner_add_image_fail_no_diner() {
     //given
     //when
@@ -139,7 +138,7 @@ class DinerImageServiceTest {
   }
 
   @Test
-  @DisplayName("식당 이미지 추가 - 실패(이미 등록된 이미지가 10개 이상)")
+  @DisplayName("Add diner image - Fail(More than 10 images exist)")
   void test_update_diner_add_image_fail_max_count() {
     //given
     //when
@@ -156,7 +155,7 @@ class DinerImageServiceTest {
   }
 
   @Test
-  @DisplayName("식당 이미지 추가 - 실패(읽을 수 없는 이미지 파일)")
+  @DisplayName("Add diner image - Fail(Image file can't be read)")
   void test_update_diner_add_image_fail_cant_read_image() throws Exception {
     //given
     setupDiner();
@@ -183,7 +182,7 @@ class DinerImageServiceTest {
   }
 
   @Test
-  @DisplayName("식당 이미지 제거 - 성공")
+  @DisplayName("Remove diner image - Success")
   void test_update_diner_remove_image() {
     //given
     String key = UUID.randomUUID().toString();
@@ -207,7 +206,7 @@ class DinerImageServiceTest {
   }
 
   @Test
-  @DisplayName("식당 이미지 제거 - 실패(이미지가 존재하지 않음)")
+  @DisplayName("Remove diner image - Fail(Image not found)")
   void test_update_diner_remove_image_fail_image_not_found() {
     //given
     //when
@@ -220,7 +219,7 @@ class DinerImageServiceTest {
   }
 
   @Test
-  @DisplayName("식당 이미지 제거 - 실패(S3에서 제거 실패)")
+  @DisplayName("Remove diner image - Fail(Fail to remove in S3)")
   void test_update_diner_remove_image_fail_s3_delete_fail() {
     //given
     String key = UUID.randomUUID().toString();

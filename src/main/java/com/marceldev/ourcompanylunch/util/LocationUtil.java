@@ -7,7 +7,8 @@ import org.locationtech.jts.geom.PrecisionModel;
 
 public class LocationUtil {
 
-  // SRID(Spatial Reference System ID)는 Point에 넣는 데이터를 longitude와 latitude로 인식하도록 함. GPS에서 사용하는 규격.
+  // SRID(Spatial Reference System ID) perceives the Point data as longitude and latitude. 
+  // GPS use this format.
   private static final GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(),
       4326);
 

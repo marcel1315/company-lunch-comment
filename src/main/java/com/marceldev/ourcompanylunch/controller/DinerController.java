@@ -35,7 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
-@Tag(name = "3 Diner", description = "식당 관련")
+@Tag(name = "3 Diner")
 public class DinerController {
 
   private final DinerService dinerService;
@@ -43,9 +43,7 @@ public class DinerController {
   private final DinerImageService dinerImageService;
 
   @Operation(
-      summary = "식당 생성",
-      description = "식당 이름, 식당 웹사이트 링크, 위도, 경도를 입력한다.<br>"
-          + "식당 태그도 입력 가능하다. (#한식, #양식, #깔끔, #간단, #매움, #양많음 등 사용자가 임의 등록 가능)"
+      summary = "Register a diner"
   )
   @PostMapping("/diners")
   public ResponseEntity<Void> createDiner(
@@ -56,11 +54,9 @@ public class DinerController {
   }
 
   @Operation(
-      summary = "식당 목록 조회",
-      description = "사용자는 식당의 목록을 조회할 수 있다.<br>"
-          + "식당 이름, 태그, 거리, 코멘트 갯수를 볼 수 있다.<br>"
-          + "회사의 위도와 경도, 식당의 위도와 경도를 사용해 회사로부터 식당의 거리를 표시한다.<br>"
-          + "식당 이름, 거리, 코멘트 갯수로 정렬할 수 있다."
+      summary = "Get a list of diner",
+      description = "Distance is between the company's location and the diner's location.<br>"
+          + "Sort by diner name, distance, comments' count."
   )
   @GetMapping("/diners")
   public ResponseEntity<Page<DinerOutputDto>> getDinerList(
@@ -71,10 +67,7 @@ public class DinerController {
   }
 
   @Operation(
-      summary = "식당 상세 조회",
-      description = "사용자는 식당을 상세 조회할 수 있다.<br>"
-          + "이름, 태그, 거리, 코멘트 갯수, 코멘트 목록, 사진 썸네일 목록을 볼 수 있다.<br>"
-          + "필요한 경우 원본 사진을 가져올 수 있다."
+      summary = "Get details of diner"
   )
   @GetMapping("/diners/{id}")
   public ResponseEntity<DinerDetailOutputDto> getDinerDetail(
@@ -85,9 +78,9 @@ public class DinerController {
   }
 
   @Operation(
-      summary = "식당 정보 수정",
-      description = "사용자는 식당 웹사이트 링크, 위도, 경도 정보를 수정할 수 있다.<br>"
-          + "자신이 작성하지 않은 식당도 수정할 수 있다."
+      summary = "Update diner information",
+      description = "A member can change link, latitude and longitude of diner<br>"
+          + ",even the diner is not created by him/herself."
   )
   @PutMapping("/diners/{id}")
   public ResponseEntity<Void> updateDiner(
@@ -99,8 +92,7 @@ public class DinerController {
   }
 
   @Operation(
-      summary = "식당 제거",
-      description = "사용자는 식당을 제거할 수 있다."
+      summary = "Remove a diner"
   )
   @DeleteMapping("/diners/{id}")
   public ResponseEntity<Void> removeDiner(
@@ -111,11 +103,11 @@ public class DinerController {
   }
 
   @Operation(
-      summary = "식당 태그 추가"
+      summary = "Add diner tags"
   )
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = "OK"),
-      @ApiResponse(responseCode = "400", description = "errorCode: 3002 - 중복 태그 존재")
+      @ApiResponse(responseCode = "400", description = "errorCode: 3002 - Duplicate tag")
   })
   @PutMapping("/diners/{id}/tags")
   public ResponseEntity<Void> addDinerTags(
@@ -127,7 +119,7 @@ public class DinerController {
   }
 
   @Operation(
-      summary = "식당 태그 제거"
+      summary = "Remove diner tags"
   )
   @DeleteMapping("/diners/{id}/tags")
   public ResponseEntity<Void> removeDinerTags(
@@ -139,12 +131,13 @@ public class DinerController {
   }
 
   @Operation(
-      summary = "식당 이미지 추가"
+      summary = "Add a diner image"
   )
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = "OK"),
-      @ApiResponse(responseCode = "400", description = "errorCode: 3001 - 최대 이미지 갯수 초과<br>"
-          + "errorCode: 3003 - 파일의 확장자가 없음")
+      @ApiResponse(responseCode = "400", description =
+          "errorCode: 3001 - Max image count exceeded<br>"
+              + "errorCode: 3003 - No extension in file")
   })
   @PostMapping(value = "/diners/{id}/images", consumes = "multipart/form-data")
   public ResponseEntity<Void> addDinerImage(
@@ -156,7 +149,7 @@ public class DinerController {
   }
 
   @Operation(
-      summary = "식당 이미지 제거"
+      summary = "Remove the diner image"
   )
   @DeleteMapping("/diners/images/{id}")
   public ResponseEntity<Void> removeDinerImage(
@@ -167,7 +160,7 @@ public class DinerController {
   }
 
   @Operation(
-      summary = "식당 구독"
+      summary = "Subscribe the diner"
   )
   @PostMapping("/diners/{id}/subscribe")
   public ResponseEntity<Void> subscribeDiner(
@@ -178,7 +171,7 @@ public class DinerController {
   }
 
   @Operation(
-      summary = "식당 구독 취소"
+      summary = "Unsubscribe the diner"
   )
   @PostMapping("/diners/{id}/unsubscribe")
   public ResponseEntity<Void> unsubscribeDiner(

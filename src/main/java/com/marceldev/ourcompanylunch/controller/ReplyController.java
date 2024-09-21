@@ -22,14 +22,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@Tag(name = "5 Reply", description = "댓글 관련")
+@Tag(name = "5 Reply")
 public class ReplyController {
 
   private final ReplyService replyService;
 
   @Operation(
-      summary = "댓글 작성",
-      description = "사용자는 코멘트에 댓글을 작성할 수 있다."
+      summary = "Write a reply",
+      description = "A member can write a reply on the comment."
   )
   @PostMapping("/comments/{id}/replies")
   public ResponseEntity<Void> createReply(
@@ -41,8 +41,8 @@ public class ReplyController {
   }
 
   @Operation(
-      summary = "댓글 조회",
-      description = "사용자는 코멘트에 작성된 댓글을 조회할 수 있다."
+      summary = "Get a list of reply",
+      description = "A member can get a list of reply on the comment."
   )
   @GetMapping("/comments/{id}/replies")
   public ResponseEntity<Page<ReplyOutputDto>> getReplyList(
@@ -54,9 +54,8 @@ public class ReplyController {
   }
 
   @Operation(
-      summary = "댓글 수정",
-      description = "사용자는 코멘트에 댓글 수정이 가능하다.<br>"
-          + "수정은 자신이 작성한 댓글만 가능하다."
+      summary = "Update a reply",
+      description = "A member can change a reply that he/she wrote."
   )
   @PutMapping("comments/replies/{id}")
   public ResponseEntity<Void> updateReply(
@@ -68,9 +67,8 @@ public class ReplyController {
   }
 
   @Operation(
-      summary = "댓글 삭제",
-      description = "사용자는 댓글 삭제가 가능하다.<br>"
-          + "삭제는 자신이 작성한 댓글만 가능하다."
+      summary = "Remove a reply",
+      description = "A member can remove a reply that he/she wrote."
   )
   @DeleteMapping("/comments/replies/{id}")
   public ResponseEntity<Void> deleteReply(

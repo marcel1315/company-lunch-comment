@@ -16,7 +16,7 @@ public class SignInDto {
 
   @NotNull
   @Email
-  @Schema(description = "이메일", example = "hello@company.com")
+  @Schema(example = "hello@company.com")
   private String email;
 
   @NotNull

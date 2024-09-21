@@ -31,9 +31,9 @@ public class GetCommentListDto {
   @Schema(example = "ASC", allowableValues = {"ASC", "DESC"})
   private SortDirection sortDirection;
 
-  @Schema(example = "맛있는")
+  @Schema(example = "delicious")
   private String keyword;
 
-  @Schema(example = "김영수")
+  @Schema(example = "Jack")
   private String commentedBy;
 }

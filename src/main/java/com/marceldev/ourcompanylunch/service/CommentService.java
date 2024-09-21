@@ -32,9 +32,6 @@ public class CommentService {
 
   private final MemberRepository memberRepository;
 
-  /**
-   * 식당에 코멘트 작성
-   */
   @Transactional
   public void createComment(long dinerId, CreateCommentDto dto) {
     Member member = getMember();
@@ -53,9 +50,6 @@ public class CommentService {
     commentRepository.save(comment);
   }
 
-  /**
-   * 식당의 코멘트 조회
-   */
   public Page<CommentOutputDto> getCommentList(long dinerId,
       GetCommentListDto dto) {
     Pageable pageable = PageRequest.of(
@@ -67,9 +61,6 @@ public class CommentService {
         .map(c -> CommentOutputDto.of(c, c.getMember().getName()));
   }
 
-  /**
-   * 코멘트 수정. 자신의 이메일로 되어 있는 코멘트만 수정 가능함
-   */
   @Transactional
   public void updateComment(long commentId, UpdateCommentDto dto) {
     String email = getMemberEmail();
@@ -79,9 +70,6 @@ public class CommentService {
     comment.setShareStatus(dto.getShareStatus());
   }
 
-  /**
-   * 코멘트 삭제. 자신의 이메일로 되어 있는 코멘트만 삭제 가능함
-   */
   @Transactional
   public void deleteComment(long commentId) {
     String email = getMemberEmail();
@@ -90,9 +78,6 @@ public class CommentService {
     commentRepository.delete(comment);
   }
 
-  /**
-   * member를 찾아 반환함.
-   */
   private Member getMember() {
     String email = getMemberEmail();
     return memberRepository.findByEmail(email)
@@ -100,7 +85,7 @@ public class CommentService {
   }
 
   /**
-   * member email을 반환함. DB 호출을 하지 않고, SecurityContextHolder에 저장된 것을 사용
+   * Doesn't query DB. SecurityContextHolder principal has email(username)
    */
   private String getMemberEmail() {
     return (String) SecurityContextHolder.getContext()

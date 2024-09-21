@@ -14,6 +14,6 @@ import lombok.NoArgsConstructor;
 public class SignUpDto {
 
   @NotNull
-  @Schema(example = "이영수")
+  @Schema(example = "Jack")
   private String name;
 }

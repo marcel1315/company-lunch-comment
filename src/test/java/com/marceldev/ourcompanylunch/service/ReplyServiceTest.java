@@ -47,7 +47,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("댓글 서비스")
 class ReplyServiceTest {
 
   @Mock
@@ -65,20 +64,21 @@ class ReplyServiceTest {
   @InjectMocks
   private ReplyService replyService;
 
-  // 테스트에서 목으로 사용될 company. diner를 가져올 때, member가 속한 company의 diner가 아니면 가져올 수 없음
+  // Mock company.
+  // When retrieving diner, if it's not the diner in the company of the member, the diner is not accessible.
   private final Company company1 = Company.builder()
       .id(1L)
-      .name("좋은회사")
-      .address("서울특별시 강남구 강남대로 200")
+      .name("HelloCompany")
+      .address("123, Gangnam-daero Gangnam-gu Seoul")
       .location(LocationUtil.createPoint(127.123123, 37.123123))
       .enterKey("company123")
       .build();
 
-  // 테스트에서 목으로 사용될 member. diner를 가져올 때, 적절한 member가 아니면 가져올 수 없음
+  // Mock member
   private final Member member1 = Member.builder()
       .id(1L)
-      .email("kys@example.com")
-      .name("김영수")
+      .email("jack@example.com")
+      .name("Jack")
       .role(Role.VIEWER)
       .company(company1)
       .build();
@@ -107,11 +107,11 @@ class ReplyServiceTest {
   }
 
   @Test
-  @DisplayName("댓글 작성 - 성공")
+  @DisplayName("Create reply - Success")
   void create_reply() {
     //given
     CreateReplyDto dto = CreateReplyDto.builder()
-        .content("댓글입니다.")
+        .content("I'll try.")
         .build();
     when(commentRepository.findById(any()))
         .thenReturn(Optional.of(
@@ -128,15 +128,15 @@ class ReplyServiceTest {
     verify(replyRepository).save(captor.capture());
     assertEquals(1L, captor.getValue().getMember().getId());
     assertEquals(2L, captor.getValue().getComment().getId());
-    assertEquals("댓글입니다.", captor.getValue().getContent());
+    assertEquals("I'll try.", captor.getValue().getContent());
   }
 
   @Test
-  @DisplayName("댓글 작성 - 실패(코멘트가 존재하지 않음)")
+  @DisplayName("Create reply - Fail(Comment not found)")
   void create_reply_fail_no_comments() {
     //given
     CreateReplyDto dto = CreateReplyDto.builder()
-        .content("댓글입니다.")
+        .content("I'll try.")
         .build();
     when(companyRepository.findCompanyByCommentId(1L))
         .thenReturn(Optional.of(company1));
@@ -150,11 +150,11 @@ class ReplyServiceTest {
   }
 
   @Test
-  @DisplayName("댓글 수정 - 성공")
+  @DisplayName("Update reply - Success")
   void update_reply() {
     //given
     UpdateReplyDto dto = UpdateReplyDto.builder()
-        .content("댓글 수정")
+        .content("I'll try next time.")
         .build();
     when(replyRepository.findById(2L))
         .thenReturn(Optional.of(
@@ -174,11 +174,11 @@ class ReplyServiceTest {
   }
 
   @Test
-  @DisplayName("댓글 수정 - 실패(댓글이 존재하지 않음)")
+  @DisplayName("Update reply - Fail(Reply not found)")
   void update_reply_fail_no_reply() {
     //given
     UpdateReplyDto dto = UpdateReplyDto.builder()
-        .content("댓글 수정")
+        .content("I'll try next time.")
         .build();
 
     //when
@@ -193,7 +193,7 @@ class ReplyServiceTest {
   }
 
   @Test
-  @DisplayName("댓글 삭제 - 성공")
+  @DisplayName("Delete reply - Success")
   void delete_reply() {
     //given
     //when
@@ -213,7 +213,7 @@ class ReplyServiceTest {
   }
 
   @Test
-  @DisplayName("댓글 삭제 - 실패(댓글이 존재하지 않음)")
+  @DisplayName("Delete reply - Fail(Reply not found)")
   void delete_reply_fail_no_reply() {
     //given
     //when
@@ -228,13 +228,13 @@ class ReplyServiceTest {
   }
 
   @Test
-  @DisplayName("댓글 조회 - 성공")
+  @DisplayName("Get reply list - Success")
   void get_reply_list() {
     //given
     Page<Reply> page = new PageImpl<>(List.of(
         Reply.builder()
             .id(1L)
-            .content("댓글입니다.")
+            .content("I'll try.")
             .member(member1)
             .build()
     ));

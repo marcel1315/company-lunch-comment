@@ -11,7 +11,7 @@ import lombok.Data;
 public class CreateReplyDto {
 
   @NotNull
-  @Schema(example = "맛있어요")
+  @Schema(example = "I'll try")
   private String content;
 
   public CreateReplyDto(@JsonProperty("content") String content) {

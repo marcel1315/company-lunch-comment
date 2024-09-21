@@ -11,7 +11,7 @@ import lombok.Data;
 public class UpdateCommentDto {
 
   @NotNull
-  @Schema(example = "친절함")
+  @Schema(example = "Very kind")
   private String content;
 
   @NotNull

@@ -35,11 +35,9 @@ public class ReplyService {
   private final CommentRepository commentRepository;
 
   private final MemberRepository memberRepository;
+
   private final CompanyRepository companyRepository;
 
-  /**
-   * 댓글 작성
-   */
   @Transactional
   public void createReply(long commentId, CreateReplyDto dto) {
     checkDinerByCommentId(commentId);
@@ -58,9 +56,6 @@ public class ReplyService {
     replyRepository.save(reply);
   }
 
-  /**
-   * 댓글 조회
-   */
   public Page<ReplyOutputDto> getReplyList(long commentId, GetReplyListDto dto) {
     checkDinerByCommentId(commentId);
 
@@ -86,9 +81,6 @@ public class ReplyService {
         .map(ReplyOutputDto::of);
   }
 
-  /**
-   * 댓글 수정
-   */
   @Transactional
   public void updateReply(long replyId, UpdateReplyDto dto) {
     checkDinerByReplyId(replyId);
@@ -102,9 +94,6 @@ public class ReplyService {
     reply.setContent(dto.getContent());
   }
 
-  /**
-   * 댓글 삭제
-   */
   @Transactional
   public void deleteReply(long replyId) {
     checkDinerByReplyId(replyId);
@@ -118,9 +107,6 @@ public class ReplyService {
     replyRepository.delete(reply);
   }
 
-  /**
-   * member 를 찾아 반환함
-   */
   private Member getMember() {
     String email = (String) SecurityContextHolder.getContext()
         .getAuthentication()
@@ -130,7 +116,7 @@ public class ReplyService {
   }
 
   /**
-   * diner 에 접근할 수 있는지 검사
+   * Check if the member can access the diner.
    */
   private void checkDinerByCommentId(long id) {
     Member member = getMember();
@@ -144,7 +130,7 @@ public class ReplyService {
   }
 
   /**
-   * diner 에 접근할 수 있는지 검사
+   * Check if the member can access the diner.
    */
   private void checkDinerByReplyId(long id) {
     Member member = getMember();

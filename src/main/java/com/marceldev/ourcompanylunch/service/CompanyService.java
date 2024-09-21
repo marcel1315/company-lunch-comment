@@ -45,9 +45,6 @@ public class CompanyService {
 
   private final EmailSender emailSender;
 
-  /**
-   * 회사 생성. 등록하는 사용자의 이메일 도메인을 활용한다. 같은 도메인 이름으로 동일한 회사명은 있을 수 없다.
-   */
   @Transactional
   public void createCompany(CreateCompanyDto dto) {
     if (companyRepository.existsCompanyByName(dto.getName())) {
@@ -58,9 +55,6 @@ public class CompanyService {
     companyRepository.save(company);
   }
 
-  /**
-   * 인증번호 발송. 회사 정보 수정을 위해 인정번호를 입력해야 함
-   */
   @Transactional
   public void sendVerificationCode(SendVerificationCodeDto dto) {
     String email = dto.getEmail();
@@ -70,24 +64,24 @@ public class CompanyService {
   }
 
   /**
-   * 회사 정보 수정. 인증번호가 맞아야 수정 가능
+   * Verification code is required.
    */
   @Transactional
   public void updateCompany(long id, UpdateCompanyDto dto) {
     String email = getMemberEmail();
 
-    // 회사가 존재하는지 확인
+    // Check if company exists.
     Company company = memberRepository.findByEmailAndCompanyId(email, id)
         .map(Member::getCompany)
         .orElseThrow(CompanyNotFoundException::new);
 
-    // 인증번호 확인
+    // Check verification code.
     Verification verification = verificationRepository.findByEmail(email)
         .filter((v) -> v.getCode().equals(dto.getVerificationCode()))
         .filter((v) -> v.getExpirationAt().isAfter(dto.getNow()))
         .orElseThrow(VerificationCodeNotFoundException::new);
 
-    // 회사정보 업데이트
+    // Update company info.
     company.setAddress(dto.getAddress());
     company.setLocation(dto.getLocation());
     company.setEnterKey(dto.getEnterKey());
@@ -96,9 +90,6 @@ public class CompanyService {
     verificationRepository.delete(verification);
   }
 
-  /**
-   * 회사 목록 보기. 로그인한 사용자의 이메일 도메인에 해당하는 회사들 목록만 볼 수 있음
-   */
   public Page<CompanyOutputDto> getCompanyList(GetCompanyListDto dto) {
     Pageable pageable = PageRequest.of(
         dto.getPage(),
@@ -108,9 +99,6 @@ public class CompanyService {
         .map(CompanyOutputDto::of);
   }
 
-  /**
-   * 회사 선택하기
-   */
   @Transactional
   public void chooseCompany(long companyId, ChooseCompanyDto dto) {
     String email = getMemberEmail();
@@ -129,16 +117,15 @@ public class CompanyService {
   }
 
   private void sendVerificationCodeEmail(String email, String code) {
-    String subject = "[Our Company Lunch] 회사정보 수정을 위한 인증번호입니다";
-    String body = String.format("인증번호는 %s 입니다. 회사정보 수정란에 입력해주세요.", code);
+    String subject = "[Our Company Lunch] This is the verification code for company update";
+    String body = String.format(
+        "The verification code is %s. Enter this code in company update field.", code);
     emailSender.sendMail(email, subject, body);
   }
 
   private void saveVerificationCodeToDb(String email, String code) {
-    // 기존에 있다면 제거
     verificationRepository.findByEmail(email).ifPresent(verificationRepository::delete);
 
-    // 새로운 인증번호 저장
     Verification verification = Verification.builder()
         .code(code)
         .expirationAt(LocalDateTime.now().plusSeconds(VERIFICATION_CODE_VALID_SECOND))
@@ -149,7 +136,7 @@ public class CompanyService {
   }
 
   /**
-   * member email 을 반환함. DB 호출을 하지 않고, SecurityContextHolder 에 저장된 것을 사용
+   * Doesn't query DB. SecurityContextHolder principal has email(username)
    */
   private String getMemberEmail() {
     return (String) SecurityContextHolder.getContext()

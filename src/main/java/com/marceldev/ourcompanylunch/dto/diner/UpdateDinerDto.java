@@ -13,7 +13,7 @@ import org.locationtech.jts.geom.Point;
 public class UpdateDinerDto {
 
   @NotNull
-  @Schema(example = "https://naver.me/FeOCTkYP")
+  @Schema(example = "https://link.me/FeOCTkYP")
   private String link;
 
   @NotNull

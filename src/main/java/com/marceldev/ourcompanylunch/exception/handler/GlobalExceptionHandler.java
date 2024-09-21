@@ -33,8 +33,8 @@ public class GlobalExceptionHandler {
     log.error("SignInFailException, {}, {}, {}", request.getRequestURI(), e.getMessage(),
         String.valueOf(e.getCause()));
 
-    // 401을 내보내지 않음
-    // 401은 요청 헤더에 authentication 을 요구하고, 응답에 challenge 를 보내는 경우에 사용한다는 스펙에 따름
+    // Don't response as 401.
+    // By following the spec that 401 requires authentication in request header and send challenge in response.
     // https://stackoverflow.com/questions/11714485/restful-login-failure-return-401-or-custom-response
     return ErrorResponse.badRequest(1004, e.getMessage());
   }
