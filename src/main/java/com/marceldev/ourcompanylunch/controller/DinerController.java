@@ -2,6 +2,7 @@ package com.marceldev.ourcompanylunch.controller;
 
 import com.marceldev.ourcompanylunch.dto.diner.AddDinerTagsDto;
 import com.marceldev.ourcompanylunch.dto.diner.CreateDinerDto;
+import com.marceldev.ourcompanylunch.dto.diner.CreateDinerDto.Response;
 import com.marceldev.ourcompanylunch.dto.diner.DinerDetailOutputDto;
 import com.marceldev.ourcompanylunch.dto.diner.DinerOutputDto;
 import com.marceldev.ourcompanylunch.dto.diner.GetDinerListDto;
@@ -46,11 +47,11 @@ public class DinerController {
       summary = "Register a diner"
   )
   @PostMapping("/diners")
-  public ResponseEntity<Void> createDiner(
-      @Validated @RequestBody CreateDinerDto createDinerDto
+  public ResponseEntity<CreateDinerDto.Response> createDiner(
+      @Validated @RequestBody CreateDinerDto.Request dto
   ) {
-    dinerService.createDiner(createDinerDto);
-    return ResponseEntity.ok().build();
+    Response response = dinerService.createDiner(dto);
+    return ResponseEntity.ok(response);
   }
 
   @Operation(

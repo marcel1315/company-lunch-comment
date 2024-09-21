@@ -51,11 +51,12 @@ public class DinerService {
   private final DinerSubscriptionRepository dinerSubscriptionRepository;
 
   @Transactional
-  public void createDiner(CreateDinerDto createDinerDto) {
+  public CreateDinerDto.Response createDiner(CreateDinerDto.Request dto) {
     Company company = getCompany();
-    Diner diner = createDinerDto.toEntity();
+    Diner diner = dto.toEntity();
     diner.setCompany(company);
-    dinerRepository.save(diner);
+    diner = dinerRepository.save(diner);
+    return CreateDinerDto.Response.builder().id(diner.getId()).build();
   }
 
   public Page<DinerOutputDto> getDinerList(GetDinerListDto dto) {

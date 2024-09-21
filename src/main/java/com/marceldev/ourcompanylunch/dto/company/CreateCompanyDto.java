@@ -4,11 +4,8 @@ import com.marceldev.ourcompanylunch.entity.Company;
 import com.marceldev.ourcompanylunch.util.LocationUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 public class CreateCompanyDto {
 
@@ -53,6 +50,7 @@ public class CreateCompanyDto {
   @Data
   @Builder
   public static class Response {
+
     private final long id;
   }
 }

@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 import com.marceldev.ourcompanylunch.component.S3Manager;
 import com.marceldev.ourcompanylunch.dto.diner.AddDinerTagsDto;
 import com.marceldev.ourcompanylunch.dto.diner.CreateDinerDto;
+import com.marceldev.ourcompanylunch.dto.diner.CreateDinerDto.Response;
 import com.marceldev.ourcompanylunch.dto.diner.DinerDetailOutputDto;
 import com.marceldev.ourcompanylunch.dto.diner.DinerOutputDto;
 import com.marceldev.ourcompanylunch.dto.diner.GetDinerListDto;
@@ -138,44 +139,47 @@ class DinerServiceTest {
     tags.add("Mexico");
     tags.add("Good atmosphere");
 
-    CreateDinerDto dto = CreateDinerDto.builder()
+    CreateDinerDto.Request dto = CreateDinerDto.Request.builder()
         .name("Gamsung Taco")
         .link("diner.com")
         .latitude(37.29283882)
         .longitude(127.39232323)
         .tags(tags)
         .build();
-
-    Company company = Company.builder()
-        .id(1L)
-        .name("HelloCompany")
+    
+    Diner savedDiner = Diner.builder()
+        .id(100L)
+        .name("Gamsung Taco")
+        .link("diner.com")
+        .location(LocationUtil.createPoint(127.39232323, 37.29283882))
+        .tags(tags)
+        .company(company1)
         .build();
 
     //when
-    when(memberRepository.findByEmail(any()))
-        .thenReturn(Optional.of(
-            Member.builder()
-                .company(company)
-                .build()
-        ));
+    when(memberRepository.findByEmail(member1.getEmail()))
+        .thenReturn(Optional.of(member1));
+    when(dinerRepository.save(any(Diner.class)))
+        .thenReturn(savedDiner);
 
     ArgumentCaptor<Diner> captor = ArgumentCaptor.forClass(Diner.class);
-    dinerService.createDiner(dto);
+    Response response = dinerService.createDiner(dto);
 
     //then
     verify(dinerRepository).save(captor.capture());
-    Diner diner = captor.getValue();
-    assertEquals(diner.getName(), "Gamsung Taco");
-    assertEquals(diner.getLink(), "diner.com");
-    assertEquals(diner.getLocation(), LocationUtil.createPoint(127.39232323, 37.29283882));
-    assertEquals(diner.getTags().getLast(), "Good atmosphere");
+    assertEquals(100L, response.getId());
+    Diner dinerCaptured = captor.getValue();
+    assertEquals("Gamsung Taco", dinerCaptured.getName());
+    assertEquals("diner.com", dinerCaptured.getLink());
+    assertEquals(LocationUtil.createPoint(127.39232323, 37.29283882), dinerCaptured.getLocation());
+    assertEquals("Good atmosphere", dinerCaptured.getTags().getLast());
   }
 
   @Test
   @DisplayName("Create diner - Fail(No company chosen)")
   void test_create_diner_no_company_chosen() {
     //given
-    CreateDinerDto dto = CreateDinerDto.builder()
+    CreateDinerDto.Request dto = CreateDinerDto.Request.builder()
         .name("Gamsung Taco")
         .build();
 
