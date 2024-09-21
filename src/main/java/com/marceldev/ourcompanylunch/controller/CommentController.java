@@ -2,6 +2,7 @@ package com.marceldev.ourcompanylunch.controller;
 
 import com.marceldev.ourcompanylunch.dto.comment.CommentOutputDto;
 import com.marceldev.ourcompanylunch.dto.comment.CreateCommentDto;
+import com.marceldev.ourcompanylunch.dto.comment.CreateCommentDto.Response;
 import com.marceldev.ourcompanylunch.dto.comment.GetCommentListDto;
 import com.marceldev.ourcompanylunch.dto.comment.UpdateCommentDto;
 import com.marceldev.ourcompanylunch.service.CommentService;
@@ -36,13 +37,13 @@ public class CommentController {
           + "Also enter a sharing option."
   )
   @PostMapping("/diners/{id}/comments")
-  public ResponseEntity<Void> createComment(
+  public ResponseEntity<CreateCommentDto.Response> createComment(
       @PathVariable long id,
-      @Validated @RequestBody CreateCommentDto createCommentDto
+      @Validated @RequestBody CreateCommentDto.Request dto
   ) {
-    commentService.createComment(id, createCommentDto);
-    messageProducerService.produceForDinerSubscribers(id, createCommentDto.getContent());
-    return ResponseEntity.ok().build();
+    Response response = commentService.createComment(id, dto);
+    messageProducerService.produceForDinerSubscribers(id, dto.getContent());
+    return ResponseEntity.ok(response);
   }
 
   @Operation(

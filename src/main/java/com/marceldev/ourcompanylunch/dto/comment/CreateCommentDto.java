@@ -6,15 +6,25 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
-@Data
-@Builder
 public class CreateCommentDto {
 
-  @NotNull
-  @Schema(example = "It's delicious")
-  private String content;
+  @Data
+  @Builder
+  public static class Request {
 
-  @NotNull
-  @Schema(example = "COMPANY", allowableValues = {"COMPANY", "ME"})
-  private ShareStatus shareStatus;
+    @NotNull
+    @Schema(example = "It's delicious")
+    private String content;
+
+    @NotNull
+    @Schema(example = "COMPANY", allowableValues = {"COMPANY", "ME"})
+    private ShareStatus shareStatus;
+  }
+
+  @Data
+  @Builder
+  public static class Response {
+
+    private final long id;
+  }
 }

@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import com.marceldev.ourcompanylunch.dto.comment.CommentOutputDto;
 import com.marceldev.ourcompanylunch.dto.comment.CreateCommentDto;
+import com.marceldev.ourcompanylunch.dto.comment.CreateCommentDto.Response;
 import com.marceldev.ourcompanylunch.dto.comment.GetCommentListDto;
 import com.marceldev.ourcompanylunch.dto.comment.UpdateCommentDto;
 import com.marceldev.ourcompanylunch.entity.Comment;
@@ -117,22 +118,33 @@ class CommentServiceTest {
   @DisplayName("Create comment - Success")
   void create_comment() {
     //given
-    CreateCommentDto dto = CreateCommentDto.builder()
+    CreateCommentDto.Request dto = CreateCommentDto.Request.builder()
         .content("It's delicious")
         .shareStatus(ShareStatus.COMPANY)
         .build();
     String email = "jack@example.com";
+    Comment comment = Comment.builder()
+        .id(100L)
+        .content("It's delicious")
+        .shareStatus(ShareStatus.COMPANY)
+        .member(member1)
+        .diner(diner1)
+        .build();
+
+    //when
     when(memberRepository.findByEmail(email))
         .thenReturn(Optional.of(member1));
     when(dinerRepository.findById(1L))
         .thenReturn(Optional.of(diner1));
+    when(commentRepository.save(any(Comment.class)))
+        .thenReturn(comment);
 
-    //when
-    commentService.createComment(1L, dto);
+    Response response = commentService.createComment(1L, dto);
     ArgumentCaptor<Comment> captor = ArgumentCaptor.forClass(Comment.class);
 
     //then
     verify(commentRepository).save(captor.capture());
+    assertEquals(100L, response.getId());
     assertEquals("It's delicious", captor.getValue().getContent());
     assertEquals(ShareStatus.COMPANY, captor.getValue().getShareStatus());
     assertEquals(member1, captor.getValue().getMember());
@@ -143,7 +155,7 @@ class CommentServiceTest {
   @DisplayName("Create comment - Fail(Member not found)")
   void create_comment_fail_member_not_found() {
     //given
-    CreateCommentDto dto = CreateCommentDto.builder()
+    CreateCommentDto.Request dto = CreateCommentDto.Request.builder()
         .content("It's delicious")
         .shareStatus(ShareStatus.COMPANY)
         .build();
@@ -161,7 +173,7 @@ class CommentServiceTest {
   @DisplayName("Create comment - Fail(Diner not found)")
   void create_comment_fail_diner_not_found() {
     //given
-    CreateCommentDto dto = CreateCommentDto.builder()
+    CreateCommentDto.Request dto = CreateCommentDto.Request.builder()
         .content("It's delicious")
         .shareStatus(ShareStatus.COMPANY)
         .build();

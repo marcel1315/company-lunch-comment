@@ -146,7 +146,7 @@ class DinerServiceTest {
         .longitude(127.39232323)
         .tags(tags)
         .build();
-    
+
     Diner savedDiner = Diner.builder()
         .id(100L)
         .name("Gamsung Taco")

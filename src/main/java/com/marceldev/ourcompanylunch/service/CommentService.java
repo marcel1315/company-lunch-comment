@@ -33,7 +33,7 @@ public class CommentService {
   private final MemberRepository memberRepository;
 
   @Transactional
-  public void createComment(long dinerId, CreateCommentDto dto) {
+  public CreateCommentDto.Response createComment(long dinerId, CreateCommentDto.Request dto) {
     Member member = getMember();
 
     Diner diner = dinerRepository.findById(dinerId)
@@ -47,7 +47,8 @@ public class CommentService {
         .member(member)
         .build();
 
-    commentRepository.save(comment);
+    comment = commentRepository.save(comment);
+    return CreateCommentDto.Response.builder().id(comment.getId()).build();
   }
 
   public Page<CommentOutputDto> getCommentList(long dinerId,
