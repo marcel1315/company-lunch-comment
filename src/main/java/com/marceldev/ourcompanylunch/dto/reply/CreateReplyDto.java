@@ -6,15 +6,25 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
-@Data
-@Builder
 public class CreateReplyDto {
 
-  @NotNull
-  @Schema(example = "I'll try")
-  private String content;
+  @Data
+  @Builder
+  public static class Request {
 
-  public CreateReplyDto(@JsonProperty("content") String content) {
-    this.content = content;
+    @NotNull
+    @Schema(example = "I'll try")
+    private String content;
+
+    public Request(@JsonProperty("content") String content) {
+      this.content = content;
+    }
+  }
+
+  @Data
+  @Builder
+  public static class Response {
+
+    private final long id;
   }
 }

@@ -39,7 +39,7 @@ public class ReplyService {
   private final CompanyRepository companyRepository;
 
   @Transactional
-  public void createReply(long commentId, CreateReplyDto dto) {
+  public CreateReplyDto.Response createReply(long commentId, CreateReplyDto.Request dto) {
     checkDinerByCommentId(commentId);
 
     Member member = getMember();
@@ -53,7 +53,8 @@ public class ReplyService {
         .member(member)
         .build();
 
-    replyRepository.save(reply);
+    reply = replyRepository.save(reply);
+    return CreateReplyDto.Response.builder().id(reply.getId()).build();
   }
 
   public Page<ReplyOutputDto> getReplyList(long commentId, GetReplyListDto dto) {

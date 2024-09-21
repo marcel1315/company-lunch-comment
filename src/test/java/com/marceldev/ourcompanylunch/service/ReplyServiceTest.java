@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.marceldev.ourcompanylunch.dto.reply.CreateReplyDto;
+import com.marceldev.ourcompanylunch.dto.reply.CreateReplyDto.Response;
 import com.marceldev.ourcompanylunch.dto.reply.GetReplyListDto;
 import com.marceldev.ourcompanylunch.dto.reply.UpdateReplyDto;
 import com.marceldev.ourcompanylunch.entity.Comment;
@@ -83,6 +84,14 @@ class ReplyServiceTest {
       .company(company1)
       .build();
 
+  // Mock comment
+  private final Comment comment1 = Comment.builder()
+      .id(10L)
+      .member(member1)
+      .content("It's delicious")
+      .shareStatus(ShareStatus.COMPANY)
+      .build();
+
   @BeforeEach
   public void setupMember() {
     GrantedAuthority authority = new SimpleGrantedAuthority("VIEWER");
@@ -110,22 +119,32 @@ class ReplyServiceTest {
   @DisplayName("Create reply - Success")
   void create_reply() {
     //given
-    CreateReplyDto dto = CreateReplyDto.builder()
+    CreateReplyDto.Request dto = CreateReplyDto.Request.builder()
         .content("I'll try.")
         .build();
+    Reply reply = Reply.builder()
+        .id(100L)
+        .member(member1)
+        .comment(comment1)
+        .content("I'll try.")
+        .build();
+
+    //when
     when(commentRepository.findById(any()))
         .thenReturn(Optional.of(
             Comment.builder().id(2L).build()
         ));
     when(companyRepository.findCompanyByCommentId(2L))
         .thenReturn(Optional.of(company1));
+    when(replyRepository.save(any(Reply.class)))
+        .thenReturn(reply);
 
-    //when
-    replyService.createReply(2L, dto);
+    Response response = replyService.createReply(2L, dto);
     ArgumentCaptor<Reply> captor = ArgumentCaptor.forClass(Reply.class);
 
     //then
     verify(replyRepository).save(captor.capture());
+    assertEquals(100L, response.getId());
     assertEquals(1L, captor.getValue().getMember().getId());
     assertEquals(2L, captor.getValue().getComment().getId());
     assertEquals("I'll try.", captor.getValue().getContent());
@@ -135,15 +154,16 @@ class ReplyServiceTest {
   @DisplayName("Create reply - Fail(Comment not found)")
   void create_reply_fail_no_comments() {
     //given
-    CreateReplyDto dto = CreateReplyDto.builder()
+    CreateReplyDto.Request dto = CreateReplyDto.Request.builder()
         .content("I'll try.")
         .build();
+
+    //when
     when(companyRepository.findCompanyByCommentId(1L))
         .thenReturn(Optional.of(company1));
     when(commentRepository.findById(any()))
         .thenReturn(Optional.empty());
 
-    //when
     //then
     assertThrows(CommentNotFoundException.class,
         () -> replyService.createReply(1L, dto));
@@ -156,6 +176,8 @@ class ReplyServiceTest {
     UpdateReplyDto dto = UpdateReplyDto.builder()
         .content("I'll try next time.")
         .build();
+
+    //when
     when(replyRepository.findById(2L))
         .thenReturn(Optional.of(
             Reply.builder()
@@ -165,8 +187,6 @@ class ReplyServiceTest {
         ));
     when(companyRepository.findCompanyByReplyId(2L))
         .thenReturn(Optional.of(company1));
-
-    //when
     replyService.updateReply(2L, dto);
 
     //then
@@ -196,14 +216,14 @@ class ReplyServiceTest {
   @DisplayName("Delete reply - Success")
   void delete_reply() {
     //given
+    Reply reply = Reply.builder()
+        .id(1L)
+        .member(Member.builder().id(1L).build())
+        .build();
+
     //when
     when(replyRepository.findById(1L))
-        .thenReturn(Optional.of(
-            Reply.builder()
-                .id(1L)
-                .member(Member.builder().id(1L).build())
-                .build()
-        ));
+        .thenReturn(Optional.of(reply));
     when(companyRepository.findCompanyByReplyId(1L))
         .thenReturn(Optional.of(company1));
     replyService.deleteReply(1L);

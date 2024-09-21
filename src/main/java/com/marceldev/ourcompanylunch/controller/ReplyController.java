@@ -1,6 +1,7 @@
 package com.marceldev.ourcompanylunch.controller;
 
 import com.marceldev.ourcompanylunch.dto.reply.CreateReplyDto;
+import com.marceldev.ourcompanylunch.dto.reply.CreateReplyDto.Response;
 import com.marceldev.ourcompanylunch.dto.reply.GetReplyListDto;
 import com.marceldev.ourcompanylunch.dto.reply.ReplyOutputDto;
 import com.marceldev.ourcompanylunch.dto.reply.UpdateReplyDto;
@@ -32,12 +33,12 @@ public class ReplyController {
       description = "A member can write a reply on the comment."
   )
   @PostMapping("/comments/{id}/replies")
-  public ResponseEntity<Void> createReply(
+  public ResponseEntity<CreateReplyDto.Response> createReply(
       @PathVariable long id,
-      @Validated @RequestBody CreateReplyDto createReplyDto
+      @Validated @RequestBody CreateReplyDto.Request dto
   ) {
-    replyService.createReply(id, createReplyDto);
-    return ResponseEntity.ok().build();
+    Response response = replyService.createReply(id, dto);
+    return ResponseEntity.ok(response);
   }
 
   @Operation(
