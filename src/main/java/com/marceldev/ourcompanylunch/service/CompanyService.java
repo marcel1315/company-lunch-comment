@@ -46,13 +46,12 @@ public class CompanyService {
   private final EmailSender emailSender;
 
   @Transactional
-  public void createCompany(CreateCompanyDto dto) {
+  public CreateCompanyDto.Response createCompany(CreateCompanyDto.Request dto) {
     if (companyRepository.existsCompanyByName(dto.getName())) {
       throw new SameCompanyNameExistException();
     }
-    Company company = dto.toEntity();
-
-    companyRepository.save(company);
+    Company company = companyRepository.save(dto.toEntity());
+    return CreateCompanyDto.Response.builder().id(company.getId()).build();
   }
 
   @Transactional

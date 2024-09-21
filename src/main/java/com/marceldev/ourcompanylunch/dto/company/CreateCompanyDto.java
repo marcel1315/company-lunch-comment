@@ -4,43 +4,55 @@ import com.marceldev.ourcompanylunch.entity.Company;
 import com.marceldev.ourcompanylunch.util.LocationUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-@Data
-@Builder
 public class CreateCompanyDto {
 
-  @NotNull
-  @Schema(example = "HelloCompany")
-  private String name;
+  @Data
+  @Builder
+  public static class Request {
 
-  @NotNull
-  @Schema(example = "123, Gangnam-daero Gangnam-gu Seoul")
-  private String address;
+    @NotNull
+    @Schema(example = "HelloCompany")
+    private String name;
 
-  @Schema(example = "company123")
-  private String enterKey;
+    @NotNull
+    @Schema(example = "123, Gangnam-daero Gangnam-gu Seoul")
+    private String address;
 
-  @NotNull
-  @Schema(example = "false")
-  private Boolean enterKeyEnabled;
+    @Schema(example = "company123")
+    private String enterKey;
 
-  @NotNull
-  @Schema(example = "37.5665")
-  private double latitude;
+    @NotNull
+    @Schema(example = "false")
+    private Boolean enterKeyEnabled;
 
-  @NotNull
-  @Schema(example = "126.9780")
-  private double longitude;
+    @NotNull
+    @Schema(example = "37.5665")
+    private double latitude;
 
-  public Company toEntity() {
-    return Company.builder()
-        .name(name)
-        .address(address)
-        .enterKey(enterKey)
-        .enterKeyEnabled(enterKeyEnabled)
-        .location(LocationUtil.createPoint(longitude, latitude))
-        .build();
+    @NotNull
+    @Schema(example = "126.9780")
+    private double longitude;
+
+    public Company toEntity() {
+      return Company.builder()
+          .name(name)
+          .address(address)
+          .enterKey(enterKey)
+          .enterKeyEnabled(enterKeyEnabled)
+          .location(LocationUtil.createPoint(longitude, latitude))
+          .build();
+    }
+  }
+
+  @Data
+  @Builder
+  public static class Response {
+    private final long id;
   }
 }

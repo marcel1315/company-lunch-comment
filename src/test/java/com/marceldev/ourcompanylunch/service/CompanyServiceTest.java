@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -12,6 +13,7 @@ import static org.mockito.Mockito.when;
 import com.marceldev.ourcompanylunch.dto.company.ChooseCompanyDto;
 import com.marceldev.ourcompanylunch.dto.company.CompanyOutputDto;
 import com.marceldev.ourcompanylunch.dto.company.CreateCompanyDto;
+import com.marceldev.ourcompanylunch.dto.company.CreateCompanyDto.Response;
 import com.marceldev.ourcompanylunch.dto.company.GetCompanyListDto;
 import com.marceldev.ourcompanylunch.dto.company.UpdateCompanyDto;
 import com.marceldev.ourcompanylunch.entity.Company;
@@ -107,7 +109,7 @@ class CompanyServiceTest {
   @DisplayName("Create company - Success")
   void create_company() {
     //given
-    CreateCompanyDto dto = CreateCompanyDto.builder()
+    CreateCompanyDto.Request dto = CreateCompanyDto.Request.builder()
         .name("HelloCompany")
         .address("321, Teheran-ro Gangnam-gu Seoul")
         .enterKey("company123")
@@ -115,15 +117,27 @@ class CompanyServiceTest {
         .latitude(37.123456)
         .longitude(127.123456)
         .build();
-    when(companyRepository.existsCompanyByName(any()))
-        .thenReturn(false);
+    Company savedCompany = Company.builder()
+        .id(100L)
+        .name("HelloCompany")
+        .address("321, Teheran-ro Gangnam-gu Seoul")
+        .enterKey("company123")
+        .enterKeyEnabled(false)
+        .location(LocationUtil.createPoint(127.123456, 37.123456))
+        .build();
 
     //when
-    companyService.createCompany(dto);
+    when(companyRepository.existsCompanyByName("HelloCompany"))
+        .thenReturn(false);
+    when(companyRepository.save(any(Company.class)))
+        .thenReturn(savedCompany);
+
     ArgumentCaptor<Company> captor = ArgumentCaptor.forClass(Company.class);
+    Response response = companyService.createCompany(dto);
 
     //then
     verify(companyRepository).save(captor.capture());
+    assertEquals(100L, response.getId());
     assertEquals("HelloCompany", captor.getValue().getName());
     assertEquals("321, Teheran-ro Gangnam-gu Seoul", captor.getValue().getAddress());
     assertEquals(LocationUtil.createPoint(127.123456, 37.123456), captor.getValue().getLocation());
@@ -134,7 +148,7 @@ class CompanyServiceTest {
   @DisplayName("Create company - Fail(Same company name exists)")
   void create_company_fail_same_email_domain() {
     //given
-    CreateCompanyDto dto = CreateCompanyDto.builder()
+    CreateCompanyDto.Request dto = CreateCompanyDto.Request.builder()
         .name("HelloCompany")
         .address("321, Teheran-ro Gangnam-gu Seoul")
         .latitude(37.123456)

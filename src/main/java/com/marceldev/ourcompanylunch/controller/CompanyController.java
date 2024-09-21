@@ -3,6 +3,7 @@ package com.marceldev.ourcompanylunch.controller;
 import com.marceldev.ourcompanylunch.dto.company.ChooseCompanyDto;
 import com.marceldev.ourcompanylunch.dto.company.CompanyOutputDto;
 import com.marceldev.ourcompanylunch.dto.company.CreateCompanyDto;
+import com.marceldev.ourcompanylunch.dto.company.CreateCompanyDto.Response;
 import com.marceldev.ourcompanylunch.dto.company.GetCompanyListDto;
 import com.marceldev.ourcompanylunch.dto.company.UpdateCompanyDto;
 import com.marceldev.ourcompanylunch.dto.error.ErrorResponse;
@@ -44,11 +45,11 @@ public class CompanyController {
       @ApiResponse(responseCode = "400", description = "errorCode: 2001 - A company with same name exists.")
   })
   @PostMapping("/companies")
-  public ResponseEntity<Void> createCompany(
-      @Validated @RequestBody CreateCompanyDto createCompanyDto
+  public ResponseEntity<CreateCompanyDto.Response> createCompany(
+      @Validated @RequestBody CreateCompanyDto.Request createCompanyDto
   ) {
-    companyService.createCompany(createCompanyDto);
-    return ResponseEntity.ok().build();
+    Response response = companyService.createCompany(createCompanyDto);
+    return ResponseEntity.ok(response);
   }
 
   @Operation(
