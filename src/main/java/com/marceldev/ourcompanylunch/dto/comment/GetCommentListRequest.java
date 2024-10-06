@@ -7,11 +7,11 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 @Builder
-public class GetCommentListDto {
+public class GetCommentListRequest {
 
   @Schema
   @PositiveOrZero
@@ -36,4 +36,26 @@ public class GetCommentListDto {
 
   @Schema(example = "Jack")
   private String commentedBy;
+
+  @Builder
+  private GetCommentListRequest(int page, int size, CommentSort sortBy, SortDirection sortDirection,
+      String keyword, String commentedBy) {
+    this.page = page;
+    this.size = size;
+    this.sortBy = sortBy;
+    this.sortDirection = sortDirection;
+    this.keyword = keyword;
+    this.commentedBy = commentedBy;
+  }
+
+  public static GetCommentListRequest create(String keyword, String commentedBy) {
+    return GetCommentListRequest.builder()
+        .page(0)
+        .size(20)
+        .sortBy(CommentSort.CREATED_AT)
+        .sortDirection(SortDirection.ASC)
+        .keyword(keyword)
+        .commentedBy(commentedBy)
+        .build();
+  }
 }

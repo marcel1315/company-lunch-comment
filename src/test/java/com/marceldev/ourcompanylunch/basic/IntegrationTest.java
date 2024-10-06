@@ -2,6 +2,7 @@ package com.marceldev.ourcompanylunch.basic;
 
 import com.marceldev.ourcompanylunch.component.EmailSender;
 import com.marceldev.ourcompanylunch.component.S3Manager;
+import com.marceldev.ourcompanylunch.repository.comment.CommentRepository;
 import com.marceldev.ourcompanylunch.repository.company.CompanyRepository;
 import com.marceldev.ourcompanylunch.repository.diner.DinerImageRepository;
 import com.marceldev.ourcompanylunch.repository.diner.DinerRepository;
@@ -9,6 +10,7 @@ import com.marceldev.ourcompanylunch.repository.diner.DinerSubscriptionRepositor
 import com.marceldev.ourcompanylunch.repository.member.MemberRepository;
 import com.marceldev.ourcompanylunch.repository.verification.VerificationRepository;
 import com.marceldev.ourcompanylunch.security.WithCustomUser;
+import com.marceldev.ourcompanylunch.service.CommentService;
 import com.marceldev.ourcompanylunch.service.CompanyService;
 import com.marceldev.ourcompanylunch.service.DinerImageService;
 import com.marceldev.ourcompanylunch.service.DinerService;
@@ -25,6 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @WithCustomUser(username = "jack@example.com")
 public abstract class IntegrationTest {
+
+  // --- Repository ---
 
   @Autowired
   protected CompanyRepository companyRepository;
@@ -45,6 +49,14 @@ public abstract class IntegrationTest {
   protected VerificationRepository verificationRepository;
 
   @Autowired
+  protected CommentRepository commentRepository;
+
+  // --- Service ---
+
+  @Autowired
+  protected CommentService commentService;
+
+  @Autowired
   protected CompanyService companyService;
 
   @Autowired
@@ -59,11 +71,15 @@ public abstract class IntegrationTest {
   @Autowired
   protected DinerSubscribeService dinerSubscribeService;
 
+  // --- Mock ---
+
   @MockBean
   protected EmailSender emailSender;
 
   @MockBean
   protected S3Manager s3Manager;
+
+  // --- Etc ---
 
   @PersistenceContext
   protected EntityManager entityManager;

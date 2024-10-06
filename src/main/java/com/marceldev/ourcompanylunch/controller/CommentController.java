@@ -1,10 +1,10 @@
 package com.marceldev.ourcompanylunch.controller;
 
 import com.marceldev.ourcompanylunch.dto.comment.CommentOutputDto;
-import com.marceldev.ourcompanylunch.dto.comment.CreateCommentDto;
-import com.marceldev.ourcompanylunch.dto.comment.CreateCommentDto.Response;
-import com.marceldev.ourcompanylunch.dto.comment.GetCommentListDto;
-import com.marceldev.ourcompanylunch.dto.comment.UpdateCommentDto;
+import com.marceldev.ourcompanylunch.dto.comment.CreateCommentRequest;
+import com.marceldev.ourcompanylunch.dto.comment.CreateCommentResponse;
+import com.marceldev.ourcompanylunch.dto.comment.GetCommentListRequest;
+import com.marceldev.ourcompanylunch.dto.comment.UpdateCommentRequest;
 import com.marceldev.ourcompanylunch.service.CommentService;
 import com.marceldev.ourcompanylunch.service.MessageProducerService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,11 +37,11 @@ public class CommentController {
           + "Also enter a sharing option."
   )
   @PostMapping("/diners/{id}/comments")
-  public ResponseEntity<CreateCommentDto.Response> createComment(
+  public ResponseEntity<CreateCommentResponse> createComment(
       @PathVariable long id,
-      @Validated @RequestBody CreateCommentDto.Request dto
+      @Validated @RequestBody CreateCommentRequest dto
   ) {
-    Response response = commentService.createComment(id, dto);
+    CreateCommentResponse response = commentService.createComment(id, dto);
     messageProducerService.produceForDinerSubscribers(id, dto.getContent());
     return ResponseEntity.ok(response);
   }
@@ -55,10 +55,10 @@ public class CommentController {
   @GetMapping("/diners/{id}/comments")
   public ResponseEntity<Page<CommentOutputDto>> getCommentList(
       @PathVariable long id,
-      @Validated @ModelAttribute GetCommentListDto getCommentListDto
+      @Validated @ModelAttribute GetCommentListRequest getCommentListRequest
   ) {
     Page<CommentOutputDto> comments = commentService.getCommentList(
-        id, getCommentListDto
+        id, getCommentListRequest
     );
     return ResponseEntity.ok(comments);
   }
@@ -70,9 +70,9 @@ public class CommentController {
   @PutMapping("/diners/comments/{id}")
   public ResponseEntity<Void> updateComment(
       @PathVariable long id,
-      @RequestBody UpdateCommentDto updateCommentDto
+      @RequestBody UpdateCommentRequest updateCommentRequest
   ) {
-    commentService.updateComment(id, updateCommentDto);
+    commentService.updateComment(id, updateCommentRequest);
     return ResponseEntity.ok().build();
   }
 

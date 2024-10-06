@@ -1,9 +1,10 @@
 package com.marceldev.ourcompanylunch.service;
 
 import com.marceldev.ourcompanylunch.dto.comment.CommentOutputDto;
-import com.marceldev.ourcompanylunch.dto.comment.CreateCommentDto;
-import com.marceldev.ourcompanylunch.dto.comment.GetCommentListDto;
-import com.marceldev.ourcompanylunch.dto.comment.UpdateCommentDto;
+import com.marceldev.ourcompanylunch.dto.comment.CreateCommentRequest;
+import com.marceldev.ourcompanylunch.dto.comment.CreateCommentResponse;
+import com.marceldev.ourcompanylunch.dto.comment.GetCommentListRequest;
+import com.marceldev.ourcompanylunch.dto.comment.UpdateCommentRequest;
 import com.marceldev.ourcompanylunch.entity.Comment;
 import com.marceldev.ourcompanylunch.entity.Diner;
 import com.marceldev.ourcompanylunch.entity.Member;
@@ -33,7 +34,7 @@ public class CommentService {
   private final MemberRepository memberRepository;
 
   @Transactional
-  public CreateCommentDto.Response createComment(long dinerId, CreateCommentDto.Request dto) {
+  public CreateCommentResponse createComment(long dinerId, CreateCommentRequest dto) {
     Member member = getMember();
 
     Diner diner = dinerRepository.findById(dinerId)
@@ -48,11 +49,11 @@ public class CommentService {
         .build();
 
     comment = commentRepository.save(comment);
-    return CreateCommentDto.Response.builder().id(comment.getId()).build();
+    return CreateCommentResponse.builder().id(comment.getId()).build();
   }
 
   public Page<CommentOutputDto> getCommentList(long dinerId,
-      GetCommentListDto dto) {
+      GetCommentListRequest dto) {
     Pageable pageable = PageRequest.of(
         dto.getPage(),
         dto.getSize()
@@ -63,7 +64,7 @@ public class CommentService {
   }
 
   @Transactional
-  public void updateComment(long commentId, UpdateCommentDto dto) {
+  public void updateComment(long commentId, UpdateCommentRequest dto) {
     String email = getMemberEmail();
     Comment comment = commentRepository.findByIdAndMember_Email(commentId, email)
         .orElseThrow(CommentNotFoundException::new);

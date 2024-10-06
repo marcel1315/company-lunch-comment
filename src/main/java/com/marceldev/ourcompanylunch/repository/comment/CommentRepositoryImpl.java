@@ -3,7 +3,7 @@ package com.marceldev.ourcompanylunch.repository.comment;
 import static com.marceldev.ourcompanylunch.entity.QComment.comment;
 import static com.marceldev.ourcompanylunch.entity.QMember.member;
 
-import com.marceldev.ourcompanylunch.dto.comment.GetCommentListDto;
+import com.marceldev.ourcompanylunch.dto.comment.GetCommentListRequest;
 import com.marceldev.ourcompanylunch.entity.Comment;
 import com.marceldev.ourcompanylunch.type.CommentSort;
 import com.marceldev.ourcompanylunch.type.ShareStatus;
@@ -25,7 +25,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
   private final JPAQueryFactory queryFactory;
 
   @Override
-  public Page<Comment> getList(GetCommentListDto dto, long myMemberId, long dinerId,
+  public Page<Comment> getList(GetCommentListRequest dto, long myMemberId, long dinerId,
       Pageable pageable) {
     long total = Optional.ofNullable(
             queryFactory
@@ -70,11 +70,11 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
     return comment.shareStatus.eq(ShareStatus.COMPANY);
   }
 
-  private BooleanExpression contentContains(GetCommentListDto dto) {
+  private BooleanExpression contentContains(GetCommentListRequest dto) {
     return dto.getKeyword() != null ? comment.content.contains(dto.getKeyword()) : null;
   }
 
-  private BooleanExpression commentedByEq(GetCommentListDto dto) {
+  private BooleanExpression commentedByEq(GetCommentListRequest dto) {
     return dto.getCommentedBy() != null ? comment.member.name.eq(dto.getCommentedBy()) : null;
   }
 
