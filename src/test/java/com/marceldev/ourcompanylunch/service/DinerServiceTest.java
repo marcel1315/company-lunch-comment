@@ -6,8 +6,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 
-import com.marceldev.ourcompanylunch.component.EmailSender;
-import com.marceldev.ourcompanylunch.component.S3Manager;
+import com.marceldev.ourcompanylunch.basic.IntegrationTest;
 import com.marceldev.ourcompanylunch.dto.company.ChooseCompanyRequest;
 import com.marceldev.ourcompanylunch.dto.diner.CreateDinerRequest;
 import com.marceldev.ourcompanylunch.dto.diner.CreateDinerResponse;
@@ -20,19 +19,10 @@ import com.marceldev.ourcompanylunch.entity.Diner;
 import com.marceldev.ourcompanylunch.entity.Member;
 import com.marceldev.ourcompanylunch.exception.company.CompanyNotFoundException;
 import com.marceldev.ourcompanylunch.exception.diner.DinerNotFoundException;
-import com.marceldev.ourcompanylunch.repository.company.CompanyRepository;
-import com.marceldev.ourcompanylunch.repository.diner.DinerImageRepository;
-import com.marceldev.ourcompanylunch.repository.diner.DinerRepository;
-import com.marceldev.ourcompanylunch.repository.diner.DinerSubscriptionRepository;
-import com.marceldev.ourcompanylunch.repository.member.MemberRepository;
-import com.marceldev.ourcompanylunch.repository.verification.VerificationRepository;
-import com.marceldev.ourcompanylunch.security.WithCustomUser;
 import com.marceldev.ourcompanylunch.type.DinerSort;
 import com.marceldev.ourcompanylunch.type.Role;
 import com.marceldev.ourcompanylunch.type.SortDirection;
 import com.marceldev.ourcompanylunch.util.LocationUtil;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -40,52 +30,9 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
-import org.springframework.transaction.annotation.Transactional;
 
-@SpringBootTest
-@Transactional
-@WithCustomUser(username = "jack@example.com")
-class DinerServiceIntegrationTest {
-
-  @Autowired
-  private CompanyRepository companyRepository;
-
-  @Autowired
-  private MemberRepository memberRepository;
-
-  @Autowired
-  private DinerRepository dinerRepository;
-
-  @Autowired
-  private DinerImageRepository dinerImageRepository;
-
-  @Autowired
-  private DinerSubscriptionRepository dinerSubscriptionRepository;
-
-  @Autowired
-  private VerificationRepository verificationRepository;
-
-  @Autowired
-  private CompanyService companyService;
-
-  @Autowired
-  private DinerService dinerService;
-
-  @MockBean
-  private EmailSender emailSender;
-
-  @MockBean
-  private S3Manager s3Manager;
-
-  @PersistenceContext
-  private EntityManager entityManager;
-
-  @Autowired
-  private DinerImageService dinerImageService;
+class DinerServiceTest extends IntegrationTest {
 
   @BeforeEach
   public void setUp() {
@@ -95,7 +42,7 @@ class DinerServiceIntegrationTest {
   private void setUpH2Procedure() {
     // Test db(H2) doesn't have ST_Distance_sphere procedure. So create dummy procedure.
     entityManager.createNativeQuery(
-        "CREATE ALIAS IF NOT EXISTS ST_Distance_Sphere FOR \"com.marceldev.ourcompanylunch.etc.H2Functions.stDistanceSphere\""
+        "CREATE ALIAS IF NOT EXISTS ST_Distance_Sphere FOR \"com.marceldev.ourcompanylunch.basic.H2Functions.stDistanceSphere\""
     ).executeUpdate();
   }
 

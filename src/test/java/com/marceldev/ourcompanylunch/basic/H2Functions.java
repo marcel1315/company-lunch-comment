@@ -1,4 +1,4 @@
-package com.marceldev.ourcompanylunch.etc;
+package com.marceldev.ourcompanylunch.basic;
 
 import org.locationtech.jts.geom.Point;
 

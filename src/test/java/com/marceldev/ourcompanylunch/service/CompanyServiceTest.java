@@ -4,8 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 
-import com.marceldev.ourcompanylunch.component.EmailSender;
-import com.marceldev.ourcompanylunch.component.S3Manager;
+import com.marceldev.ourcompanylunch.basic.IntegrationTest;
 import com.marceldev.ourcompanylunch.dto.company.ChooseCompanyRequest;
 import com.marceldev.ourcompanylunch.dto.company.CompanyOutputDto;
 import com.marceldev.ourcompanylunch.dto.company.CreateCompanyRequest;
@@ -18,10 +17,6 @@ import com.marceldev.ourcompanylunch.entity.Verification;
 import com.marceldev.ourcompanylunch.exception.company.CompanyNotFoundException;
 import com.marceldev.ourcompanylunch.exception.company.SameCompanyNameExistException;
 import com.marceldev.ourcompanylunch.exception.member.VerificationCodeNotFoundException;
-import com.marceldev.ourcompanylunch.repository.company.CompanyRepository;
-import com.marceldev.ourcompanylunch.repository.member.MemberRepository;
-import com.marceldev.ourcompanylunch.repository.verification.VerificationRepository;
-import com.marceldev.ourcompanylunch.security.WithCustomUser;
 import com.marceldev.ourcompanylunch.type.CompanySort;
 import com.marceldev.ourcompanylunch.type.Role;
 import com.marceldev.ourcompanylunch.type.SortDirection;
@@ -29,34 +24,9 @@ import com.marceldev.ourcompanylunch.util.LocationUtil;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
-import org.springframework.transaction.annotation.Transactional;
 
-@SpringBootTest
-@Transactional
-@WithCustomUser(username = "jack@example.com")
-class CompanyServiceTest {
-
-  @Autowired
-  private CompanyRepository companyRepository;
-
-  @Autowired
-  private MemberRepository memberRepository;
-
-  @Autowired
-  private VerificationRepository verificationRepository;
-
-  @Autowired
-  private CompanyService companyService;
-
-  @MockBean
-  private EmailSender emailSender;
-
-  @MockBean
-  private S3Manager s3Manager;
+class CompanyServiceTest extends IntegrationTest {
 
   @Test
   @DisplayName("Create company - Success")
