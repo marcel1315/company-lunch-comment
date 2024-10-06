@@ -1,12 +1,12 @@
 package com.marceldev.ourcompanylunch.controller;
 
-import com.marceldev.ourcompanylunch.dto.diner.AddDinerTagsDto;
+import com.marceldev.ourcompanylunch.dto.diner.AddDinerTagsRequest;
 import com.marceldev.ourcompanylunch.dto.diner.CreateDinerRequest;
 import com.marceldev.ourcompanylunch.dto.diner.CreateDinerResponse;
 import com.marceldev.ourcompanylunch.dto.diner.DinerDetailOutputDto;
 import com.marceldev.ourcompanylunch.dto.diner.DinerOutputDto;
 import com.marceldev.ourcompanylunch.dto.diner.GetDinerListRequest;
-import com.marceldev.ourcompanylunch.dto.diner.RemoveDinerTagsDto;
+import com.marceldev.ourcompanylunch.dto.diner.RemoveDinerTagsRequest;
 import com.marceldev.ourcompanylunch.dto.diner.UpdateDinerRequest;
 import com.marceldev.ourcompanylunch.dto.error.ErrorResponse;
 import com.marceldev.ourcompanylunch.exception.diner.DinerMaxImageCountExceedException;
@@ -14,6 +14,8 @@ import com.marceldev.ourcompanylunch.exception.diner.DuplicateDinerTagException;
 import com.marceldev.ourcompanylunch.exception.diner.ImageWithNoExtensionException;
 import com.marceldev.ourcompanylunch.service.DinerImageService;
 import com.marceldev.ourcompanylunch.service.DinerService;
+import com.marceldev.ourcompanylunch.service.DinerSubscribeService;
+import com.marceldev.ourcompanylunch.service.DinerTagService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -42,6 +44,10 @@ public class DinerController {
   private final DinerService dinerService;
 
   private final DinerImageService dinerImageService;
+
+  private final DinerSubscribeService dinerSubscribeService;
+
+  private final DinerTagService dinerTagService;
 
   @Operation(
       summary = "Register a diner"
@@ -113,9 +119,9 @@ public class DinerController {
   @PutMapping("/diners/{id}/tags")
   public ResponseEntity<Void> addDinerTags(
       @PathVariable long id,
-      @Validated @RequestBody AddDinerTagsDto addDinerTagsDto
+      @Validated @RequestBody AddDinerTagsRequest addDinerTagsRequest
   ) {
-    dinerService.addDinerTag(id, addDinerTagsDto);
+    dinerTagService.addDinerTag(id, addDinerTagsRequest);
     return ResponseEntity.ok().build();
   }
 
@@ -125,9 +131,9 @@ public class DinerController {
   @DeleteMapping("/diners/{id}/tags")
   public ResponseEntity<Void> removeDinerTags(
       @PathVariable long id,
-      @Validated @RequestBody RemoveDinerTagsDto removeDinerTagsDto
+      @Validated @RequestBody RemoveDinerTagsRequest removeDinerTagsRequest
   ) {
-    dinerService.removeDinerTag(id, removeDinerTagsDto);
+    dinerTagService.removeDinerTag(id, removeDinerTagsRequest);
     return ResponseEntity.ok().build();
   }
 
@@ -167,7 +173,7 @@ public class DinerController {
   public ResponseEntity<Void> subscribeDiner(
       @PathVariable long id
   ) {
-    dinerService.subscribeDiner(id);
+    dinerSubscribeService.subscribeDiner(id);
     return ResponseEntity.ok().build();
   }
 
@@ -178,7 +184,7 @@ public class DinerController {
   public ResponseEntity<Void> unsubscribeDiner(
       @PathVariable long id
   ) {
-    dinerService.unsubscribeDiner(id);
+    dinerSubscribeService.unsubscribeDiner(id);
     return ResponseEntity.ok().build();
   }
 

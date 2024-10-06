@@ -1,28 +1,22 @@
 package com.marceldev.ourcompanylunch.service;
 
 import com.marceldev.ourcompanylunch.component.S3Manager;
-import com.marceldev.ourcompanylunch.dto.diner.AddDinerTagsDto;
 import com.marceldev.ourcompanylunch.dto.diner.CreateDinerRequest;
 import com.marceldev.ourcompanylunch.dto.diner.CreateDinerResponse;
 import com.marceldev.ourcompanylunch.dto.diner.DinerDetailOutputDto;
 import com.marceldev.ourcompanylunch.dto.diner.DinerOutputDto;
 import com.marceldev.ourcompanylunch.dto.diner.GetDinerListRequest;
-import com.marceldev.ourcompanylunch.dto.diner.RemoveDinerTagsDto;
 import com.marceldev.ourcompanylunch.dto.diner.UpdateDinerRequest;
 import com.marceldev.ourcompanylunch.entity.Company;
 import com.marceldev.ourcompanylunch.entity.Diner;
 import com.marceldev.ourcompanylunch.entity.DinerImage;
-import com.marceldev.ourcompanylunch.entity.DinerSubscription;
 import com.marceldev.ourcompanylunch.entity.Member;
 import com.marceldev.ourcompanylunch.exception.company.CompanyNotFoundException;
-import com.marceldev.ourcompanylunch.exception.diner.AlreadySubscribedException;
 import com.marceldev.ourcompanylunch.exception.diner.DinerNotFoundException;
-import com.marceldev.ourcompanylunch.exception.diner.DinerSubscriptionNotFoundException;
 import com.marceldev.ourcompanylunch.exception.member.MemberNotFoundException;
 import com.marceldev.ourcompanylunch.exception.member.MemberUnauthorizedException;
 import com.marceldev.ourcompanylunch.repository.diner.DinerImageRepository;
 import com.marceldev.ourcompanylunch.repository.diner.DinerRepository;
-import com.marceldev.ourcompanylunch.repository.diner.DinerSubscriptionRepository;
 import com.marceldev.ourcompanylunch.repository.member.MemberRepository;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,8 +44,6 @@ public class DinerService {
   private final MemberRepository memberRepository;
 
   private final DinerRepository dinerRepository;
-
-  private final DinerSubscriptionRepository dinerSubscriptionRepository;
 
   @Transactional
   public CreateDinerResponse createDiner(CreateDinerRequest dto) {
@@ -116,45 +108,6 @@ public class DinerService {
     } catch (Exception e) {
       log.error(e.getMessage());
     }
-  }
-
-  @Transactional
-  public void addDinerTag(long id, AddDinerTagsDto dto) {
-    Diner diner = getDiner(id);
-    dto.getTags().forEach(diner::addTag);
-  }
-
-  @Transactional
-  public void removeDinerTag(long id, RemoveDinerTagsDto dto) {
-    Diner diner = getDiner(id);
-    dto.getTags().forEach(diner::removeTag);
-  }
-
-  @Transactional
-  public void subscribeDiner(long id) {
-    Diner diner = getDiner(id);
-    Member member = getMember();
-
-    if (dinerSubscriptionRepository.existsByDinerAndMember(diner, member)) {
-      throw new AlreadySubscribedException();
-    }
-
-    dinerSubscriptionRepository.save(DinerSubscription.builder()
-        .diner(diner)
-        .member(member)
-        .build());
-  }
-
-  @Transactional
-  public void unsubscribeDiner(long id) {
-    Diner diner = getDiner(id);
-    Member member = getMember();
-
-    DinerSubscription dinerSubscription = dinerSubscriptionRepository.findByDinerAndMember(diner,
-            member)
-        .orElseThrow(DinerSubscriptionNotFoundException::new);
-
-    dinerSubscriptionRepository.delete(dinerSubscription);
   }
 
   private List<String> getImageUrls(List<String> s3Keys) {

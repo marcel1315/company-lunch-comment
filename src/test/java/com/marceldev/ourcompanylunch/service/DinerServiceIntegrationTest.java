@@ -83,6 +83,7 @@ class DinerServiceIntegrationTest {
 
   @PersistenceContext
   private EntityManager entityManager;
+
   @Autowired
   private DinerImageService dinerImageService;
 
