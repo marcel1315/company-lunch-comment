@@ -10,7 +10,7 @@ import org.locationtech.jts.geom.Point;
 
 @Data
 @Builder
-public class UpdateDinerDto {
+public class UpdateDinerRequest {
 
   @NotNull
   @Schema(example = "https://link.me/FeOCTkYP")

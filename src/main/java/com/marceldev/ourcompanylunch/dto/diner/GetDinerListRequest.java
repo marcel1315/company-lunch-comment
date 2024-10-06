@@ -11,7 +11,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class GetDinerListDto {
+public class GetDinerListRequest {
 
   @Schema(example = "Noodle")
   private String keyword;

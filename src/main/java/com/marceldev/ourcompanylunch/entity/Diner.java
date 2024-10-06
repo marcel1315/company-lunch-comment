@@ -52,7 +52,7 @@ public class Diner extends BaseEntity {
   private LinkedHashSet<String> tags;
 
   @OneToMany(mappedBy = "diner", fetch = FetchType.LAZY)
-  private List<DinerImage> dinerImages;
+  private List<DinerImage> dinerImages = new ArrayList<>();
 
   @Setter
   @ManyToOne(fetch = FetchType.LAZY)

@@ -1,4 +1,4 @@
-package com.marceldev.ourcompanylunch.service;
+package com.marceldev.ourcompanylunch.security;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

@@ -5,7 +5,7 @@ import static com.marceldev.ourcompanylunch.entity.QCompany.company;
 import static com.marceldev.ourcompanylunch.entity.QDiner.diner;
 
 import com.marceldev.ourcompanylunch.dto.diner.DinerOutputDto;
-import com.marceldev.ourcompanylunch.dto.diner.GetDinerListDto;
+import com.marceldev.ourcompanylunch.dto.diner.GetDinerListRequest;
 import com.marceldev.ourcompanylunch.type.DinerSort;
 import com.marceldev.ourcompanylunch.type.SortDirection;
 import com.querydsl.core.Tuple;
@@ -31,7 +31,7 @@ public class DinerRepositoryImpl implements DinerRepositoryCustom {
   private final JPAQueryFactory queryFactory;
 
   @Override
-  public Page<DinerOutputDto> getList(long companyId, GetDinerListDto dto, Pageable pageable) {
+  public Page<DinerOutputDto> getList(long companyId, GetDinerListRequest dto, Pageable pageable) {
 
     long total = Optional.ofNullable(
             queryFactory.select(diner.count())
@@ -94,7 +94,7 @@ public class DinerRepositoryImpl implements DinerRepositoryCustom {
     return diner.company.id.eq(companyId);
   }
 
-  private BooleanExpression nameContains(GetDinerListDto dto) {
+  private BooleanExpression nameContains(GetDinerListRequest dto) {
     return dto.getKeyword() != null ? diner.name.contains(dto.getKeyword()) : null;
   }
 

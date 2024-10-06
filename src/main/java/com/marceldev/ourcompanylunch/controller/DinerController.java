@@ -1,13 +1,13 @@
 package com.marceldev.ourcompanylunch.controller;
 
 import com.marceldev.ourcompanylunch.dto.diner.AddDinerTagsDto;
-import com.marceldev.ourcompanylunch.dto.diner.CreateDinerDto;
-import com.marceldev.ourcompanylunch.dto.diner.CreateDinerDto.Response;
+import com.marceldev.ourcompanylunch.dto.diner.CreateDinerRequest;
+import com.marceldev.ourcompanylunch.dto.diner.CreateDinerResponse;
 import com.marceldev.ourcompanylunch.dto.diner.DinerDetailOutputDto;
 import com.marceldev.ourcompanylunch.dto.diner.DinerOutputDto;
-import com.marceldev.ourcompanylunch.dto.diner.GetDinerListDto;
+import com.marceldev.ourcompanylunch.dto.diner.GetDinerListRequest;
 import com.marceldev.ourcompanylunch.dto.diner.RemoveDinerTagsDto;
-import com.marceldev.ourcompanylunch.dto.diner.UpdateDinerDto;
+import com.marceldev.ourcompanylunch.dto.diner.UpdateDinerRequest;
 import com.marceldev.ourcompanylunch.dto.error.ErrorResponse;
 import com.marceldev.ourcompanylunch.exception.diner.DinerMaxImageCountExceedException;
 import com.marceldev.ourcompanylunch.exception.diner.DuplicateDinerTagException;
@@ -47,10 +47,10 @@ public class DinerController {
       summary = "Register a diner"
   )
   @PostMapping("/diners")
-  public ResponseEntity<CreateDinerDto.Response> createDiner(
-      @Validated @RequestBody CreateDinerDto.Request dto
+  public ResponseEntity<CreateDinerResponse> createDiner(
+      @Validated @RequestBody CreateDinerRequest dto
   ) {
-    Response response = dinerService.createDiner(dto);
+    CreateDinerResponse response = dinerService.createDiner(dto);
     return ResponseEntity.ok(response);
   }
 
@@ -61,9 +61,9 @@ public class DinerController {
   )
   @GetMapping("/diners")
   public ResponseEntity<Page<DinerOutputDto>> getDinerList(
-      @Validated @ModelAttribute GetDinerListDto getDinerListDto
+      @Validated @ModelAttribute GetDinerListRequest getDinerListRequest
   ) {
-    Page<DinerOutputDto> diners = dinerService.getDinerList(getDinerListDto);
+    Page<DinerOutputDto> diners = dinerService.getDinerList(getDinerListRequest);
     return ResponseEntity.ok(diners);
   }
 
@@ -86,9 +86,9 @@ public class DinerController {
   @PutMapping("/diners/{id}")
   public ResponseEntity<Void> updateDiner(
       @PathVariable long id,
-      @Validated @RequestBody UpdateDinerDto updateDinerDto
+      @Validated @RequestBody UpdateDinerRequest updateDinerRequest
   ) {
-    dinerService.updateDiner(id, updateDinerDto);
+    dinerService.updateDiner(id, updateDinerRequest);
     return ResponseEntity.ok().build();
   }
 

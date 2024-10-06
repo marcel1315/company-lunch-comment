@@ -2,12 +2,13 @@ package com.marceldev.ourcompanylunch.service;
 
 import com.marceldev.ourcompanylunch.component.S3Manager;
 import com.marceldev.ourcompanylunch.dto.diner.AddDinerTagsDto;
-import com.marceldev.ourcompanylunch.dto.diner.CreateDinerDto;
+import com.marceldev.ourcompanylunch.dto.diner.CreateDinerRequest;
+import com.marceldev.ourcompanylunch.dto.diner.CreateDinerResponse;
 import com.marceldev.ourcompanylunch.dto.diner.DinerDetailOutputDto;
 import com.marceldev.ourcompanylunch.dto.diner.DinerOutputDto;
-import com.marceldev.ourcompanylunch.dto.diner.GetDinerListDto;
+import com.marceldev.ourcompanylunch.dto.diner.GetDinerListRequest;
 import com.marceldev.ourcompanylunch.dto.diner.RemoveDinerTagsDto;
-import com.marceldev.ourcompanylunch.dto.diner.UpdateDinerDto;
+import com.marceldev.ourcompanylunch.dto.diner.UpdateDinerRequest;
 import com.marceldev.ourcompanylunch.entity.Company;
 import com.marceldev.ourcompanylunch.entity.Diner;
 import com.marceldev.ourcompanylunch.entity.DinerImage;
@@ -24,7 +25,9 @@ import com.marceldev.ourcompanylunch.repository.diner.DinerRepository;
 import com.marceldev.ourcompanylunch.repository.diner.DinerSubscriptionRepository;
 import com.marceldev.ourcompanylunch.repository.member.MemberRepository;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -51,15 +54,15 @@ public class DinerService {
   private final DinerSubscriptionRepository dinerSubscriptionRepository;
 
   @Transactional
-  public CreateDinerDto.Response createDiner(CreateDinerDto.Request dto) {
+  public CreateDinerResponse createDiner(CreateDinerRequest dto) {
     Company company = getCompany();
     Diner diner = dto.toEntity();
     diner.setCompany(company);
     diner = dinerRepository.save(diner);
-    return CreateDinerDto.Response.builder().id(diner.getId()).build();
+    return CreateDinerResponse.of(diner);
   }
 
-  public Page<DinerOutputDto> getDinerList(GetDinerListDto dto) {
+  public Page<DinerOutputDto> getDinerList(GetDinerListRequest dto) {
     Company company = getCompany();
     Pageable pageable = PageRequest.of(
         dto.getPage(),
@@ -70,11 +73,13 @@ public class DinerService {
 
   public DinerDetailOutputDto getDinerDetail(long id) {
     Diner diner = getDiner(id);
-    List<String> dinerImageKeys = diner.getDinerImages().stream()
+    List<String> dinerImageKeys = Optional.ofNullable(diner.getDinerImages())
+        .orElse(Collections.emptyList()).stream()
         .filter(dinerImage -> !dinerImage.isThumbnail())
         .map(DinerImage::getS3Key)
         .toList();
-    List<String> dinerThumbnailKeys = diner.getDinerImages().stream()
+    List<String> dinerThumbnailKeys = Optional.ofNullable(diner.getDinerImages())
+        .orElse(Collections.emptyList()).stream()
         .filter(DinerImage::isThumbnail)
         .map(DinerImage::getS3Key)
         .toList();
@@ -86,7 +91,7 @@ public class DinerService {
   }
 
   @Transactional
-  public void updateDiner(long id, UpdateDinerDto dto) {
+  public void updateDiner(long id, UpdateDinerRequest dto) {
     Diner diner = getDiner(id);
     diner.setLink(dto.getLink());
     diner.setLocation(dto.getLocation());
@@ -95,7 +100,9 @@ public class DinerService {
   @Transactional
   public void removeDiner(long id) {
     Diner diner = getDiner(id);
-    List<String> dinerImageKeys = diner.getDinerImages().stream()
+    List<String> dinerImageKeys = Optional.ofNullable(diner.getDinerImages())
+        .orElse(Collections.emptyList())
+        .stream()
         .map(DinerImage::getS3Key)
         .toList();
 

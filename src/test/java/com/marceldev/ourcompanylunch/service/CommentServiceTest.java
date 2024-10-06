@@ -1,5 +1,7 @@
 package com.marceldev.ourcompanylunch.service;
 
+import static com.marceldev.ourcompanylunch.dto.comment.CreateCommentDto.Request;
+import static com.marceldev.ourcompanylunch.dto.comment.CreateCommentDto.Response;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -11,7 +13,6 @@ import static org.mockito.Mockito.when;
 
 import com.marceldev.ourcompanylunch.dto.comment.CommentOutputDto;
 import com.marceldev.ourcompanylunch.dto.comment.CreateCommentDto;
-import com.marceldev.ourcompanylunch.dto.comment.CreateCommentDto.Response;
 import com.marceldev.ourcompanylunch.dto.comment.GetCommentListDto;
 import com.marceldev.ourcompanylunch.dto.comment.UpdateCommentDto;
 import com.marceldev.ourcompanylunch.entity.Comment;
@@ -173,7 +174,7 @@ class CommentServiceTest {
   @DisplayName("Create comment - Fail(Diner not found)")
   void create_comment_fail_diner_not_found() {
     //given
-    CreateCommentDto.Request dto = CreateCommentDto.Request.builder()
+    Request dto = Request.builder()
         .content("It's delicious")
         .shareStatus(ShareStatus.COMPANY)
         .build();

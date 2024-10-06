@@ -1,4 +1,4 @@
-package com.marceldev.ourcompanylunch.service;
+package com.marceldev.ourcompanylunch.security;
 
 import java.util.List;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

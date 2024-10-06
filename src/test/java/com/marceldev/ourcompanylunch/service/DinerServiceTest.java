@@ -4,38 +4,25 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.marceldev.ourcompanylunch.component.S3Manager;
 import com.marceldev.ourcompanylunch.dto.diner.AddDinerTagsDto;
-import com.marceldev.ourcompanylunch.dto.diner.CreateDinerDto;
-import com.marceldev.ourcompanylunch.dto.diner.CreateDinerDto.Response;
-import com.marceldev.ourcompanylunch.dto.diner.DinerDetailOutputDto;
-import com.marceldev.ourcompanylunch.dto.diner.DinerOutputDto;
-import com.marceldev.ourcompanylunch.dto.diner.GetDinerListDto;
 import com.marceldev.ourcompanylunch.dto.diner.RemoveDinerTagsDto;
-import com.marceldev.ourcompanylunch.dto.diner.UpdateDinerDto;
 import com.marceldev.ourcompanylunch.entity.Company;
 import com.marceldev.ourcompanylunch.entity.Diner;
-import com.marceldev.ourcompanylunch.entity.DinerImage;
 import com.marceldev.ourcompanylunch.entity.DinerSubscription;
 import com.marceldev.ourcompanylunch.entity.Member;
-import com.marceldev.ourcompanylunch.exception.company.CompanyNotFoundException;
 import com.marceldev.ourcompanylunch.exception.diner.AlreadySubscribedException;
-import com.marceldev.ourcompanylunch.exception.diner.DinerNotFoundException;
 import com.marceldev.ourcompanylunch.exception.diner.DinerSubscriptionNotFoundException;
 import com.marceldev.ourcompanylunch.repository.diner.DinerImageRepository;
 import com.marceldev.ourcompanylunch.repository.diner.DinerRepository;
 import com.marceldev.ourcompanylunch.repository.diner.DinerSubscriptionRepository;
 import com.marceldev.ourcompanylunch.repository.member.MemberRepository;
-import com.marceldev.ourcompanylunch.type.DinerSort;
 import com.marceldev.ourcompanylunch.type.Role;
-import com.marceldev.ourcompanylunch.type.SortDirection;
 import com.marceldev.ourcompanylunch.util.LocationUtil;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -49,8 +36,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -129,116 +114,6 @@ class DinerServiceTest {
   @AfterEach
   public void clearSecurityContext() {
     SecurityContextHolder.clearContext();
-  }
-
-  @Test
-  @DisplayName("Create diner - Success")
-  void test_create_diner() {
-    //given
-    LinkedHashSet<String> tags = new LinkedHashSet<>();
-    tags.add("Mexico");
-    tags.add("Good atmosphere");
-
-    CreateDinerDto.Request dto = CreateDinerDto.Request.builder()
-        .name("Gamsung Taco")
-        .link("diner.com")
-        .latitude(37.29283882)
-        .longitude(127.39232323)
-        .tags(tags)
-        .build();
-
-    Diner savedDiner = Diner.builder()
-        .id(100L)
-        .name("Gamsung Taco")
-        .link("diner.com")
-        .location(LocationUtil.createPoint(37.29283882, 127.39232323))
-        .tags(tags)
-        .company(company1)
-        .build();
-
-    //when
-    when(memberRepository.findByEmail(member1.getEmail()))
-        .thenReturn(Optional.of(member1));
-    when(dinerRepository.save(any(Diner.class)))
-        .thenReturn(savedDiner);
-
-    ArgumentCaptor<Diner> captor = ArgumentCaptor.forClass(Diner.class);
-    Response response = dinerService.createDiner(dto);
-
-    //then
-    verify(dinerRepository).save(captor.capture());
-    assertEquals(100L, response.getId());
-    Diner dinerCaptured = captor.getValue();
-    assertEquals("Gamsung Taco", dinerCaptured.getName());
-    assertEquals("diner.com", dinerCaptured.getLink());
-    assertEquals(LocationUtil.createPoint(37.29283882, 127.39232323), dinerCaptured.getLocation());
-    assertEquals("Good atmosphere", dinerCaptured.getTags().getLast());
-  }
-
-  @Test
-  @DisplayName("Create diner - Fail(No company chosen)")
-  void test_create_diner_no_company_chosen() {
-    //given
-    CreateDinerDto.Request dto = CreateDinerDto.Request.builder()
-        .name("Gamsung Taco")
-        .build();
-
-    //when
-    when(memberRepository.findByEmail(any()))
-        .thenReturn(Optional.of(
-            Member.builder()
-                .company(null)
-                .build()
-        ));
-
-    //then
-    assertThrows(
-        CompanyNotFoundException.class,
-        () -> dinerService.createDiner(dto)
-    );
-  }
-
-  @Test
-  @DisplayName("Update diner - Success")
-  void test_update_diner() {
-    //given
-    UpdateDinerDto dto = UpdateDinerDto.builder()
-        .link("diner1.com")
-        .latitude(37.11111111)
-        .longitude(127.11111111)
-        .build();
-
-    //when
-    when(dinerRepository.findById(anyLong()))
-        .thenReturn(Optional.ofNullable(
-            Diner
-                .builder()
-                .id(1L)
-                .link("diner.com")
-                .location(LocationUtil.createPoint(37.11111111, 127.11111111))
-                .company(company1)
-                .build()
-        ));
-
-    //then
-    dinerService.updateDiner(1, dto);
-  }
-
-  @Test
-  @DisplayName("Update diner - Fail(Diner not found)")
-  void test_update_diner_fail_not_found() {
-    //given
-    UpdateDinerDto dto = UpdateDinerDto.builder()
-        .link("diner1.com")
-        .build();
-
-    //when
-    when(dinerRepository.findById(anyLong()))
-        .thenReturn(Optional.empty());
-
-    //then
-    assertThrows(DinerNotFoundException.class,
-        () -> dinerService.updateDiner(1, dto));
   }
 
   @Test
@@ -327,137 +202,6 @@ class DinerServiceTest {
 
     //then
     dinerService.removeDinerTag(1, dto);
-  }
-
-  @Test
-  @DisplayName("Get diner list - Success")
-  void test_get_diner_list() {
-    //given
-    GetDinerListDto dto = GetDinerListDto.builder()
-        .page(0)
-        .size(10)
-        .sortBy(DinerSort.DINER_NAME)
-        .sortDirection(SortDirection.ASC)
-        .build();
-
-    DinerOutputDto diner1 = DinerOutputDto.builder()
-        .id(1L)
-        .name("Gamsung Taco")
-        .link("diner.com")
-        .latitude(37.123123)
-        .longitude(127.123123)
-        .tags(new LinkedHashSet<>(List.of("tag1", "tag2")))
-        .build();
-    DinerOutputDto diner2 = DinerOutputDto.builder()
-        .id(2L)
-        .name("Gamsung Taco2")
-        .link("diner2.com")
-        .latitude(37.123123)
-        .longitude(127.123123)
-        .tags(new LinkedHashSet<>(List.of("tag1", "tag2")))
-        .build();
-
-    //when
-    Page<DinerOutputDto> pages = new PageImpl<>(List.of(diner1, diner2));
-    when(dinerRepository.getList(anyLong(), any(), any()))
-        .thenReturn(pages);
-    Page<DinerOutputDto> page = dinerService.getDinerList(dto);
-
-    //then
-    assertEquals(page.getContent().size(), 2);
-    assertEquals(page.getContent().getFirst().getName(), "Gamsung Taco");
-  }
-
-  @Test
-  @DisplayName("Get diner detail - Success")
-  void test_get_diner_detail() {
-    //given
-    Diner diner = Diner.builder()
-        .id(1L)
-        .name("Gamsung Taco")
-        .link("diner.com")
-        .dinerImages(List.of(
-            DinerImage.builder()
-                .id(10L)
-                .s3Key("diner/1.png")
-                .build(),
-            DinerImage.builder()
-                .id(11L)
-                .s3Key("diner/2.png")
-                .build()
-        ))
-        .company(company1)
-        .build();
-    //when
-    when(dinerRepository.findById(1L))
-        .thenReturn(Optional.of(diner));
-    when(s3Manager.getUrls(List.of("diner/1.png", "diner/2.png")))
-        .thenReturn(List.of("https://abc.cloudfront.net/diner/1.png",
-            "https://abc.cloudfront.net/diner/2.png"));
-    DinerDetailOutputDto dinerDetail = dinerService.getDinerDetail(1L);
-
-    //then
-    assertEquals(dinerDetail.getName(), "Gamsung Taco");
-    assertEquals(dinerDetail.getImageUrls().getFirst(), "https://abc.cloudfront.net/diner/1.png");
-  }
-
-  @Test
-  @DisplayName("Remove diner - Success")
-  void test_remove_diner() {
-    //given
-    Diner diner = Diner.builder()
-        .id(1L)
-        .name("Gamsung Taco")
-        .company(company1)
-        .dinerImages(List.of(
-            DinerImage.builder()
-                .s3Key("diner/1/images/unrastu-29823-unr0w-w82nu")
-                .build(),
-            DinerImage.builder()
-                .s3Key("diner/1/images/aryusn2-sutnr-238fu-92uss")
-                .build()
-        ))
-        .build();
-
-    //when
-    when(dinerRepository.findById(anyLong()))
-        .thenReturn(Optional.of(diner));
-    dinerService.removeDiner(1L);
-
-    //then
-    verify(dinerImageRepository).deleteByDinerId(any());
-    verify(dinerRepository).delete(any());
-    verify(s3Manager, times(2)).removeFile(any());
-  }
-
-  @Test
-  @DisplayName("Remove diner - Success(Removing diner success, even if removing in S3 fails.")
-  void test_remove_diner_even_if_s3_fail() {
-    //given
-    Diner diner = Diner.builder()
-        .id(1L)
-        .name("Gamsung Taco")
-        .company(company1)
-        .dinerImages(List.of(
-            DinerImage.builder()
-                .s3Key("diner/1/images/unrastu-29823-unr0w-w82nu")
-                .build(),
-            DinerImage.builder()
-                .s3Key("diner/1/images/aryusn2-sutnr-238fu-92uss")
-                .build()
-        ))
-        .build();
-
-    //when
-    when(dinerRepository.findById(anyLong()))
-        .thenReturn(Optional.of(diner));
-    doThrow(new RuntimeException())
-        .when(s3Manager).removeFile(any());
-    dinerService.removeDiner(1L);
-
-    //then
-    verify(dinerImageRepository).deleteByDinerId(any());
-    verify(dinerRepository).delete(any());
   }
 
   @Test

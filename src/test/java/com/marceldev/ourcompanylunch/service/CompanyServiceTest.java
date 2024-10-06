@@ -21,6 +21,7 @@ import com.marceldev.ourcompanylunch.exception.member.VerificationCodeNotFoundEx
 import com.marceldev.ourcompanylunch.repository.company.CompanyRepository;
 import com.marceldev.ourcompanylunch.repository.member.MemberRepository;
 import com.marceldev.ourcompanylunch.repository.verification.VerificationRepository;
+import com.marceldev.ourcompanylunch.security.WithCustomUser;
 import com.marceldev.ourcompanylunch.type.CompanySort;
 import com.marceldev.ourcompanylunch.type.Role;
 import com.marceldev.ourcompanylunch.type.SortDirection;
