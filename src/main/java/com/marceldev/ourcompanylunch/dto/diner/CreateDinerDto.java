@@ -39,7 +39,7 @@ public class CreateDinerDto {
       return Diner.builder()
           .name(name)
           .link(link)
-          .location(LocationUtil.createPoint(longitude, latitude))
+          .location(LocationUtil.createPoint(latitude, longitude))
           .tags(tags)
           .build();
     }

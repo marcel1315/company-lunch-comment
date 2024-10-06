@@ -11,7 +11,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class GetCompanyListDto {
+public class GetCompanyListRequest {
 
   @Schema
   @PositiveOrZero

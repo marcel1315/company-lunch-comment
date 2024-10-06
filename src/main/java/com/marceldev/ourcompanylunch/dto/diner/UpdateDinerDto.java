@@ -26,6 +26,6 @@ public class UpdateDinerDto {
 
   @JsonIgnore
   public Point getLocation() {
-    return LocationUtil.createPoint(longitude, latitude);
+    return LocationUtil.createPoint(latitude, longitude);
   }
 }

@@ -51,4 +51,12 @@ public class Member extends BaseEntity {
       role = Role.EDITOR;
     }
   }
+
+  @Builder
+  private Member(String email, String name, Role role, Company company) {
+    this.email = email;
+    this.name = name;
+    this.role = role;
+    this.company = company;
+  }
 }

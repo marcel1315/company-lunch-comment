@@ -12,7 +12,7 @@ import org.locationtech.jts.geom.Point;
 
 @Data
 @Builder
-public class UpdateCompanyDto {
+public class UpdateCompanyRequest {
 
   @NotNull
   @Schema(example = "123123")
@@ -42,6 +42,6 @@ public class UpdateCompanyDto {
 
   @JsonIgnore
   public Point getLocation() {
-    return LocationUtil.createPoint(longitude, latitude);
+    return LocationUtil.createPoint(latitude, longitude);
   }
 }

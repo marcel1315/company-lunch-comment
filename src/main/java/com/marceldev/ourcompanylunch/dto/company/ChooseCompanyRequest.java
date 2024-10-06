@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChooseCompanyDto {
+public class ChooseCompanyRequest {
 
   @Schema
   private String enterKey;

@@ -1,11 +1,12 @@
 package com.marceldev.ourcompanylunch.service;
 
 import com.marceldev.ourcompanylunch.component.EmailSender;
-import com.marceldev.ourcompanylunch.dto.company.ChooseCompanyDto;
+import com.marceldev.ourcompanylunch.dto.company.ChooseCompanyRequest;
 import com.marceldev.ourcompanylunch.dto.company.CompanyOutputDto;
-import com.marceldev.ourcompanylunch.dto.company.CreateCompanyDto;
-import com.marceldev.ourcompanylunch.dto.company.GetCompanyListDto;
-import com.marceldev.ourcompanylunch.dto.company.UpdateCompanyDto;
+import com.marceldev.ourcompanylunch.dto.company.CreateCompanyRequest;
+import com.marceldev.ourcompanylunch.dto.company.CreateCompanyResponse;
+import com.marceldev.ourcompanylunch.dto.company.GetCompanyListRequest;
+import com.marceldev.ourcompanylunch.dto.company.UpdateCompanyRequest;
 import com.marceldev.ourcompanylunch.dto.member.SendVerificationCodeDto;
 import com.marceldev.ourcompanylunch.entity.Company;
 import com.marceldev.ourcompanylunch.entity.Member;
@@ -46,12 +47,12 @@ public class CompanyService {
   private final EmailSender emailSender;
 
   @Transactional
-  public CreateCompanyDto.Response createCompany(CreateCompanyDto.Request dto) {
+  public CreateCompanyResponse createCompany(CreateCompanyRequest dto) {
     if (companyRepository.existsCompanyByName(dto.getName())) {
       throw new SameCompanyNameExistException();
     }
     Company company = companyRepository.save(dto.toEntity());
-    return CreateCompanyDto.Response.builder().id(company.getId()).build();
+    return CreateCompanyResponse.of(company);
   }
 
   @Transactional
@@ -66,7 +67,7 @@ public class CompanyService {
    * Verification code is required.
    */
   @Transactional
-  public void updateCompany(long id, UpdateCompanyDto dto) {
+  public void updateCompany(long id, UpdateCompanyRequest dto) {
     String email = getMemberEmail();
 
     // Check if company exists.
@@ -89,7 +90,7 @@ public class CompanyService {
     verificationRepository.delete(verification);
   }
 
-  public Page<CompanyOutputDto> getCompanyList(GetCompanyListDto dto) {
+  public Page<CompanyOutputDto> getCompanyList(GetCompanyListRequest dto) {
     Pageable pageable = PageRequest.of(
         dto.getPage(),
         dto.getSize()
@@ -99,7 +100,7 @@ public class CompanyService {
   }
 
   @Transactional
-  public void chooseCompany(long companyId, ChooseCompanyDto dto) {
+  public void chooseCompany(long companyId, ChooseCompanyRequest dto) {
     String email = getMemberEmail();
     Member member = memberRepository.findByEmail(email)
         .orElseThrow(MemberNotFoundException::new);

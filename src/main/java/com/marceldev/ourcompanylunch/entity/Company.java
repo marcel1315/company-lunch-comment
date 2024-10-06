@@ -43,4 +43,14 @@ public class Company extends BaseEntity {
 
   @Setter
   private Point location;
+
+  @Builder
+  private Company(String name, String address, String enterKey, boolean enterKeyEnabled,
+      Point location) {
+    this.name = name;
+    this.address = address;
+    this.enterKey = enterKey;
+    this.enterKeyEnabled = enterKeyEnabled;
+    this.location = location;
+  }
 }

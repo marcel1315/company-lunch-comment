@@ -1,20 +1,17 @@
 package com.marceldev.ourcompanylunch.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
 
-import com.marceldev.ourcompanylunch.dto.company.ChooseCompanyDto;
+import com.marceldev.ourcompanylunch.component.EmailSender;
+import com.marceldev.ourcompanylunch.component.S3Manager;
+import com.marceldev.ourcompanylunch.dto.company.ChooseCompanyRequest;
 import com.marceldev.ourcompanylunch.dto.company.CompanyOutputDto;
-import com.marceldev.ourcompanylunch.dto.company.CreateCompanyDto;
-import com.marceldev.ourcompanylunch.dto.company.CreateCompanyDto.Response;
-import com.marceldev.ourcompanylunch.dto.company.GetCompanyListDto;
-import com.marceldev.ourcompanylunch.dto.company.UpdateCompanyDto;
+import com.marceldev.ourcompanylunch.dto.company.CreateCompanyRequest;
+import com.marceldev.ourcompanylunch.dto.company.CreateCompanyResponse;
+import com.marceldev.ourcompanylunch.dto.company.GetCompanyListRequest;
+import com.marceldev.ourcompanylunch.dto.company.UpdateCompanyRequest;
 import com.marceldev.ourcompanylunch.entity.Company;
 import com.marceldev.ourcompanylunch.entity.Member;
 import com.marceldev.ourcompanylunch.entity.Verification;
@@ -29,342 +26,310 @@ import com.marceldev.ourcompanylunch.type.Role;
 import com.marceldev.ourcompanylunch.type.SortDirection;
 import com.marceldev.ourcompanylunch.util.LocationUtil;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+@Transactional
+@WithCustomUser(username = "jack@example.com")
 class CompanyServiceTest {
 
-  @Mock
+  @Autowired
   private CompanyRepository companyRepository;
 
-  @Mock
+  @Autowired
   private MemberRepository memberRepository;
 
-  @Mock
+  @Autowired
   private VerificationRepository verificationRepository;
 
-  @InjectMocks
+  @Autowired
   private CompanyService companyService;
 
-  // Mock company.
-  // When retrieving diner, if it's not the diner in the company of the member, the diner is not accessible.
-  private final Company company1 = Company.builder()
-      .id(1L)
-      .name("HelloCompany")
-      .address("123, Gangnam-daero Gangnam-gu Seoul")
-      .location(LocationUtil.createPoint(127.123123, 37.123123))
-      .enterKey("company123")
-      .build();
+  @MockBean
+  private EmailSender emailSender;
 
-  // Mock member
-  private final Member member1 = Member.builder()
-      .id(1L)
-      .email("jack@example.com")
-      .name("Jack")
-      .role(Role.VIEWER)
-      .company(company1)
-      .build();
-
-  @BeforeEach
-  public void setupMember() {
-    GrantedAuthority authority = new SimpleGrantedAuthority("VIEWER");
-    Authentication authentication = new UsernamePasswordAuthenticationToken(member1.getEmail(),
-        null, List.of(authority));
-
-    SecurityContext securityContext = mock(SecurityContext.class);
-    lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
-
-    SecurityContextHolder.setContext(securityContext);
-
-    lenient().when(memberRepository.findByEmail(any()))
-        .thenReturn(Optional.of(member1));
-  }
-
-  @AfterEach
-  public void clearSecurityContext() {
-    SecurityContextHolder.clearContext();
-  }
+  @MockBean
+  private S3Manager s3Manager;
 
   @Test
   @DisplayName("Create company - Success")
   void create_company() {
-    //given
-    CreateCompanyDto.Request dto = CreateCompanyDto.Request.builder()
-        .name("HelloCompany")
-        .address("321, Teheran-ro Gangnam-gu Seoul")
-        .enterKey("company123")
-        .enterKeyEnabled(false)
-        .latitude(37.123456)
-        .longitude(127.123456)
-        .build();
-    Company savedCompany = Company.builder()
-        .id(100L)
-        .name("HelloCompany")
-        .address("321, Teheran-ro Gangnam-gu Seoul")
-        .enterKey("company123")
-        .enterKeyEnabled(false)
-        .location(LocationUtil.createPoint(127.123456, 37.123456))
-        .build();
+    // given
+    CreateCompanyRequest request = createCreateCompanyRequest("HelloCompany");
 
-    //when
-    when(companyRepository.existsCompanyByName("HelloCompany"))
-        .thenReturn(false);
-    when(companyRepository.save(any(Company.class)))
-        .thenReturn(savedCompany);
+    // when
+    CreateCompanyResponse response = companyService.createCompany(request);
 
-    ArgumentCaptor<Company> captor = ArgumentCaptor.forClass(Company.class);
-    Response response = companyService.createCompany(dto);
+    // then
+    assertThat(response.getId()).isNotNull();
+    assertThat(response)
+        .extracting("name", "address", "enterKey", "enterKeyEnabled", "latitude", "longitude")
+        .contains("HelloCompany",
+            "321, Teheran-ro Gangnam-gu Seoul",
+            "company123",
+            false,
+            37.123456,
+            127.123456
+        );
 
-    //then
-    verify(companyRepository).save(captor.capture());
-    assertEquals(100L, response.getId());
-    assertEquals("HelloCompany", captor.getValue().getName());
-    assertEquals("321, Teheran-ro Gangnam-gu Seoul", captor.getValue().getAddress());
-    assertEquals(LocationUtil.createPoint(127.123456, 37.123456), captor.getValue().getLocation());
-    assertEquals("company123", captor.getValue().getEnterKey());
   }
 
   @Test
   @DisplayName("Create company - Fail(Same company name exists)")
-  void create_company_fail_same_email_domain() {
-    //given
-    CreateCompanyDto.Request dto = CreateCompanyDto.Request.builder()
-        .name("HelloCompany")
-        .address("321, Teheran-ro Gangnam-gu Seoul")
-        .latitude(37.123456)
-        .longitude(127.123456)
-        .build();
-    when(companyRepository.existsCompanyByName(any()))
-        .thenReturn(true);
+  void create_company_fail_same_name_exist() {
+    // given
+    CreateCompanyRequest request1 = createCreateCompanyRequest("HelloCompany1");
+    CreateCompanyRequest request2 = createCreateCompanyRequest("HelloCompany2");
+    CreateCompanyRequest request3 = createCreateCompanyRequest("HelloCompany1");
+    companyService.createCompany(request1);
+    companyService.createCompany(request2);
+
+    // when // then
+    assertThatThrownBy(() -> companyService.createCompany(request3))
+        .isInstanceOf(SameCompanyNameExistException.class);
+  }
+
+  @Test
+  @DisplayName("Choose company - Success")
+  void choose_company() {
+    // given
+    Company company = saveCompany();
+    Member member = saveMember();
+    ChooseCompanyRequest chooseCompanyRequest = createChooseCompanyRequest();
 
     //when
+    companyService.chooseCompany(company.getId(), chooseCompanyRequest);
+
     //then
-    assertThrows(SameCompanyNameExistException.class,
-        () -> companyService.createCompany(dto));
+    Member updatedMember = memberRepository.findById(member.getId()).orElseThrow();
+    assertThat(updatedMember.getCompany().getId())
+        .isEqualTo(company.getId());
+  }
+
+  @Test
+  @DisplayName("Choose company - Fail(Company not found)")
+  void choose_company_fail_no_company() {
+    // given
+    // Not saving company
+    Member member = saveMember();
+    ChooseCompanyRequest chooseCompanyRequest = createChooseCompanyRequest();
+
+    // when // then
+    assertThatThrownBy(() -> companyService.chooseCompany(1L, chooseCompanyRequest))
+        .isInstanceOf(CompanyNotFoundException.class);
   }
 
   @Test
   @DisplayName("Update company - Success")
   void update_company() {
-    //given
-    UpdateCompanyDto dto = UpdateCompanyDto.builder()
-        .address("321, Teheran-ro Gangnam-gu Seoul")
-        .latitude(37.123456)
-        .longitude(127.123456)
-        .enterKeyEnabled(false)
-        .verificationCode("123456")
-        .build();
-    when(memberRepository.findByEmailAndCompanyId(any(), anyLong()))
-        .thenReturn(Optional.of(Member.builder()
-            .company(Company.builder().id(1L).build())
-            .build()
-        ));
-    when(verificationRepository.findByEmail(any()))
-        .thenReturn(Optional.of(Verification.builder()
-            .code("123456")
-            .expirationAt(LocalDateTime.now().plusMinutes(2))
-            .build()
-        ));
+    // given
+    Company company = saveCompany();
+    Member member = saveMember();
+    chooseCompany(company);
 
-    //when
-    //then
-    companyService.updateCompany(1L, dto);
+    Verification verification = saveVerification(member.getEmail(), "123456");
+    UpdateCompanyRequest updateRequest = createUpdateRequest(
+        "111, Teheran-ro Gangnam-gu Seoul",
+        verification.getCode()
+    );
+
+    // when
+    companyService.updateCompany(company.getId(), updateRequest);
+
+    // then
+    Company updatedCompany = companyRepository.findById(company.getId()).orElseThrow();
+    assertThat(updatedCompany.getAddress())
+        .isEqualTo("111, Teheran-ro Gangnam-gu Seoul");
   }
 
   @Test
   @DisplayName("Update company - Fail(Company not found)")
   void update_company_fail_no_company() {
-    //given
-    UpdateCompanyDto dto = UpdateCompanyDto.builder()
-        .address("321, Teheran-ro Gangnam-gu Seoul")
-        .latitude(37.123456)
-        .longitude(127.123456)
-        .verificationCode("123456")
-        .build();
-    when(memberRepository.findByEmailAndCompanyId(any(), anyLong()))
-        .thenReturn(Optional.empty());
+    // given
+    Company company = saveCompany();
+    Member member = saveMember();
+    // Not choosing company
 
-    //when
-    //then
-    assertThrows(CompanyNotFoundException.class,
-        () -> companyService.updateCompany(1L, dto));
+    Verification verification = saveVerification(member.getEmail(), "123456");
+    UpdateCompanyRequest request = createUpdateRequest(
+        "111, Teheran-ro Gangnam-gu Seoul",
+        verification.getCode()
+    );
+
+    // when // then
+    assertThatThrownBy(() -> companyService.updateCompany(company.getId(), request))
+        .isInstanceOf(CompanyNotFoundException.class);
   }
 
   @Test
   @DisplayName("Update company - Fail(Verification code incorrect)")
   void update_company_fail_verification_code_incorrect() {
     //given
-    UpdateCompanyDto dto = UpdateCompanyDto.builder()
-        .address("321, Teheran-ro Gangnam-gu Seoul")
-        .latitude(37.123456)
-        .longitude(127.123456)
-        .verificationCode("123456")
-        .build();
-    when(memberRepository.findByEmailAndCompanyId(any(), anyLong()))
-        .thenReturn(Optional.of(Member.builder()
-            .company(Company.builder().id(1L).build())
-            .build()
-        ));
-    when(verificationRepository.findByEmail(any()))
-        .thenReturn(Optional.of(Verification.builder()
-            .code("111111")
-            .expirationAt(LocalDateTime.now().plusMinutes(2))
-            .build()
-        ));
+    Company company = saveCompany();
+    Member member = saveMember();
+    chooseCompany(company);
 
-    //when
-    //then
-    assertThrows(VerificationCodeNotFoundException.class,
-        () -> companyService.updateCompany(1L, dto));
+    saveVerification(member.getEmail(), "123456");
+    UpdateCompanyRequest request = createUpdateRequest(
+        "111, Teheran-ro Gangnam-gu Seoul",
+        "111111" // Input different code
+    );
+
+    //when //then
+    assertThatThrownBy(() -> companyService.updateCompany(company.getId(), request))
+        .isInstanceOf(VerificationCodeNotFoundException.class);
   }
 
   @Test
   @DisplayName("Update company - Fail(Verification code expiration date is before now)")
   void update_company_fail_verification_code_expired() {
-    //given
-    UpdateCompanyDto dto = UpdateCompanyDto.builder()
-        .address("321, Teheran-ro Gangnam-gu Seoul")
-        .latitude(37.123456)
-        .longitude(127.123456)
-        .verificationCode("123456")
-        .build();
-    when(memberRepository.findByEmailAndCompanyId(any(), anyLong()))
-        .thenReturn(Optional.of(Member.builder()
-            .company(Company.builder().id(1L).build())
-            .build()
-        ));
-    when(verificationRepository.findByEmail(any()))
-        .thenReturn(Optional.of(Verification.builder()
-            .code("123456")
-            .expirationAt(LocalDateTime.now().minusMinutes(2))
-            .build()
-        ));
+    // given
+    Company company = saveCompany();
+    Member member = saveMember();
+    chooseCompany(company);
 
-    //when
-    //then
-    assertThrows(VerificationCodeNotFoundException.class,
-        () -> companyService.updateCompany(1L, dto));
+    Verification verification = saveVerification(member.getEmail(), "123456", -1);
+    UpdateCompanyRequest request = createUpdateRequest(
+        "111, Teheran-ro Gangnam-gu Seoul",
+        verification.getCode()
+    );
+
+    // when // then
+    assertThatThrownBy(() -> companyService.updateCompany(company.getId(), request))
+        .isInstanceOf(
+            VerificationCodeNotFoundException.class); // expired, but it's same as not found.
   }
 
   @Test
   @DisplayName("Get company list - Success")
   void get_company_list() {
-    //given
-    GetCompanyListDto dto = GetCompanyListDto.builder()
+    // given
+    CreateCompanyRequest request1 = createCreateCompanyRequest("HelloCompany1");
+    CreateCompanyRequest request2 = createCreateCompanyRequest("HelloCompany2");
+    companyService.createCompany(request1);
+    companyService.createCompany(request2);
+
+    GetCompanyListRequest getRequest = GetCompanyListRequest.builder()
         .page(0)
         .size(10)
         .sortBy(CompanySort.COMPANY_NAME)
         .sortDirection(SortDirection.ASC)
         .build();
-    String email = "hello@example.com";
-    Company company1 = Company.builder()
-        .id(1L)
-        .name("Emotion Taco Gangnam branch")
-        .address("321, Teheran-ro Gangnam-gu Seoul")
-        .location(LocationUtil.createPoint(127.123456, 37.123456))
-        .build();
-    Company company2 = Company.builder()
-        .id(2L)
-        .name("Emotion Taco Sinsa branch")
-        .address("432, Teheran-ro Gangnam-gu Seoul")
-        .location(LocationUtil.createPoint(127.123457, 37.123457))
-        .build();
 
-    Page<Company> pages = new PageImpl<>(List.of(company1, company2));
-    PageRequest pageable = PageRequest.of(0, 10);
-    when(companyRepository.findAll(pageable))
-        .thenReturn(pages);
+    // when
+    Page<CompanyOutputDto> companies = companyService.getCompanyList(getRequest);
 
-    //when
-    Page<CompanyOutputDto> companies = companyService.getCompanyList(dto);
-
-    //then
-    assertEquals(2, companies.getSize());
+    // then
+    assertThat(companies.getContent()).hasSize(2)
+        .extracting("name", "address", "latitude", "longitude")
+        .containsExactly(
+            tuple("HelloCompany1",
+                "321, Teheran-ro Gangnam-gu Seoul",
+                37.123456,
+                127.123456
+            ),
+            tuple("HelloCompany2",
+                "321, Teheran-ro Gangnam-gu Seoul",
+                37.123456,
+                127.123456
+            )
+        );
   }
 
   @Test
   @DisplayName("Get company list - Success(Blank list)")
   void get_company_list_empty_page() {
     //given
-    GetCompanyListDto dto = GetCompanyListDto.builder()
+    GetCompanyListRequest getRequest = GetCompanyListRequest.builder()
         .page(0)
         .size(10)
         .sortBy(CompanySort.COMPANY_NAME)
         .sortDirection(SortDirection.ASC)
         .build();
-    String email = "hello@example.com";
-
-    Page<Company> pages = new PageImpl<>(List.of());
-    PageRequest pageable = PageRequest.of(0, 10);
-    when(companyRepository.findAll(pageable))
-        .thenReturn(pages);
 
     //when
-    Page<CompanyOutputDto> companies = companyService.getCompanyList(dto);
+    Page<CompanyOutputDto> companies = companyService.getCompanyList(getRequest);
 
     //then
-    assertEquals(0, companies.getSize());
-    assertEquals(0, companies.getTotalElements());
+    assertThat(companies.getContent()).hasSize(0);
   }
 
-  @Test
-  @DisplayName("Choose company - Success")
-  void choose_company() {
-    //given
-    Company company = Company.builder()
-        .id(1L)
-        .name("Emotion Taco Gangnam branch")
-        .address("321, Teheran-ro Gangnam-gu Seoul")
-        .location(LocationUtil.createPoint(127.123456, 37.123456))
-        .enterKey("company123")
+  // --- Save some entity ---
+
+  private Verification saveVerification(String email, String code) {
+    Verification verification = Verification.builder()
+        .email(email)
+        .code(code)
+        .expirationAt(LocalDateTime.now().plusMinutes(3))
         .build();
-
-    ChooseCompanyDto dto = new ChooseCompanyDto("company123");
-
-    //when
-    when(companyRepository.findById(1L))
-        .thenReturn(Optional.of(company));
-
-    //then
-    companyService.chooseCompany(1L, dto);
+    return verificationRepository.save(verification);
   }
 
-  @Test
-  @DisplayName("Choose company - Fail(Company not found)")
-  void choose_company_fail_no_company() {
-    //given
+  private Verification saveVerification(String email, String code, int minuteAfter) {
+    Verification verification = Verification.builder()
+        .email(email)
+        .code(code)
+        .expirationAt(LocalDateTime.now().plusMinutes(minuteAfter))
+        .build();
+    return verificationRepository.save(verification);
+  }
+
+  private Member saveMember() {
     Member member = Member.builder()
-        .id(1L)
-        .email("hello@example.com")
+        .name("Jack")
+        .email("jack@example.com")
+        .company(null)
         .role(Role.VIEWER)
         .build();
-    ChooseCompanyDto dto = new ChooseCompanyDto("company123");
+    return memberRepository.save(member);
+  }
 
-    //when
-    when(companyRepository.findById(1L))
-        .thenReturn(Optional.empty());
+  private Company saveCompany() {
+    Company company = Company.builder()
+        .name("HelloCompany")
+        .address("321, Teheran-ro Gangnam-gu Seoul")
+        .enterKey("company123")
+        .enterKeyEnabled(false)
+        .location(LocationUtil.createPoint(37.123456, 127.123456))
+        .build();
+    return companyRepository.save(company);
+  }
 
-    //then
-    assertThrows(CompanyNotFoundException.class,
-        () -> companyService.chooseCompany(1L, dto));
+  private void chooseCompany(Company company) {
+    ChooseCompanyRequest chooseCompanyRequest = createChooseCompanyRequest();
+    companyService.chooseCompany(company.getId(), chooseCompanyRequest);
+  }
+
+  // --- Create some request ---
+
+  private CreateCompanyRequest createCreateCompanyRequest(String companyName) {
+    return CreateCompanyRequest.builder()
+        .name(companyName)
+        .address("321, Teheran-ro Gangnam-gu Seoul")
+        .enterKey("company123")
+        .enterKeyEnabled(false)
+        .latitude(37.123456)
+        .longitude(127.123456)
+        .build();
+  }
+
+  private ChooseCompanyRequest createChooseCompanyRequest() {
+    return new ChooseCompanyRequest("company123");
+  }
+
+  private UpdateCompanyRequest createUpdateRequest(String address, String verificationCode) {
+    return UpdateCompanyRequest.builder()
+        .address(address)
+        .latitude(37.123456)
+        .longitude(127.123456)
+        .enterKeyEnabled(false)
+        .verificationCode(verificationCode)
+        .build();
   }
 }

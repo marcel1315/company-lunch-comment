@@ -1,11 +1,11 @@
 package com.marceldev.ourcompanylunch.controller;
 
-import com.marceldev.ourcompanylunch.dto.company.ChooseCompanyDto;
+import com.marceldev.ourcompanylunch.dto.company.ChooseCompanyRequest;
 import com.marceldev.ourcompanylunch.dto.company.CompanyOutputDto;
-import com.marceldev.ourcompanylunch.dto.company.CreateCompanyDto;
-import com.marceldev.ourcompanylunch.dto.company.CreateCompanyDto.Response;
-import com.marceldev.ourcompanylunch.dto.company.GetCompanyListDto;
-import com.marceldev.ourcompanylunch.dto.company.UpdateCompanyDto;
+import com.marceldev.ourcompanylunch.dto.company.CreateCompanyRequest;
+import com.marceldev.ourcompanylunch.dto.company.CreateCompanyResponse;
+import com.marceldev.ourcompanylunch.dto.company.GetCompanyListRequest;
+import com.marceldev.ourcompanylunch.dto.company.UpdateCompanyRequest;
 import com.marceldev.ourcompanylunch.dto.error.ErrorResponse;
 import com.marceldev.ourcompanylunch.dto.member.SendVerificationCodeDto;
 import com.marceldev.ourcompanylunch.exception.company.CompanyEnterKeyNotMatchException;
@@ -45,10 +45,10 @@ public class CompanyController {
       @ApiResponse(responseCode = "400", description = "errorCode: 2001 - A company with same name exists.")
   })
   @PostMapping("/companies")
-  public ResponseEntity<CreateCompanyDto.Response> createCompany(
-      @Validated @RequestBody CreateCompanyDto.Request createCompanyDto
+  public ResponseEntity<CreateCompanyResponse> createCompany(
+      @Validated @RequestBody CreateCompanyRequest createCompanyDto
   ) {
-    Response response = companyService.createCompany(createCompanyDto);
+    CreateCompanyResponse response = companyService.createCompany(createCompanyDto);
     return ResponseEntity.ok(response);
   }
 
@@ -71,9 +71,9 @@ public class CompanyController {
   @PutMapping("/companies/{id}")
   public ResponseEntity<Void> updateCompany(
       @PathVariable long id,
-      @Validated @RequestBody UpdateCompanyDto updateCompanyDto
+      @Validated @RequestBody UpdateCompanyRequest updateCompanyRequest
   ) {
-    companyService.updateCompany(id, updateCompanyDto);
+    companyService.updateCompany(id, updateCompanyRequest);
     return ResponseEntity.ok().build();
   }
 
@@ -82,9 +82,9 @@ public class CompanyController {
   )
   @GetMapping("/companies")
   public ResponseEntity<Page<CompanyOutputDto>> getCompanyList(
-      @Validated @ModelAttribute GetCompanyListDto getCompanyListDto
+      @Validated @ModelAttribute GetCompanyListRequest getCompanyListRequest
   ) {
-    Page<CompanyOutputDto> companies = companyService.getCompanyList(getCompanyListDto);
+    Page<CompanyOutputDto> companies = companyService.getCompanyList(getCompanyListRequest);
     return ResponseEntity.ok(companies);
   }
 
@@ -100,9 +100,9 @@ public class CompanyController {
   @PutMapping("/companies/{id}/choose")
   public ResponseEntity<Void> chooseCompany(
       @PathVariable long id,
-      @Validated @RequestBody ChooseCompanyDto chooseCompanyDto
+      @Validated @RequestBody ChooseCompanyRequest chooseCompanyRequest
   ) {
-    companyService.chooseCompany(id, chooseCompanyDto);
+    companyService.chooseCompany(id, chooseCompanyRequest);
     return ResponseEntity.ok().build();
   }
 

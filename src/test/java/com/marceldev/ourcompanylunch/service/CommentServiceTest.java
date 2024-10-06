@@ -81,7 +81,7 @@ class CommentServiceTest {
       .id(1L)
       .name("HelloCompany")
       .address("123, Gangnam-daero Gangnam-gu Seoul")
-      .location(LocationUtil.createPoint(127.123123, 37.123123))
+      .location(LocationUtil.createPoint(37.123123, 127.123123))
       .enterKey("company123")
       .build();
 
@@ -89,7 +89,7 @@ class CommentServiceTest {
   private final Diner diner1 = Diner.builder()
       .id(1L)
       .name("ItalyPizza")
-      .location(LocationUtil.createPoint(127.123123, 37.123123))
+      .location(LocationUtil.createPoint(37.123123, 127.123123))
       .tags(new LinkedHashSet<>(List.of("Pizza", "Hot Place")))
       .company(company1)
       .build();

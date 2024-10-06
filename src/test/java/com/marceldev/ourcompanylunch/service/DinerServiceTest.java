@@ -85,7 +85,7 @@ class DinerServiceTest {
       .id(1L)
       .name("HelloCompany")
       .address("123, Gangnam-daero Gangnam-gu Seoul")
-      .location(LocationUtil.createPoint(127.123123, 37.123123))
+      .location(LocationUtil.createPoint(37.123123, 127.123123))
       .enterKey("company123")
       .build();
 
@@ -103,7 +103,7 @@ class DinerServiceTest {
       .id(1L)
       .name("Gamsung Taco")
       .link("taco.com")
-      .location(LocationUtil.createPoint(127.123123, 37.123123))
+      .location(LocationUtil.createPoint(37.123123, 127.123123))
       .company(company1)
       .tags(new LinkedHashSet<>(List.of("tag1", "tag2")))
       .build();
@@ -151,7 +151,7 @@ class DinerServiceTest {
         .id(100L)
         .name("Gamsung Taco")
         .link("diner.com")
-        .location(LocationUtil.createPoint(127.39232323, 37.29283882))
+        .location(LocationUtil.createPoint(37.29283882, 127.39232323))
         .tags(tags)
         .company(company1)
         .build();
@@ -171,7 +171,7 @@ class DinerServiceTest {
     Diner dinerCaptured = captor.getValue();
     assertEquals("Gamsung Taco", dinerCaptured.getName());
     assertEquals("diner.com", dinerCaptured.getLink());
-    assertEquals(LocationUtil.createPoint(127.39232323, 37.29283882), dinerCaptured.getLocation());
+    assertEquals(LocationUtil.createPoint(37.29283882, 127.39232323), dinerCaptured.getLocation());
     assertEquals("Good atmosphere", dinerCaptured.getTags().getLast());
   }
 
@@ -215,7 +215,7 @@ class DinerServiceTest {
                 .builder()
                 .id(1L)
                 .link("diner.com")
-                .location(LocationUtil.createPoint(127.11111111, 37.11111111))
+                .location(LocationUtil.createPoint(37.11111111, 127.11111111))
                 .company(company1)
                 .build()
         ));

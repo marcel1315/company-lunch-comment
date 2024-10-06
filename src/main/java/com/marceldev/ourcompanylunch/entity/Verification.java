@@ -16,7 +16,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+//@Builder
 @Getter
 @ToString
 @Entity
@@ -33,4 +33,11 @@ public class Verification extends BaseEntity {
 
   @Column(length = 6)
   private String code;
+
+  @Builder
+  private Verification(String email, LocalDateTime expirationAt, String code) {
+    this.email = email;
+    this.expirationAt = expirationAt;
+    this.code = code;
+  }
 }
