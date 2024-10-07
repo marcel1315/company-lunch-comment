@@ -16,6 +16,7 @@ import com.marceldev.ourcompanylunch.service.DinerImageService;
 import com.marceldev.ourcompanylunch.service.DinerService;
 import com.marceldev.ourcompanylunch.service.DinerSubscribeService;
 import com.marceldev.ourcompanylunch.service.DinerTagService;
+import com.marceldev.ourcompanylunch.service.MemberService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +71,9 @@ public abstract class IntegrationTest {
 
   @Autowired
   protected DinerSubscribeService dinerSubscribeService;
+
+  @Autowired
+  protected MemberService memberService;
 
   // --- Mock ---
 

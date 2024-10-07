@@ -2,7 +2,7 @@ package com.marceldev.ourcompanylunch.controller;
 
 import com.marceldev.ourcompanylunch.dto.error.ErrorResponse;
 import com.marceldev.ourcompanylunch.dto.member.SignUpDto;
-import com.marceldev.ourcompanylunch.dto.member.UpdateMemberDto;
+import com.marceldev.ourcompanylunch.dto.member.UpdateMemberRequest;
 import com.marceldev.ourcompanylunch.exception.member.AlreadyExistMemberException;
 import com.marceldev.ourcompanylunch.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,9 +31,9 @@ public class MemberController {
   @PutMapping("/members/{id}")
   public ResponseEntity<Void> updateMember(
       @PathVariable long id,
-      @Validated @RequestBody UpdateMemberDto updateMemberDto
+      @Validated @RequestBody UpdateMemberRequest updateMemberRequest
   ) {
-    memberService.updateMember(id, updateMemberDto);
+    memberService.updateMember(id, updateMemberRequest);
     return ResponseEntity.ok().build();
   }
 

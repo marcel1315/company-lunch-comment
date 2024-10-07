@@ -1,7 +1,7 @@
 package com.marceldev.ourcompanylunch.service;
 
 import com.marceldev.ourcompanylunch.dto.member.SignUpDto;
-import com.marceldev.ourcompanylunch.dto.member.UpdateMemberDto;
+import com.marceldev.ourcompanylunch.dto.member.UpdateMemberRequest;
 import com.marceldev.ourcompanylunch.entity.Member;
 import com.marceldev.ourcompanylunch.exception.member.AlreadyExistMemberException;
 import com.marceldev.ourcompanylunch.exception.member.MemberUnauthorizedException;
@@ -26,7 +26,7 @@ public class MemberService {
    * Update member information
    */
   @Transactional
-  public void updateMember(long id, UpdateMemberDto dto) {
+  public void updateMember(long id, UpdateMemberRequest dto) {
     Member member = getMemberOf(id);
     member.setName(dto.getName());
   }
