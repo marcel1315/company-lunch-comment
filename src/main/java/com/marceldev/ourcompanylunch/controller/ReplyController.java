@@ -1,10 +1,10 @@
 package com.marceldev.ourcompanylunch.controller;
 
-import com.marceldev.ourcompanylunch.dto.reply.CreateReplyDto;
-import com.marceldev.ourcompanylunch.dto.reply.CreateReplyDto.Response;
-import com.marceldev.ourcompanylunch.dto.reply.GetReplyListDto;
+import com.marceldev.ourcompanylunch.dto.reply.CreateReplyRequest;
+import com.marceldev.ourcompanylunch.dto.reply.CreateReplyResponse;
+import com.marceldev.ourcompanylunch.dto.reply.GetReplyListRequest;
 import com.marceldev.ourcompanylunch.dto.reply.ReplyOutputDto;
-import com.marceldev.ourcompanylunch.dto.reply.UpdateReplyDto;
+import com.marceldev.ourcompanylunch.dto.reply.UpdateReplyRequest;
 import com.marceldev.ourcompanylunch.service.ReplyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,11 +33,11 @@ public class ReplyController {
       description = "A member can write a reply on the comment."
   )
   @PostMapping("/comments/{id}/replies")
-  public ResponseEntity<CreateReplyDto.Response> createReply(
+  public ResponseEntity<CreateReplyResponse> createReply(
       @PathVariable long id,
-      @Validated @RequestBody CreateReplyDto.Request dto
+      @Validated @RequestBody CreateReplyRequest dto
   ) {
-    Response response = replyService.createReply(id, dto);
+    CreateReplyResponse response = replyService.createReply(id, dto);
     return ResponseEntity.ok(response);
   }
 
@@ -48,9 +48,9 @@ public class ReplyController {
   @GetMapping("/comments/{id}/replies")
   public ResponseEntity<Page<ReplyOutputDto>> getReplyList(
       @PathVariable long id,
-      @Validated @ModelAttribute GetReplyListDto getReplyListDto
+      @Validated @ModelAttribute GetReplyListRequest getReplyListRequest
   ) {
-    Page<ReplyOutputDto> replies = replyService.getReplyList(id, getReplyListDto);
+    Page<ReplyOutputDto> replies = replyService.getReplyList(id, getReplyListRequest);
     return ResponseEntity.ok(replies);
   }
 
@@ -61,9 +61,9 @@ public class ReplyController {
   @PutMapping("comments/replies/{id}")
   public ResponseEntity<Void> updateReply(
       @PathVariable long id,
-      @Validated @RequestBody UpdateReplyDto updateReplyDto
+      @Validated @RequestBody UpdateReplyRequest updateReplyRequest
   ) {
-    replyService.updateReply(id, updateReplyDto);
+    replyService.updateReply(id, updateReplyRequest);
     return ResponseEntity.ok().build();
   }
 

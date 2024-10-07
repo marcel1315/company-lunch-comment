@@ -8,6 +8,7 @@ import com.marceldev.ourcompanylunch.repository.diner.DinerImageRepository;
 import com.marceldev.ourcompanylunch.repository.diner.DinerRepository;
 import com.marceldev.ourcompanylunch.repository.diner.DinerSubscriptionRepository;
 import com.marceldev.ourcompanylunch.repository.member.MemberRepository;
+import com.marceldev.ourcompanylunch.repository.reply.ReplyRepository;
 import com.marceldev.ourcompanylunch.repository.verification.VerificationRepository;
 import com.marceldev.ourcompanylunch.security.WithCustomUser;
 import com.marceldev.ourcompanylunch.service.CommentService;
@@ -17,6 +18,7 @@ import com.marceldev.ourcompanylunch.service.DinerService;
 import com.marceldev.ourcompanylunch.service.DinerSubscribeService;
 import com.marceldev.ourcompanylunch.service.DinerTagService;
 import com.marceldev.ourcompanylunch.service.MemberService;
+import com.marceldev.ourcompanylunch.service.ReplyService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +54,9 @@ public abstract class IntegrationTest {
   @Autowired
   protected CommentRepository commentRepository;
 
+  @Autowired
+  protected ReplyRepository replyRepository;
+
   // --- Service ---
 
   @Autowired
@@ -74,6 +79,9 @@ public abstract class IntegrationTest {
 
   @Autowired
   protected MemberService memberService;
+
+  @Autowired
+  protected ReplyService replyService;
 
   // --- Mock ---
 

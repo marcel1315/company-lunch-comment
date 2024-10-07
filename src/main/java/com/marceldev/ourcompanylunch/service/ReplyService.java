@@ -1,9 +1,10 @@
 package com.marceldev.ourcompanylunch.service;
 
-import com.marceldev.ourcompanylunch.dto.reply.CreateReplyDto;
-import com.marceldev.ourcompanylunch.dto.reply.GetReplyListDto;
+import com.marceldev.ourcompanylunch.dto.reply.CreateReplyRequest;
+import com.marceldev.ourcompanylunch.dto.reply.CreateReplyResponse;
+import com.marceldev.ourcompanylunch.dto.reply.GetReplyListRequest;
 import com.marceldev.ourcompanylunch.dto.reply.ReplyOutputDto;
-import com.marceldev.ourcompanylunch.dto.reply.UpdateReplyDto;
+import com.marceldev.ourcompanylunch.dto.reply.UpdateReplyRequest;
 import com.marceldev.ourcompanylunch.entity.Comment;
 import com.marceldev.ourcompanylunch.entity.Company;
 import com.marceldev.ourcompanylunch.entity.Member;
@@ -39,7 +40,7 @@ public class ReplyService {
   private final CompanyRepository companyRepository;
 
   @Transactional
-  public CreateReplyDto.Response createReply(long commentId, CreateReplyDto.Request dto) {
+  public CreateReplyResponse createReply(long commentId, CreateReplyRequest dto) {
     checkDinerByCommentId(commentId);
 
     Member member = getMember();
@@ -54,10 +55,10 @@ public class ReplyService {
         .build();
 
     reply = replyRepository.save(reply);
-    return CreateReplyDto.Response.builder().id(reply.getId()).build();
+    return CreateReplyResponse.of(reply);
   }
 
-  public Page<ReplyOutputDto> getReplyList(long commentId, GetReplyListDto dto) {
+  public Page<ReplyOutputDto> getReplyList(long commentId, GetReplyListRequest dto) {
     checkDinerByCommentId(commentId);
 
     Pageable pageable = PageRequest.of(
@@ -83,7 +84,7 @@ public class ReplyService {
   }
 
   @Transactional
-  public void updateReply(long replyId, UpdateReplyDto dto) {
+  public void updateReply(long replyId, UpdateReplyRequest dto) {
     checkDinerByReplyId(replyId);
 
     Member member = getMember();
