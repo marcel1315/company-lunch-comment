@@ -1,6 +1,7 @@
 package com.marceldev.ourcompanylunch.service;
 
 import com.marceldev.ourcompanylunch.component.S3Manager;
+import com.marceldev.ourcompanylunch.dto.diner.AddDinerImageResponse;
 import com.marceldev.ourcompanylunch.entity.Diner;
 import com.marceldev.ourcompanylunch.entity.DinerImage;
 import com.marceldev.ourcompanylunch.exception.common.InternalServerErrorException;
@@ -46,8 +47,9 @@ public class DinerImageService {
    * Order value of image is defined by the most value of an existing image's order + 100. Create a
    * thumbnail and save it in S3.
    */
+  // TODO: Fix that thumbnail is included in order.
   @Transactional
-  public void addDinerImage(long dinerId, MultipartFile image) {
+  public AddDinerImageResponse addDinerImage(long dinerId, MultipartFile image) {
     Diner diner = getDiner(dinerId);
     checkMaxImageCount(diner);
     String extension = FileUtil.getExtension(image)
@@ -81,9 +83,9 @@ public class DinerImageService {
       );
 
       // Save image info in DB.
-      saveDinerImage(diner, keyImage, false);
-      saveDinerImage(diner, keyThumbnail, true);
-
+      DinerImage dinerImageOriginal = saveDinerImage(diner, keyImage, false);
+      DinerImage dinerImageThumbnail = saveDinerImage(diner, keyThumbnail, true);
+      return AddDinerImageResponse.of(dinerImageOriginal);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -125,7 +127,7 @@ public class DinerImageService {
     }
   }
 
-  private void saveDinerImage(Diner diner, String key, boolean thumbnail) {
+  private DinerImage saveDinerImage(Diner diner, String key, boolean thumbnail) {
     try {
       DinerImage dinerImage = DinerImage.builder()
           .s3Key(key)
@@ -133,7 +135,7 @@ public class DinerImageService {
           .diner(diner)
           .thumbnail(thumbnail)
           .build();
-      dinerImageRepository.save(dinerImage);
+      return dinerImageRepository.save(dinerImage);
     } catch (RuntimeException e) {
       throw new InternalServerErrorException("Fail to save a diner image");
     }

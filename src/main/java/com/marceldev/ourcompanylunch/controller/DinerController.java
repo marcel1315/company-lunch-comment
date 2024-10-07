@@ -1,5 +1,6 @@
 package com.marceldev.ourcompanylunch.controller;
 
+import com.marceldev.ourcompanylunch.dto.diner.AddDinerImageResponse;
 import com.marceldev.ourcompanylunch.dto.diner.AddDinerTagsRequest;
 import com.marceldev.ourcompanylunch.dto.diner.CreateDinerRequest;
 import com.marceldev.ourcompanylunch.dto.diner.CreateDinerResponse;
@@ -147,12 +148,12 @@ public class DinerController {
               + "errorCode: 3003 - No extension in file")
   })
   @PostMapping(value = "/diners/{id}/images", consumes = "multipart/form-data")
-  public ResponseEntity<Void> addDinerImage(
+  public ResponseEntity<AddDinerImageResponse> addDinerImage(
       @PathVariable long id,
       @RequestParam("image") MultipartFile image
   ) {
-    dinerImageService.addDinerImage(id, image);
-    return ResponseEntity.ok().build();
+    AddDinerImageResponse response = dinerImageService.addDinerImage(id, image);
+    return ResponseEntity.ok(response);
   }
 
   @Operation(
